@@ -1,0 +1,233 @@
+
+<html>
+
+    <head>
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">    
+    <title>
+    Horizontal random lines
+    </title>
+    
+
+      <meta http-equiv="Content-Type"
+     content="text/html; charset=utf-8">
+      <meta name="author"
+     content="Denys Romaniuk">
+      <meta name="copyright"
+     content="Denys Romaniuk, all rights NOT reserved">
+      <meta http-equiv="Cache-Control"
+     content="no-cache">
+      <meta http-equiv="Expires"
+     content="Wed, 26 Feb 1999 08:21:57 GMT">
+      <meta http-equiv="Pragma"
+     content="no-cache">
+    
+    
+<style>
+   html,body,#wrapper {
+        height:100%;
+        margin:0;
+        padding:0;
+    }
+    #wrapper {
+        position:relative;
+    }
+
+    #top, #middle, #bottom {
+        position:absolute;
+    }
+
+    #top {
+        height:0px;
+        width:100%;
+        background:grey;
+    }
+    #middle {
+        top:0px;
+        bottom:0px;
+        height:100%;
+        width:100%;
+        background:white;
+        color: black;
+        overflow: hidden;
+        word-break: break-all;
+    }
+    #bottom {
+        bottom:0;
+        height:0px;
+        width:100%;
+        background:grey;
+    }
+</style>
+
+    
+    <script>
+OFFSET=40;
+
+//END_X=13;
+//END_Y=10;
+
+END_X=1300;
+END_Y=1000;
+
+hexes=['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' ];
+
+function randomInteger(min, max) {
+  let rand = min - 0.5 + Math.random() * (max - min + 1);
+  return Math.round(rand);
+}
+
+function randHexDigit() {
+  return hexes[ randomInteger(0,15) ];
+}
+
+function randColor() {
+
+    return "#"+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit();
+
+}
+
+
+/*
+putPixel = function( x,y, color ){
+  
+  var div = document.createElement("div");
+  div.style.backgroundColor=color;
+  div.style.width="1px";
+  div.style.height="1px";
+  div.style.fontSize="1px";
+  div.style.position="absolute";
+  div.style.top=y+"px";
+  div.style.left=x+"px";
+  document.body.appendChild(div);
+
+}
+*/
+
+putPixel = function( x,y, color ){
+  
+  var div = document.createElement("div");
+  div.style.backgroundColor=color;
+  div.style.width="1px";
+  div.style.height="1px";
+  div.style.fontSize="1px";
+  div.style.position="absolute";
+  div.style.top=y+"px";
+  div.style.left=x+"px";
+  document.body.appendChild(div);
+
+}
+
+id = function(x){
+ return document.getElementById(x);
+
+}
+  
+
+horizontalLine = function(  startX, endX, y ){
+
+var i = 0;
+
+for ( i=startX; i<=endX;i++ )
+  putPixel(i,y+OFFSET,"red");
+
+
+}
+
+
+
+
+
+
+
+
+    firstFunc   = function(){
+        // putPixel(100,100,"red");
+
+       // horizontalLine(100,200,10);
+
+//alert(1);
+
+//        for (var i = 0; i <= 3; i++) {
+//             id('middle').innerHTML+=randColor()+"<br>";
+//             // alert(2.5);
+// }
+
+
+canvas = document.getElementById('canvas');
+         ctx = canvas.getContext('2d');
+         cw = canvas.width;
+         ch = canvas.height;
+         id = ctx.getImageData(0, 0, 1, 1);
+
+/*
+for (var y = 0; y <= END_Y; y++) {  //0
+// for (var x = 0; x <= END_X; x++) {    //1
+   var color=randColor();          
+    // for (var y = 0; y <= END_Y; y++) {    //1
+        for (var x = 0; x <= END_X; x++) {   //0
+    //    var color=randColor();
+        //putPixel(x,y,color);
+*/		
+        ctx.clearRect(0, 0, cw, ch);
+        id.data[3] = 255;
+
+   //     for (var i = 0; i < 100000; ++i) {
+   
+   for (var y = 0; y < END_Y; y++) {  //0
+ //for (var x = 0; x <= END_X; x++) {    //1
+   //var color=randColor();      
+   
+   		                var r = Math.floor(Math.random() * 256);
+                var g = Math.floor(Math.random() * 256);
+                var b = Math.floor(Math.random() * 256);
+   
+   //  for (var y = 0; y <= END_Y; y++) {    //1
+        for (var x = 0; x < END_X; x++) {   //0
+		            //    var x = Math.floor(Math.random() * cw);
+               // var y = Math.floor(Math.random() * ch);
+		
+
+		
+		        id.data[0] = r;
+                id.data[1] = g;
+                id.data[2] = b;
+                ctx.putImageData(id, x, y);
+}
+}
+
+//alert(2);
+
+
+    }
+	
+	blinkMessage = function(){
+	
+	canvas = document.getElementById('canvas');
+   
+         END_X=canvas.width=document.body.clientWidth;
+         END_Y=canvas.height=document.body.clientHeight;
+	
+  //document.getElementById("message").style.visibility=document.getElementById("message").style.visibility=="visible"?"hidden":"visible";
+  firstFunc();
+  setTimeout( "blinkMessage()", 10  );
+}
+
+    </script>
+    
+    
+
+    
+    
+    </head>
+    
+    <body onload="blinkMessage();/*firstFunc()*/">
+
+	
+			<canvas id="canvas" width="1301" height="1001">
+			
+
+
+
+    </body>
+    
+    </html>
