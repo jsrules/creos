@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)https://jsrules.github.io/creos/series2/1005Rose2.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <!-- <link rel="stylesheet" href="default.css"> -->
+
+  <title>Funcs v.2.82 (color by M.; 1px-curves; +cleanup)</title>
+
+
+  <style>
+    html,body,#wrapper {
+         height:100%;
+         margin:0;
+         padding:0;
+     }
+     #wrapper {
+         position:relative;
+     }
+ 
+     #top, #middle, #bottom {
+         position:absolute;
+     }
+ 
+     #top {
+         height:0px;
+         width:100%;
+         background:grey;
+     }
+     #middle {
+         top:0px;
+         bottom:0px;
+         height:100%;
+         width:100%;
+         background:white;
+         color: black;
+         overflow: hidden;
+         word-break: break-all;
+     }
+     #bottom {
+         bottom:0;
+         height:0px;
+         width:100%;
+         background:grey;
+     }
+
+ </style>
+
+
+  <script>
+
+// alert(76)
+
+    //globals used here:  ***************************************************************************************************************************************
+
+    let curr_RandColorRed =  0;
+    let curr_RandColorGreen =  0;
+    let curr_RandColorBlue =  0;
+    let currTextToShow="Description here";
+    let lastTextToShow=currTextToShow;
+    let startTime=Date.now();
+    let lastTime=startTime;
+    const TIME_TO_GO_ON = 5000;
+    let endReached = false;
+
+    let N_FOR_ROSE = 1;
+    let MMM_FOR_ROSE = 8;
+
+    const X_OR_Y_VALUE_OUT_OF_VISIBILITY = -1111;
+    const IS_LOOP_FROM_0_TO_2_PI_USING_POLAR_COORDINATES = 1; 
+    const IS_USUAL_LOOP_THRU_X = 1;  //(or y if RUN_Y_LOOP==true)
+    const RUN_Y_LOOP = IS_USUAL_LOOP_THRU_X;
+    const IS_FULL_LOOP_THRU_X_AND_Y = ! IS_USUAL_LOOP_THRU_X;
+    const STEP = .005; // .75; //  VERY IMPORTAN CONST  - FOR DESCARTES COORDS
+    const STEP_POLAR_COORDINATES =  .00025; //  VERY IMPORTAN CONST - FOR POLAR COORDS
+    const WORKAREA_ZOOM = 1;
+    const X_Y_ZOOM = 1;  //better leave it =1, it's very weird otherwise :)  . For: IS_FULL_LOOP_THRU_X_AND_Y
+
+    const Y_ZOOM = 1;  //. For: IS_USUAL_LOOP_THRU_X
+    const Y_PLUS = -50;  //. For: IS_USUAL_LOOP_THRU_X
+
+    IS_PERFORM_UPDATE = 1;
+    const TIMELOUT_OF_UPDATE_IN_MS = 100;
+    
+
+    var ctx = null; // canvas.getContext('2d')
+    var canvas = null;
+
+    var coef_1 = 10;
+    var coef_1_go_plus = true;
+    const coef_1_delta = 77;
+    const coef_1_min = coef_1
+    const coef_1_max = 870;
+
+    //todo: add min and max
+
+    OFFSET=40;
+    END_X=1300;
+    END_Y=1000;
+    
+    hexes=['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' ];
+    
+    /////////////////////////////////////////////////////   
+    function randomInteger(min, max) {
+      let rand = min - 0.5 + Math.random() * (max - min + 1);
+      return Math.round(rand);
+    }
+    
+    /////////////////////////////////////////////////////   
+    function randHexDigit() {
+      return hexes[ randomInteger(0,15) ];
+    }
+    
+       /////////////////////////////////////////////////////   
+    function randColor() {
+    
+        return "#"+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit();
+    
+    }
+    
+   /////////////////////////////////////////////////////   
+    putPixel = function( x,y, /* color: */ r, g ,b ){ 
+      
+      //FIXME: WORKHERE
+              id.data[0] = r;
+              id.data[1] = g;
+              id.data[2] = b;
+              ctx.putImageData(id,  x , y);    
+    }
+  
+
+   /////////////////////////////////////////////////////   
+   putBoldPixel = function( x,y, /* color: */ r, g ,b ){     
+
+
+
+    const BOLD_PIXEL_WIDTH_AND_HEIGHT = 1; //(4/5) * Math.min(  halfWidthDenys, halfHeightDenys );  //NB: actually number of ADDED pixels from all sides. So "1" means 3x3
+
+            // ctx.beginPath();
+        // ctx.arc(x,y,50,0,Math.PI*2);
+        // ctx.closePath();
+     
+    //  *****************  OLDER ****************************
+          // putPixel ( x,y, r, g ,b );
+
+          for (let index = x-(BOLD_PIXEL_WIDTH_AND_HEIGHT); index <= x+BOLD_PIXEL_WIDTH_AND_HEIGHT; index++) {
+            for (let index2 = y-(BOLD_PIXEL_WIDTH_AND_HEIGHT); index2 <= y+BOLD_PIXEL_WIDTH_AND_HEIGHT; index2++) {
+
+              putPixel ( index,index2, r, g ,b );
+
+            }
+          }
+          //FOR TESTING: put RED pixel at (x,y)
+          // putPixel ( x,y, 255, 0 ,0 );
+
+
+//*************** CODE BELOW WAS SAVED FOR HISTORICAL REASONS ONLY: ********************
+  //pluses
+          // putPixel ( x+1,y, r, g ,b );
+          // putPixel ( x,y+1, r, g ,b );
+          // putPixel ( x+2,y, r, g ,b );
+          // putPixel ( x,y+2, r, g ,b );
+
+          // putPixel ( x+3,y, r, g ,b );
+          // putPixel ( x,y+3, r, g ,b );
+          // putPixel ( x+3,y, r, g ,b );
+          // putPixel ( x,y+3, r, g ,b );
+
+          // putPixel ( x+1,y+1, r, g ,b );
+          // putPixel ( x+2,y+2, r, g ,b );
+          // putPixel ( x+3,y+3, r, g ,b );
+//minuses
+          // putPixel ( x-1,y, r, g ,b );
+          // putPixel ( x,y-1, r, g ,b );
+          // putPixel ( x-2,y, r, g ,b );
+          // putPixel ( x,y-2, r, g ,b );
+
+          // putPixel ( x-3,y, r, g ,b );
+          // putPixel ( x,y-3, r, g ,b );
+          // putPixel ( x-3,y, r, g ,b );
+          // putPixel ( x,y-3, r, g ,b );
+
+          // putPixel ( x-1,y-1, r, g ,b );
+          // putPixel ( x-2,y-2, r, g ,b );
+          // putPixel ( x-3,y-3, r, g ,b );
+    }
+    
+    
+    /////////////////////////////////////////////////////   
+    $ = function(x){
+     return document.getElementById(x);
+    
+    }
+      
+    /////////////////////////////////////////////////////   
+    horizontalLine = function(  startX, endX, y ){
+    
+    var i = 0;
+    
+    for ( i=startX; i<=endX;i++ )
+      putPixel(i,y+OFFSET, 255, 0, 0);
+    
+    
+    }
+    
+    ////////////////////////////////////////////////////    
+    verticalLine = function(  x, startY, endY ){
+
+var i = 0;
+
+for ( i=startY; i<=endY+OFFSET;i++ )
+  putPixel(x,i, 0, 255, 0);
+
+
+}
+
+
+    ////////////////////////////////////////////////////
+diagonalLineDown = function( startX, endX, startY  ){
+
+	var i = 0;
+	for ( i=startX; i<=endX;i++ )
+	  putPixel(i,startY+i+OFFSET, 0, 0, 255);
+
+}
+
+
+    ////////////////////////////////////////////////////
+diagonalLineUp = function( startX, endX, startY  ){
+
+	var i = 0;
+	for ( i=startX; i<=endX;i++ )
+	  putPixel(i,startY-i+OFFSET, 0, 0, 0);
+
+}
+
+   /////////////////////////////////////////////////////    
+getWidth = function() {
+  return END_X;
+};   
+   
+   /////////////////////////////////////////////////////    
+getHeight= function() {
+  return END_Y;
+};   
+
+   /////////////////////////////////////////////////////    
+getHalfWidth = function() {
+  return parseInt( getWidth()/2  );
+};   
+   
+   /////////////////////////////////////////////////////    
+getHalfHeight= function() {
+  return parseInt( getHeight()/2  );
+};  
+
+/////////////////////////////////////////////////////    
+   getX= function(x) {
+    //  return x;  //TODO!!!!!!!!
+  return x - getHalfWidth();
+};  
+
+/////////////////////////////////////////////////////    
+getY= function(y) {
+  // return y - getHalfHeight();
+
+
+  // return y;  //TODO!!!!!!!!
+  //FIXME?
+  return  getHalfHeight() - y;
+}; 
+
+
+  /////////////////////////////////////////////////////    
+approxeq = function(v1, v2, epsilon) {
+  if (epsilon == null) {
+    epsilon = 0.001;
+  }
+  return Math.abs(v1 - v2) < epsilon;
+};
+    
+
+/////////////////////////////////////////////////////   
+polygon =  function(numberOfSides){
+
+// set line stroke and line width
+// ctx.strokeStyle = '#E54573';
+// ctx.lineWidth = 1;
+
+// // draw a red line
+// ctx.moveTo(fromX, fromY);
+// ctx.lineTo(toX, toY);
+// ctx.stroke();
+
+// var ctx = document.getElementById('hexagon').getContext('2d');
+
+// hexagon
+var //numberOfSides = 6,
+    size = 20,
+    Xcenter = 25,
+    Ycenter = 25;
+
+ctx.beginPath();
+ctx.moveTo (Xcenter +  size * Math.cos(0), Ycenter +  size *  Math.sin(0));          
+
+for (var i = 1; i <= numberOfSides;i += 1) {
+  ctx.lineTo (Xcenter + size * Math.cos(i * 2 * Math.PI / numberOfSides), Ycenter + size * Math.sin(i * 2 * Math.PI / numberOfSides));
+}
+
+ctx.strokeStyle = randColor();
+ctx.lineWidth = 1;
+ctx.stroke();
+
+}
+
+// defining
+var Vec = function(x,y){
+   this.x = x;
+   this.y = y;
+}
+
+
+/////////////////////////////////////////////////////   
+nfLine   = function(fromX, fromY, toX, toY){
+
+      // set line stroke and line width
+      ctx.strokeStyle = randColor();
+    ctx.lineWidth = 1;
+
+    // draw a red line
+    ctx.moveTo(fromX, fromY);
+    ctx.lineTo(toX, toY);
+    ctx.stroke();
+
+}
+
+
+/////////////////////////////////////////////////////   
+function canvas_arrow(context, fromx, fromy, tox, toy) {
+  var headlen = 10; // length of head in pixels
+  var dx = tox - fromx;
+  var dy = toy - fromy;
+  var angle = Math.atan2(dy, dx);
+  context.moveTo(fromx, fromy);
+  context.lineTo(tox, toy);
+  context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+  context.moveTo(tox, toy);
+  context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+}
+   
+
+
+/////////////////////////////////////////////////////  
+//NB!!! CALL only from "async function xxx()" like this: "await sleep(1000);"  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+// from: https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+//////////////////////////////////////////////////////
+/* async */ function update() {
+
+  if (! IS_PERFORM_UPDATE) {
+  return;
+  }
+
+  coef_1 =  (coef_1_go_plus ? coef_1+coef_1_delta : coef_1 - coef_1_delta);
+
+  if (coef_1<coef_1_min){
+
+    coef_1_go_plus=true;
+    // clearCanvas()
+
+    N_FOR_ROSE++;
+
+  }
+
+  if (coef_1>coef_1_max){
+     coef_1_go_plus=false;  
+    //  await sleep(3000);
+    //  clearCanvas();
+
+     N_FOR_ROSE++;
+  }
+
+  // console.log(coef_1);
+
+   clearCanvas();  //FIXME!!!!
+
+   curr_RandColorRed = 90        ;  //randomInteger(0,255);
+     curr_RandColorGreen =  100         ; //randomInteger(0,255);
+     curr_RandColorBlue =  10    ; //randomInteger(0,255);
+
+  draw2();
+}
+
+//////////////////////////////////////////////////////
+function seCurrXAndYToStart() {
+  currX=-1;
+currY=0;
+}
+
+/////////////////////////////////////////////////////      
+  async  function init() {
+      canvas = $('canvas');
+      ctx = canvas.getContext('2d');
+
+
+      // alert(455)
+       
+             END_X=parseInt(canvas.width=document.body.clientWidth) * WORKAREA_ZOOM;
+             END_Y= parseInt(canvas.height=document.body.clientHeight) * WORKAREA_ZOOM  ;
+      
+
+             seCurrXAndYToStart()
+
+             // set the canvas origin (0,0) to center canvas
+// All coordinates to the left of center canvas are negative
+// All coordinates below center canvas are negative
+ctx.translate(canvas.width/2,canvas.height/2);   //SHOULD BE RIGHT BEFORE " draw2();"  !!!!!!!!!!!!!!!!!!!!!!11
+
+      draw2();
+
+      // await sleep(1000)
+      // clearCanvas();
+      // await sleep(1000)
+      // draw();
+
+
+      if (IS_PERFORM_UPDATE){
+          setInterval(() => {
+            update();
+          }, TIMELOUT_OF_UPDATE_IN_MS);
+      }
+
+}
+    
+
+
+
+/////////////////////////////////////////////////////      
+clearCanvas = function(){
+
+      
+      // canvas = $('canvas');
+       
+      // const context4545 = canvas.getContext('2d');
+
+      // ctx.translate(0,0);
+      // ctx.clearRect(canvas.width/2,canvas.height/2, canvas.width, canvas.height);
+
+
+      // ctx.translate(0,0);
+      // return
+      ctx.clearRect(-canvas.width/2, -canvas.height/2, canvas.width, canvas.height);
+
+
+
+      // ctx.translate(canvas.width/2,canvas.height/2);
+}
+
+
+</script>
+
+<!-- <script src="http://denys.myartsonline.com/a_hits.js.php?a=xx"></script> -->
+
+</head>
+
+
+
+<body onload="init();" onresize="clearCanvas(); init();">
+
+	
+  <canvas id="canvas" width="1920" height="937">
+
+
+
+
+
+
+
+
+</canvas>
+
+<script>
+
+
+/////////////////////////////////////////////////////    
+polarCoordsCalculateX= function(r, fita) {
+  return  r * Math.cos(fita)  ;
+};  
+
+/////////////////////////////////////////////////////    
+polarCoordsCalculateY= function(r, fita) {
+  return  r * Math.sin(fita)  ;
+};  
+
+/////////////////////////////////////////////////////    
+updateText= function() {
+  ctx.textAlign='center';
+ ctx.fontSize='300';
+ ctx.font = "30px bold serif";
+
+ ctx.fillStyle = '#ffffff';
+ ctx.fillText(lastTextToShow, /*+ lastTime*/-getHalfWidth()+200,-getHalfHeight()+50);
+ lastTextToShow=currTextToShow;
+ ctx.fillStyle = '#000000'; 
+ ctx.fillText(currTextToShow /*+ lastTime*/,-getHalfWidth()+200,-getHalfHeight()+50);
+
+ctx.stroke();
+}; 
+
+/////////////////////////////////////////////////////        
+draw2   = function(){
+
+  cw = canvas.width;
+             ch = canvas.height;
+             id = ctx.getImageData(0, 0, 1, 1);
+            //  ctx.clearRect(0, 0, cw, ch);
+              id.data[3] = 255;
+
+ctx.beginPath();
+
+// canvas_arrow(ctx, 10, 30, 200, 150);
+// canvas_arrow(ctx, 100, 200, 400, 50);
+// canvas_arrow(ctx, 200, 30, 10, 150);
+// canvas_arrow(ctx, 400, 200, 100, 50);
+
+// ctx.strokeStyle = randColor();
+
+
+ctx.lineWidth =3
+
+//X axis
+canvas_arrow(ctx,  -1 * getHalfWidth(), 0,    1*getHalfWidth(), 0);
+
+//Y asis
+canvas_arrow(ctx, 0, 1 * getHalfHeight()  , 0  , -1*getHalfHeight());
+
+// if(endReached){
+//        currTextToShow='That\'s all folks';
+//         startTime=Date.now() - TIME_TO_GO_ON;
+//         lastTime=startTime;
+//         endReached=false;
+// }
+
+
+
+//TEXT !!!!!!!!!!!!!!!!!!!!!!!!!!!111111111
+// updateText();
+// ctx.stroke();
+
+
+// ctx.textAlign='center';
+//  ctx.fontSize='300';
+//  ctx.font = "30px bold serif";
+
+//  ctx.fillStyle = '#ffffff';
+//  ctx.fillText(lastTextToShow, /*+ lastTime*/-getHalfWidth()+200,-getHalfHeight()+50);
+//  lastTextToShow=currTextToShow;
+//  ctx.fillStyle = '#000000'; 
+//  ctx.fillText(currTextToShow /*+ lastTime*/,-getHalfWidth()+200,-getHalfHeight()+50);
+
+// ctx.stroke();
+
+
+
+let timeMsDelta = lastTime-startTime ;
+
+//////// POLAR COORDS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   let tmp=0;
+  const b =   60 * coef_1;
+   for (let f = -1*Math.PI; f <= 1*Math.PI; f+=STEP_POLAR_COORDINATES /* +coef_1 */) {  //0
+        
+          break; //FIXME: :)
+
+          tmp=f;
+         //Rose
+         let R =  200;// b*( Math.sin(( N_FOR_ROSE / MMM_FOR_ROSE)*f) );
+         putPixel( polarCoordsCalculateX(R, f) + getHalfWidth()  ,  /* coef_1*  */   polarCoordsCalculateY(R, f) +getHalfHeight()    , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+   }  //for -POLAR        
+
+
+  //  ctx.strokeStyle = randColor()
+//////// DESCRATES' COORDS - x !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   for (let x = -getHalfWidth(); x <= 1* getHalfWidth() ; x+=STEP /* +coef_1 */) {  //0
+        
+        // tmp=x;
+       //Rose
+      //  let R =  200;// b*( Math.sin(( N_FOR_ROSE / MMM_FOR_ROSE)*f) );
+
+
+
+
+      //f(x)=100
+      // putPixel(  getHalfWidth() + x   ,  /* coef_1*  */  getHalfHeight() - 100   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+
+
+      if ( timeMsDelta <TIME_TO_GO_ON ){
+        //f(x)=x^2
+        currTextToShow='Parabola y=x^2';
+        // updateText();
+        // console.log(x)
+
+ 
+    //     curr_RandColorRed =  randomInteger(0,255);
+    //  curr_RandColorGreen =  randomInteger(0,255);
+    //  curr_RandColorBlue =  randomInteger(0,255);
+
+
+
+
+        //REAL!!! DONT TOUCH
+        putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() - x*x/100   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      } 
+      
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON &&  timeMsDelta < TIME_TO_GO_ON*2){
+      //f(x)=sin(x)
+      currTextToShow='Sinusoid y=sin x';
+      // updateText();
+        putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  Math.sin(x/10)*20   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      }
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*2 &&  timeMsDelta < TIME_TO_GO_ON*3){
+      //f(x)=sin(x)
+      currTextToShow='Tangensoid y=tg x';
+        putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  Math.tan(x/50)*50   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      } 
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*3 &&  timeMsDelta < TIME_TO_GO_ON*4){
+      //f(x)=sin(x)
+      currTextToShow='Cubic function y=x^3';
+        putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -   x*x*x/400    , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      } 
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*4 &&  timeMsDelta < TIME_TO_GO_ON*5){
+      //f(x)=sin(x)
+      currTextToShow='Line y=x';
+        putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -   x    , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      } 
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*5 &&  timeMsDelta < TIME_TO_GO_ON*6){
+      //f(x)=sin(x)
+      currTextToShow='Hyperbola y=1/x';
+      if (x<-1 || x>1)
+        putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -   2000/(x)    , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      } 
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*6 &&  timeMsDelta < TIME_TO_GO_ON*7){
+      //f(x)=sin(x)
+      currTextToShow='Square root y=sqrt x';
+      if (x>0)
+        putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -   5*Math.sqrt(x)    , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      } 
+
+     
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*7 &&  timeMsDelta < TIME_TO_GO_ON*8){
+      //f(x)=sin(x)
+      currTextToShow='Absolute value y=abs x';
+     // if (x>0)
+        putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -   1*Math.abs(x)    , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      } 
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*8 &&  timeMsDelta < TIME_TO_GO_ON*9){
+      //f(x)=sin(x)
+      currTextToShow='Natural logarithm y=ln x';
+      if (x>0) putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -   20*Math.log(x/20)    , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+
+      //older version: if (x>0)  putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -   10*Math.log(x)    , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      }     
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*9 &&  timeMsDelta < TIME_TO_GO_ON*10){
+      //f(x)=sin(x)
+      currTextToShow='Exponential function y=e^x';
+    //  if (x>0)
+    putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  ( 1*Math.exp(x/100) ) , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      }   
+      
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*10 &&  timeMsDelta < TIME_TO_GO_ON*11){
+      //f(x)=sin(x)
+      currTextToShow='y=(x^3 + 3x^2 − 6x − 8)/4';
+    //  if (x>0)
+       //  if (x>0)
+       const modifiedX=x/25;
+       putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (  10*  (modifiedX**3 + 3*modifiedX**2 - 6*modifiedX - 8)/4 ) , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      }   
+  
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*11 &&  timeMsDelta < TIME_TO_GO_ON*12){
+      //f(x)=sin(x)
+      currTextToShow='Line y = const';
+    //  if (x>0)
+       //  if (x>0)
+       const modifiedX=x/25;
+       putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (  100 ) , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      }   
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*12 &&  timeMsDelta < TIME_TO_GO_ON*13){
+      //f(x)=sin(x)
+      currTextToShow=' y=|x^2-3|x|-x-2|';
+      const modifiedX=x/10;
+       putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  ( 10*  Math.abs ( modifiedX**2-3* Math.abs (modifiedX)-modifiedX-2 ) ) , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+
+      }  
+
+      
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*13 &&  timeMsDelta < TIME_TO_GO_ON*14){
+      //f(x)=sin(x)
+      currTextToShow=' y=arctg x';
+      // const modifiedX=x/10;
+      putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  ( Math.atan(x/10)*20  ) , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+
+      }  
+
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*14 &&  timeMsDelta < TIME_TO_GO_ON*15){
+      //f(x)=sin(x)
+      currTextToShow=' y = x^2 * (x - 2)^2';
+      // const modifiedX=x/10;
+      const modifiedX=x/15;
+       putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  10*( modifiedX**2 * (0.5*modifiedX-2)**2   ) , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+
+      }  
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*15 &&  timeMsDelta < TIME_TO_GO_ON*16){
+
+      currTextToShow='CurveOfAgnesi a^3/(a^2+x^2)';
+      const a_for_Agnesi = 1/2;
+      const modifiedX=x/105;
+       putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  200*( a_for_Agnesi**3/ (a_for_Agnesi**2+modifiedX**2) ) , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+
+      } 
+      
+
+      //skipping TIME_TO_GO_ON*16 and TIME_TO_GO_ON*17 for x=const - see below
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*17 &&  timeMsDelta < TIME_TO_GO_ON*18){
+
+      currTextToShow='y = arcsin x';
+      // const a_for_Agnesi = 1/2;
+      const modifiedX= 4* x/getHalfWidth();
+        if (modifiedX>=-1 && modifiedX<=1)
+           putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  /*0.25*getHalfHeight()*/  200*( Math.asin(modifiedX) ) , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+
+      } 
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*18 &&  timeMsDelta < TIME_TO_GO_ON*19){
+
+      currTextToShow='y = arccos x';
+      // const a_for_Agnesi = 1/2;
+      
+      const modifiedX= 4* x/getHalfWidth();
+        if (modifiedX>=-1 && modifiedX<=1)
+           putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  /*0.25*getHalfHeight()*/  200*( Math.acos(modifiedX) ) + getHalfHeight()/2, /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      } 
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*19 &&  timeMsDelta < TIME_TO_GO_ON*20){
+
+        currTextToShow='Cosecant y=1/sin x';
+        const modifiedX=x/10;
+        const SIN = Math.sin(x/10);
+        const ABS_SIN = Math.abs(SIN)
+        if (ABS_SIN>0.01) putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (1/SIN)  * 20   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      } 
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*20 &&  timeMsDelta < TIME_TO_GO_ON*21){
+
+        currTextToShow='Unit hyperbola x^2-y^2=1';
+        const modifiedX=x/150;
+        const SQUARE = modifiedX**2 
+        const DISTR = SQUARE-1
+        if (DISTR>=0){
+          const currYToUSE= 100 * Math.sqrt(DISTR) ;
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  currYToUSE   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (-currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+        }
+      } 
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*21 &&  timeMsDelta < TIME_TO_GO_ON*22){
+
+        currTextToShow='Conjugate x^2-y^2=-1';
+        const modifiedX=x/150;
+        const SQUARE = modifiedX**2 
+        const DISTR = SQUARE+1
+        if (DISTR>=0){
+          const currYToUSE= 100 * Math.sqrt(DISTR) ;
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  currYToUSE   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (-currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+        }
+      } 
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*22 &&  timeMsDelta < TIME_TO_GO_ON*23){
+        currTextToShow='Circle x^2+y^2=R^2';
+        const R=200;
+        const modifiedX=x/1;
+        const SQUARE = modifiedX**2 
+        const DISTR = R**2 - SQUARE;
+        if (DISTR>=0){
+          const currYToUSE= 1 * Math.sqrt(DISTR) ;
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  currYToUSE   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (-currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+        }
+
+      }   
+
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*23 &&  timeMsDelta < TIME_TO_GO_ON*24){
+        currTextToShow='Ellipse x^2/a^2+y^2/b^2=1';
+        const a=350;
+        const b=150;
+        const modifiedX=x/1;
+        const SQUARE = modifiedX**2 
+        const DISTR = a**2 - SQUARE;
+        if (DISTR>=0){
+          const currYToUSE=  (b/a) * Math.sqrt(DISTR) ;
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  currYToUSE   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (-currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+        }
+
+      }  
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*24 &&  timeMsDelta < TIME_TO_GO_ON*25){
+        currTextToShow='y = sin(1/x)';
+        const modifiedX=x/250;
+        // if (modifiedX<=-1 || modifiedX>=1){
+          if (modifiedX!=0){
+            const currYToUSE=  255* Math.sin(1/modifiedX) ;
+            putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+          }
+      }  
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*25 &&  timeMsDelta < TIME_TO_GO_ON*26){
+        currTextToShow='y = 2^(1/x)';
+        const modifiedX=x/25;
+        // if (modifiedX<=-1 || modifiedX>=1){
+          if (modifiedX<-0.1 || modifiedX>0.1 ){
+            const currYToUSE=  255* Math.pow(2, 1/modifiedX) ;
+            putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+          }
+      }  
+
+   
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*26 &&  timeMsDelta < TIME_TO_GO_ON*27){
+        currTextToShow='Cissoid of Diocles';
+
+        const a=20;
+        const modifiedX=x/25;
+        const CUBE = modifiedX**3;
+        const ZNAMENATEL = 2*a-modifiedX;
+        if (ZNAMENATEL==0)  continue;
+        const DROB = CUBE / ZNAMENATEL;
+
+
+        // if (modifiedX<=-1 || modifiedX>=1){
+        if (DROB>=0 ){
+          const currYToUSE=  255* Math.sqrt(DROB) ;
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (-currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+        }
+
+      }    
+
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*26 &&  timeMsDelta < TIME_TO_GO_ON*27){
+        currTextToShow='Cassini oval';
+
+        const a=20;
+        const modifiedX=x/25;
+        const CUBE = modifiedX**3;
+        const ZNAMENATEL = 2*a-modifiedX;
+        if (ZNAMENATEL==0)  continue;
+        const DROB = CUBE / ZNAMENATEL;
+
+
+        // if (modifiedX<=-1 || modifiedX>=1){
+        if (DROB>=0 ){
+          const currYToUSE=  255* Math.sqrt(DROB) ;
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (-currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+        }
+
+      }   
+     
+
+      //LAST:
+      else{
+      if (  timeMsDelta > TIME_TO_GO_ON*27){
+      //f(x)=sin(x)
+      currTextToShow='Refresh the page to replay.';
+    //  if (x>0)
+    //     putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -   10*Math.log(x)    , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+      }  
+    }
+
+
+  }
+}
+}
+}}}}}}}}}}}}}}}}}}}
+      }
+    }
+  }
+
+    // if ( timeMsDelta > TIME_TO_GO_ON*9 ){
+    //   endReached = true;  //processed above
+    //   // currTextToShow='That\'s all folks';
+    //   //  startTime=Date.now();
+    //   //  lastTime=startTime;
+    // }
+
+
+  }
+
+
+ }  //for -DESCARTES x
+
+
+
+
+
+ //////// DESCRATES' COORDS - y !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ for (let y = -getHalfWidth(); y <= 1* getHalfWidth() ; y+=STEP /* +coef_1 */) {  //0
+
+
+    if ( timeMsDelta > TIME_TO_GO_ON*16 &&  timeMsDelta < TIME_TO_GO_ON*17){
+
+    currTextToShow='Line x = const';
+    const modifiedY=y;
+    putPixel( getHalfWidth() + 100  ,  /* coef_1*  */  getHalfHeight() - modifiedY  , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+
+    } 
+
+
+
+ }//for -DESCARTES y
+
+
+ updateText();
+ ctx.stroke();
+ 
+ lastTime = Date.now();
+
+}
+
+</script>
+
+</body></html>
