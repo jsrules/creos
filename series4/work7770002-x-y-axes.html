@@ -888,28 +888,6 @@ let timeMsDelta = lastTime-startTime ;
 
       }    
 
-      else{
-      if ( timeMsDelta > TIME_TO_GO_ON*26 &&  timeMsDelta < TIME_TO_GO_ON*27){
-        currTextToShow='Cassini oval';
-
-        const a=20;
-        const modifiedX=x/25;
-        const CUBE = modifiedX**3;
-        const ZNAMENATEL = 2*a-modifiedX;
-        if (ZNAMENATEL==0)  continue;
-        const DROB = CUBE / ZNAMENATEL;
-
-
-        // if (modifiedX<=-1 || modifiedX>=1){
-        if (DROB>=0 ){
-          const currYToUSE=  255* Math.sqrt(DROB) ;
-          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
-          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (-currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
-        }
-
-      }   
-     
-
       //LAST:
       else{
       if (  timeMsDelta > TIME_TO_GO_ON*27){
@@ -924,7 +902,7 @@ let timeMsDelta = lastTime-startTime ;
   }
 }
 }
-}}}}}}}}}}}}}}}}}}}
+}}}}}}}}}}}}}}}}}}
       }
     }
   }
