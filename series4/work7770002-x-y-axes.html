@@ -888,9 +888,31 @@ let timeMsDelta = lastTime-startTime ;
 
       }    
 
+      else{
+      if ( timeMsDelta > TIME_TO_GO_ON*27 &&  timeMsDelta < TIME_TO_GO_ON*28){
+        currTextToShow='Cassini oval';
+
+        const c=100;
+        const a=c;
+        const modifiedX=x;
+        const FIRST_EXPR = a**4+4*c**2*modifiedX**2;
+        if (FIRST_EXPR<0)  continue;
+        const SECOND_EXPR = Math.sqrt(FIRST_EXPR) - modifiedX**2 -c**2;
+        // if (SECOND_EXPR<0)  continue;
+
+        // if (modifiedX<=-1 || modifiedX>=1){
+        if (SECOND_EXPR>=0 ){
+          const currYToUSE=  1* Math.sqrt(SECOND_EXPR) ;
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+          putPixel( getHalfWidth() + x  ,  /* coef_1*  */  getHalfHeight() -  (-currYToUSE)   , /* color: */ curr_RandColorRed, curr_RandColorGreen , curr_RandColorBlue);
+        }
+
+      }   
+     
+
       //LAST:
       else{
-      if (  timeMsDelta > TIME_TO_GO_ON*27){
+      if (  timeMsDelta > TIME_TO_GO_ON*28){
       //f(x)=sin(x)
       currTextToShow='Refresh the page to replay.';
     //  if (x>0)
@@ -902,7 +924,7 @@ let timeMsDelta = lastTime-startTime ;
   }
 }
 }
-}}}}}}}}}}}}}}}}}}
+}}}}}}}}}}}}}}}}}}}
       }
     }
   }
