@@ -1,0 +1,216 @@
+
+
+<html>
+
+    <head>
+    
+    <title>
+    All Web Colors v.1.0
+    </title>
+    
+
+      <meta http-equiv="Content-Type"
+     content="text/html; charset=utf-8">
+      <meta name="author"
+     content="Denys Romaniuk">
+      <meta name="copyright"
+     content="Denys Romaniuk, all rights NOT reserved">
+      <meta http-equiv="Cache-Control"
+     content="no-cache">
+      <meta http-equiv="Expires"
+     content="Wed, 26 Feb 1999 08:21:57 GMT">
+      <meta http-equiv="Pragma"
+     content="no-cache">
+    
+    
+<style>
+   html,body,#wrapper {
+        height:100%;
+        margin:0;
+        padding:0;
+    }
+    #wrapper {
+        position:relative;
+    }
+
+    #top, #middle, #bottom {
+        position:absolute;
+    }
+
+    #top {
+        height:0px;
+        width:100%;
+        background:grey;
+    }
+    #middle {
+        top:0px;
+        bottom:0px;
+        height:100%;
+        width:100%;
+        background:white;
+        color: black;
+        overflow: hidden;
+        word-break: break-all;
+    }
+    #bottom {
+        bottom:0;
+        height:0px;
+        width:100%;
+        background:grey;
+    }
+</style>
+
+    
+    <script>
+OFFSET=40;
+
+//END_X=13;
+//END_Y=10;
+
+END_X=1300;
+END_Y=1000;
+
+hexes=['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' ];
+
+function randomInteger(min, max) {
+  let rand = min - 0.5 + Math.random() * (max - min + 1);
+  return Math.round(rand);
+}
+
+function randHexDigit() {
+  return hexes[ randomInteger(0,15) ];
+}
+
+function randColor() {
+    return "#"+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit();
+}
+
+
+/*
+putPixel = function( x,y, color ){
+  
+  var div = document.createElement("div");
+  div.style.backgroundColor=color;
+  div.style.width="1px";
+  div.style.height="1px";
+  div.style.fontSize="1px";
+  div.style.position="absolute";
+  div.style.top=y+"px";
+  div.style.left=x+"px";
+  document.body.appendChild(div);
+
+}
+*/
+
+putPixel = function( x,y, color ){
+  
+  var div = document.createElement("div");
+  div.style.backgroundColor=color;
+  div.style.width="1px";
+  div.style.height="1px";
+  div.style.fontSize="1px";
+  div.style.position="absolute";
+  div.style.top=y+"px";
+  div.style.left=x+"px";
+  document.body.appendChild(div);
+
+}
+
+$ = function(x){
+ return document.getElementById(x);
+
+}
+  
+
+horizontalLine = function(  startX, endX, y ){
+
+var i = 0;
+
+for ( i=startX; i<=endX;i++ )
+  putPixel(i,y+OFFSET,"red");
+
+
+}
+
+
+
+
+const MIN = 0;
+const MAX = 255;
+const STEP = 1;
+let r=MIN;
+let g=MIN;
+let b=MIN;
+let iteration = 1;
+
+
+
+toHex = function(yourNumber){
+       return yourNumber.toString(16).toUpperCase();
+    }
+
+toHex2digit = function(yourNumber){
+    let h = toHex(yourNumber)
+    return h.length>=2?''+h:'0'+h;
+}
+
+getColorCode = function(r1,g1,b1){
+     return '#'+toHex2digit(r1)+''+toHex2digit(g1)+''+toHex2digit(b1);
+}
+
+
+    getCurrCode = function(){	
+     r++;
+     if (r>MAX){
+         g++;
+         r=MIN;
+     }
+     if (g>MAX){
+         b++;
+         g=MIN;
+     }
+     if (b>MAX){
+        r=MIN;
+        b=MIN;
+        g=MIN;
+     }
+
+        return ''+getColorCode(b,g,r);  //hotfixed ORDER. was: getColorCode(r,g,b);
+     
+    }
+
+    firstFunc   = function(){
+        // document.body.style.backgroundColor=randColor();
+        $('gff').innerHTML = 'Iteration: '+iteration+'. Current color: ' + getCurrCode();
+        $('square').style.backgroundColor =  getCurrCode();
+    }
+	
+	blinkMessage = function(){	
+        firstFunc();
+        setTimeout( "blinkMessage()", 1  );
+    }
+
+    </script>
+    
+    
+
+    
+    
+    </head>
+    
+    <body onload="blinkMessage();/*firstFunc()*/">
+
+<br>
+
+<h3 id="gff">
+
+</h3>
+
+
+<div id="square" style="width: 300px; height: 300px; background-color:#000000;">
+
+</div>
+
+    </body>
+    
+    </html>
