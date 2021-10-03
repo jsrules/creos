@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <!-- <link rel="stylesheet" href="default.css"> -->
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <title>Zoom v.2.0 - start from large</title>
+
+
+  <style>
+    html,body,#wrapper {
+         height:100%;
+         margin:0;
+         padding:0;
+     }
+     #wrapper {
+         position:relative;
+     }
+ 
+     #top, #middle, #bottom {
+         position:absolute;
+     }
+ 
+     #top {
+         height:0px;
+         width:100%;
+         background:grey;
+     }
+     #middle {
+         top:0px;
+         bottom:0px;
+         height:100%;
+         width:100%;
+         background:white;
+         color: black;
+         overflow: hidden;
+         word-break: break-all;
+     }
+     #bottom {
+         bottom:0;
+         height:0px;
+         width:100%;
+         background:grey;
+     }
+
+ </style>
+
+
+  <script>
+
+// alert(76)
+
+    //globals used here:  ***************************************************************************************************************************************
+    const IS_USUAL_LOOP_THRU_X = 0;  //(or y if RUN_Y_LOOP==true)
+    const RUN_Y_LOOP = IS_USUAL_LOOP_THRU_X;
+    const IS_FULL_LOOP_THRU_X_AND_Y = ! IS_USUAL_LOOP_THRU_X;
+    const STEP =  1; //  VERY IMPORTAN CONST
+    const WORKAREA_ZOOM = 1;
+    const X_Y_ZOOM = 10;  //better leave it =1, it's very weird otherwise :)  . For: IS_FULL_LOOP_THRU_X_AND_Y
+
+    const Y_ZOOM = 1;  //. For: IS_USUAL_LOOP_THRU_X
+    const Y_PLUS = -50;  //. For: IS_USUAL_LOOP_THRU_X
+
+    const IS_PERFORM_UPDATE = 1;
+    const TIMELOUT_OF_UPDATE_IN_MS = 10;
+    
+
+    var ctx = null; // canvas.getContext('2d')
+    var canvas = null;
+
+    var coef_1 = 50;
+    var coef_1_go_plus = false;
+    const coef_1_delta = 1;
+    const coef_1_min = 3
+    const coef_1_max = 500;
+
+    //todo: add min and max
+
+    OFFSET=40;
+    END_X=1300;
+    END_Y=1000;
+    
+    hexes=['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' ];
+    
+    /////////////////////////////////////////////////////   
+    function randomInteger(min, max) {
+      let rand = min - 0.5 + Math.random() * (max - min + 1);
+      return Math.round(rand);
+    }
+    
+    /////////////////////////////////////////////////////   
+    function randHexDigit() {
+      return hexes[ randomInteger(0,15) ];
+    }
+    
+       /////////////////////////////////////////////////////   
+    function randColor() {
+    
+        return "#"+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit();
+    
+    }
+    
+   /////////////////////////////////////////////////////   
+    putPixel = function( x,y, /* color: */ r, g ,b ){      
+              id.data[0] = r;
+              id.data[1] = g;
+              id.data[2] = b;
+              ctx.putImageData(id,  x , y);    
+    }
+  
+
+   /////////////////////////////////////////////////////   
+   putBoldPixel = function( x,y, /* color: */ r, g ,b ){     
+
+            // ctx.beginPath();
+        // ctx.arc(x,y,50,0,Math.PI*2);
+        // ctx.closePath();
+     
+    //  *****************  OLDER ****************************
+          putPixel ( x,y, r, g ,b );
+
+          putPixel ( x+1,y, r, g ,b );
+          putPixel ( x,y+1, r, g ,b );
+          putPixel ( x+2,y, r, g ,b );
+          putPixel ( x,y+2, r, g ,b );
+
+          putPixel ( x+3,y, r, g ,b );
+          putPixel ( x,y+3, r, g ,b );
+          putPixel ( x+3,y, r, g ,b );
+          putPixel ( x,y+3, r, g ,b );
+
+          putPixel ( x+1,y+1, r, g ,b );
+          putPixel ( x+2,y+2, r, g ,b );
+          putPixel ( x+3,y+3, r, g ,b );
+    }
+    
+    
+    /////////////////////////////////////////////////////   
+    $ = function(x){
+     return document.getElementById(x);
+    
+    }
+      
+    /////////////////////////////////////////////////////   
+    horizontalLine = function(  startX, endX, y ){
+    
+    var i = 0;
+    
+    for ( i=startX; i<=endX;i++ )
+      putPixel(i,y+OFFSET, 255, 0, 0);
+    
+    
+    }
+    
+    ////////////////////////////////////////////////////    
+    verticalLine = function(  x, startY, endY ){
+
+var i = 0;
+
+for ( i=startY; i<=endY+OFFSET;i++ )
+  putPixel(x,i, 0, 255, 0);
+
+
+}
+
+
+    ////////////////////////////////////////////////////
+diagonalLineDown = function( startX, endX, startY  ){
+
+	var i = 0;
+	for ( i=startX; i<=endX;i++ )
+	  putPixel(i,startY+i+OFFSET, 0, 0, 255);
+
+}
+
+
+    ////////////////////////////////////////////////////
+diagonalLineUp = function( startX, endX, startY  ){
+
+	var i = 0;
+	for ( i=startX; i<=endX;i++ )
+	  putPixel(i,startY-i+OFFSET, 0, 0, 0);
+
+}
+
+   /////////////////////////////////////////////////////    
+getWidth = function() {
+  return END_X;
+};   
+   
+   /////////////////////////////////////////////////////    
+getHeight= function() {
+  return END_Y;
+};   
+
+   /////////////////////////////////////////////////////    
+getHalfWidth = function() {
+  return parseInt( getWidth()/2  );
+};   
+   
+   /////////////////////////////////////////////////////    
+getHalfHeight= function() {
+  return parseInt( getHeight()/2  );
+};  
+
+/////////////////////////////////////////////////////    
+   getX= function(x) {
+    //  return x;  //TODO!!!!!!!!
+  return x - getHalfWidth();
+};  
+
+/////////////////////////////////////////////////////    
+getY= function(y) {
+  // return y - getHalfHeight();
+
+
+  // return y;  //TODO!!!!!!!!
+  //FIXME?
+  return  getHalfHeight() - y;
+}; 
+
+  /////////////////////////////////////////////////////    
+approxeq = function(v1, v2, epsilon) {
+  if (epsilon == null) {
+    epsilon = 0.001;
+  }
+  return Math.abs(v1 - v2) < epsilon;
+};
+    
+   
+/////////////////////////////////////////////////////        
+draw2   = function(){
+
+  cw = canvas.width;
+             ch = canvas.height;
+             id = ctx.getImageData(0, 0, 1, 1);
+            //  ctx.clearRect(0, 0, cw, ch);
+              id.data[3] = 255;
+
+if (IS_FULL_LOOP_THRU_X_AND_Y){
+
+                    //SEE BELOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
+                    //SEE BELOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
+ 
+    for (let y = 0; y < getHeight(); y+=STEP+coef_1) {  //0
+
+    for (let x = 0; x < getWidth(); x+=STEP+coef_1) {   //0                    
+           //   (MAIN CONDITION)   set "true" forr 100% filling work area:
+          //  if   (  true  ){    //TODO: try eval("x") in the func (speed?))           
+
+                //circle:
+                // if   (  approxeq(    getX(x)*getX(x)+getY(y)*getY(y) ,   400**2,    1000) ){    //TODO: try eval("x") in the func (speed?))
+
+
+                //ellipse:
+                // let a = 5;  let b = 15;   if   (  approxeq(    getX(x)*getX(x)/(a*a)+getY(y)*getY(y)/(b*b) ,   1,    500) ){    //TODO: try eval("x") in the func (speed?))
+
+                //PARABOLA:
+                // if   (  approxeq(  (1/25)*  getX(x)*getX(x) ,   getY(y),    25) ){    //TODO: try eval("x") in the func (speed?))
+
+                //line:
+                // if   (  approxeq(    getX(x) ,   getY(y),    5) ){    //TODO: try eval("x") in the func (speed?))           
+
+
+                //hiperbla:
+                // if   (  approxeq(   (1/100)* getX(x)*getX(x)*getX(x) ,   getY(y),    30) ){    //TODO: try eval("x") in the func (speed?))
+
+                  //1/x:   - FAILED SO FAR
+                // if   (  approxeq(   1/getX(x),   getY(y),    .01) ){    //TODO: try eval("x") in the func (speed?))        
+
+                //Math.abs:
+                // if   (  approxeq(  Math.abs(getX(x)) ,   getY(y),    30) ){    //TODO: try eval("x") in the func (speed?))
+
+                //sinusoida:
+                // if   (  approxeq(  (100)*  Math.sin(getX(x/111)) ,   getY(y),    2.5) ){    //TODO: try eval("x") in the func (speed?))
+
+                //tangesoida:
+                // if   (  approxeq( coef_1 * (100)*  Math.tan(getX(x/111)) ,   getY(y),    2.5) ){    //TODO: try eval("x") in the func (speed?))
+
+                //ULITKA 2 (real) :   try a = ...
+                // let a = coef_1;  let L = a/2 /* /3.5 */ ;   if   (  approxeq(     (getX(x)*getX(x)+getY(y)*getY(y) +a*getY(y))**2 ,   L*L*( getX(x)*getX(x)+getY(y)*getY(y) ),    coef_1*1000) ){    //TODO: try eval("x") in the func (speed?))
+
+
+                //Hyperbolic spiral - FAILED SO FAR
+                // let p = 100;  let f = coef_1 ;   if   (  approxeq(     getX(x)  ,   p * Math.cos(f),   5)   
+                //                                            && approxeq(     getY(y) ,   p * Math.sin(f),    5)   ){    //TODO: try eval("x") in the func (speed?))
+
+                //Archimedean spiral - FAILED SO FAR - growing circle actually
+                // if   (  approxeq(  Math.sqrt ( getX(x)*getX(x)+getY(y)*getY(y)  ),   0.001 *  Math.atan(getY(y) / getX(x)),    coef_1) ){    //TODO: try eval("x") in the func (speed?))
+
+
+                //was:
+                  // putPixel( Math.floor(x) * X_Y_ZOOM, Math.floor(y) * X_Y_ZOOM, /* color: */ 10, 60 ,30 );
+
+                  // console.log(x);
+
+
+/////////////////////////////////////////////////////   NEW         ///////////////////////////////////////////////
+
+
+    //   (MAIN CONDITION)   set "true" forr 100% filling work area:
+           if   (  true  ){    //TODO: try eval("x") in the func (speed?))
+
+                                 //ULITKA 2 (real) :   try a = ...
+                //  let a = coef_1;  let L = a/2 /* /3.5 */ ;   if   (  approxeq(     (getX(x)*getX(x)+getY(y)*getY(y) +a*getY(y))**2 ,   L*L*( getX(x)*getX(x)+getY(y)*getY(y) ),    coef_1*1000) ){    //TODO: try eval("x") in the func (speed?))
+
+                //circle:
+                // if   (  approxeq(    getX(x)*getX(x)+getY(y)*getY(y) ,   400**2,    1000) ){    //TODO: try eval("x") in the func (speed?))
+
+                  //FULL FILLING:
+                  // putPixel(   x, y , /* color: */ 10, 60 ,30 );
+                  putBoldPixel(   x, y , /* color: */ 10, 60 ,30 );
+
+
+                } // if (MAIN CONDITION)     
+              }
+            }               
+
+}//   if (IS_FULL_LOOP_THRU_X_AND_Y){
+//  **************************************************************************************************************************   
+else {
+
+// alert("IS_FULL_LOOP_THRU_X_AND_Y=="+IS_FULL_LOOP_THRU_X_AND_Y);
+
+//go thru Y if needed
+if (RUN_Y_LOOP){
+ 
+ for (let y = 0; y < getHeight(); y+=STEP) {   //0
+    //** Y AXIS - works
+    putBoldPixel( getHalfWidth(), y  , /* color: */ 67, 29 ,40 );  
+ }
+
+}
+
+
+//go thru X
+for (let x = 0; x < getWidth(); x+=STEP) {   //0
+           //Math.abs:
+   // if   (   getX(x), Math.abs(getX(x))  ){    //TODO: try eval("x") in the func (speed?))
+
+
+          //first thing created for IS_USUAL_LOOP_THRU_X
+         //  putBoldPixel( Math.floor(x) * X_Y_ZOOM, Math.floor(  coef_1 *  Math.abs(getX(x)) ) * X_Y_ZOOM, /* color: */ 100, 100 ,100 );
+
+         //59-Line (color by M.)
+         // putBoldPixel( x,  coef_1 *  x , /* color: */ 67, 29 ,40 );
+
+         // 64-Hyperbola v.1(color by M.)
+        // putBoldPixel( x,  (Y_ZOOM *  getY(coef_1 * getX(x) * getX(x) * getX(x) )) + ( getHeight()/2) , /* color: */  10, 60 ,30 );
+
+
+        //std09.03
+         // putBoldPixel( x,  Math.floor ( 3 * ( getY(  Math.sin (  getX(x) / 111 ))) - ( 1 * getHeight()) , /* color: */  10, 60 ,30 ));
+
+         //first working sin/cos  TODO: add various combinations  -eg "2* coef_1 " in one o0f them etc
+        //  putBoldPixel( x,  coef_1 * Math.floor ( 3 * ( getY( 33 *  Math.sin (  getX(x) / 111 ))) - ( 1 * getHeight()) , /* color: */  10, 60 ,30 ));
+        //  putBoldPixel( x,  coef_1 *  Math.floor ( 3 * ( getY( 33 *  Math.cos (  getX(x) / 111 ))) - ( 1 * getHeight()) , /* color: */  10, 60 ,30 ));
+
+         //** X AXIS - works
+         putBoldPixel( x,   getY(0)  , /* color: */ 67, 29 ,40 );        
+
+         //** DELME - y AXIS - works BUT KRIVO (see above)
+         // putBoldPixel( /*10*/  getHalfWidth()  ,   getY(getX(x))  , /* color: */ 67, 29 ,40 );        
+
+         //the simplest f(x)=x
+        //  putBoldPixel( x,  /* coef_1*  */ getY(getX(x))  , /* color: */ 67, 29 ,40 );
+
+         //the simplest f(x)=-x
+        //  putBoldPixel( x,  /* coef_1*  */ getY(-getX(x))  , /* color: */ 67, 29 ,40 );
+
+         //the same MOVING 
+          // putBoldPixel( x,     getY(coef_1*getX(x))  , /* color: */ 67, 29 ,40 );
+          // putBoldPixel( x,  /* coef_1*  */ getY(-coef_1* getX(x))  , /* color: */ 67, 29 ,40 );
+
+
+         //  sin/cos v2
+         putBoldPixel( x,  /* coef_1*  */ getY(/* coef_1* */100*Math.sin(getX(coef_1 * x)))  , /* color: */ 67, 29 ,40 );
+         putBoldPixel( x,  /* coef_1*  */ getY(/* coef_1* */100*Math.cos(getX(coef_1 * x)))  , /* color: */ 67, 29 ,40 );
+
+        // 1/x
+        // putBoldPixel( x,  /* coef_1*  */ 1/getY(/* coef_1* */ getX(x))  , /* color: */ 67, 29 ,40 );
+
+        // https://habr.com/ru/post/104718/
+        // ctx.bezierCurveTo(10, 20, 30, 40, getX(x), getY(getX(x)));
+
+  // if (x%500==0)
+  //        console.log(coef_1);
+
+   // }//if
+
+} //for (var x = 0
+
+}  //else (( ! IS_FULL_LOOP_THRU_X_AND_Y))
+
+
+
+        // draw a dot at the screen center
+        // ctx.beginPath();
+        // ctx.arc(0,0,5*coef_1,0,Math.PI*2);
+        // ctx.closePath();
+        // ctx.fill();
+        // ctx.textAlign='center';
+        // ctx.fillText('[ 0, 0 ] ',0,-10);
+
+        //  clearCanvas();
+}
+
+/////////////////////////////////////////////////////  
+//NB!!! CALL only from "async function xxx()" like this: "await sleep(1000);"  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+// from: https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+//////////////////////////////////////////////////////
+function update() {
+  coef_1 =  (coef_1_go_plus ? coef_1+coef_1_delta : coef_1 - coef_1_delta);
+
+  if (coef_1<coef_1_min) coef_1_go_plus=true;
+
+  if (coef_1>coef_1_max) coef_1_go_plus=false;  
+
+  // console.log(coef_1);
+
+   clearCanvas();
+
+  draw2();
+}
+
+/////////////////////////////////////////////////////      
+  async  function init() {
+      canvas = $('canvas');
+      ctx = canvas.getContext('2d');
+
+
+      // alert(455)
+       
+             END_X=parseInt(canvas.width=document.body.clientWidth) * WORKAREA_ZOOM;
+             END_Y= parseInt(canvas.height=document.body.clientHeight) * WORKAREA_ZOOM  ;
+      
+
+             // set the canvas origin (0,0) to center canvas
+// All coordinates to the left of center canvas are negative
+// All coordinates below center canvas are negative
+ctx.translate(canvas.width/2,canvas.height/2);   //SHOULD BE RIGHT BEFORE " draw2();"  !!!!!!!!!!!!!!!!!!!!!!11
+
+      draw2();
+
+      // await sleep(1000)
+      // clearCanvas();
+      // await sleep(1000)
+      // draw();
+
+
+      if (IS_PERFORM_UPDATE){
+          setInterval(() => {
+            update();
+          }, TIMELOUT_OF_UPDATE_IN_MS);
+      }
+
+}
+    
+
+
+
+/////////////////////////////////////////////////////      
+clearCanvas = function(){
+
+      
+      // canvas = $('canvas');
+       
+      // const context4545 = canvas.getContext('2d');
+
+      // ctx.translate(0,0);
+      // ctx.clearRect(canvas.width/2,canvas.height/2, canvas.width, canvas.height);
+
+
+      // ctx.translate(0,0);
+      // return
+      ctx.clearRect(-canvas.width/2, -canvas.height/2, canvas.width, canvas.height);
+
+
+
+      // ctx.translate(canvas.width/2,canvas.height/2);
+}
+
+
+</script>
+
+</head>
+
+
+
+<body onload="init();" onresize="clearCanvas(); init();">
+
+	
+  <canvas id="canvas" width="1" height="1">
+
+
+
+
+
+
+</body>
+</html>
