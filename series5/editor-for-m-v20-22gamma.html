@@ -1,0 +1,1048 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EditorForM-v.20.22gamma - BB's canvas</title>
+
+
+  <script src="https://unpkg.com/vanilla-picker@2"></script>
+
+  <!-- <link rel="stylesheet" href="default.css"> -->
+  
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+
+
+
+  <style>
+    html,body,#wrapper {
+         height:100%;
+         margin:0;
+         padding:0;
+         overflow: hidden;
+     }
+     #wrapper {
+         position:relative;
+     }
+ 
+     #top, #middle, #bottom {
+         position:absolute;
+     }
+ 
+     #top {
+         height:0px;
+         width:100%;
+         background:grey;
+     }
+     #middle {
+         top:0px;
+         bottom:0px;
+         height:100%;
+         width:100%;
+         background:white;
+         color: black;
+         overflow: hidden;
+         word-break: break-all;
+     }
+     #bottom {
+         bottom:0;
+         height:0px;
+         width:100%;
+         background:grey;
+     }
+
+     .button {
+  position: absolute;
+}
+.startBtn {
+  font-family: OpenSans;
+  color: #FFFFFF;
+  background-color: #97b4a5;
+  border: 1px solid #00FF7C;
+  border-radius: 5px;
+  box-shadow: 0px 5px 0px #00823F;
+  position: relative;
+  top: 0px;
+  transition: all ease 0.3s;
+}
+.startBtn:active {
+  box-shadow: 0 3px 0 #00823F;
+  top: 3px;
+}
+
+.focus:focus {
+  background-color: red;
+}
+
+ </style>
+
+
+  <script>
+  //*****************************************************  COMMONS  ******************************************************************************************************************************
+    function log(msg) {
+      console.log(msg)
+    }
+
+
+    function Coords (x, y){
+      this.x=x;
+      this.y=y;
+
+      this.clone=function(){
+        return new Coords (this.x, this.y);
+      }
+    }
+
+      ///////////////////////////////////////////////////////////////////////////////////
+  // Restricts input for the given textbox to the given inputFilter function.
+  function setInputFilter(textbox, inputFilter) {
+    ["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function (event) {
+      textbox.addEventListener(event, function () {
+        if (inputFilter(this.value)) {
+          this.oldValue = this.value;
+          this.oldSelectionStart = this.selectionStart;
+          this.oldSelectionEnd = this.selectionEnd;
+        } else if (this.hasOwnProperty("oldValue")) {
+          this.value = this.oldValue;
+          this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+        } else {
+          this.value = "";
+        }
+      });
+    });
+  }
+
+
+      ///////////////////////////////////////////////////////////////////////////////////
+  function getOS() {
+  var userAgent = window.navigator.userAgent,
+      platform = window.navigator.platform,
+      macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
+      windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+      iosPlatforms = ['iPhone', 'iPad', 'iPod'],
+      os = null;
+
+  if (macosPlatforms.indexOf(platform) !== -1) {
+    os = 'Mac OS';
+  } else if (iosPlatforms.indexOf(platform) !== -1) {
+    os = 'iOS';
+  } else if (windowsPlatforms.indexOf(platform) !== -1) {
+    os = 'Windows';
+  } else if (/Android/.test(userAgent)) {
+    os = 'Android';
+  } else if (!os && /Linux/.test(platform)) {
+    os = 'Linux';
+  }
+
+  return os;
+}
+
+const  CURR_OS =  getOS();
+
+
+    //***************************************************** MODEL         MODEL        MODEL ******************************************************************************************************************************
+    // let squareX = 100;
+    // let squareY = 100;
+    let leadingOrFirstSquareCoords = new Coords (50, 50);
+    let prevLeadingOrFirstSquareCoords = leadingOrFirstSquareCoords.clone();
+
+
+
+    function reInitModel() {
+      //  squareX = getHalfWidth();
+      //  squareY = getHalfHeight();
+
+
+      //FIXME: repeated in Controller
+       leadingOrFirstSquareCoords.x = getHalfWidth();
+       leadingOrFirstSquareCoords.y = getHalfHeight();  
+       prevLeadingOrFirstSquareCoords = leadingOrFirstSquareCoords.clone();
+    }
+
+
+    //***************************************************** Controller         Controller        Controller ******************************************************************************************************************************
+    //***************************************************** Controller         Controller        Controller ******************************************************************************************************************************
+
+    MOVING_STEP=20;
+    const  IGNORE_CLICKS_WITHIN =15;
+    let lastClickPerformed = new Date().getTime();
+    var ongoingTouches = [];
+
+
+    function ifNot() {
+      //  squareX = getHalfWidth();
+      //  squareY = getHalfHeight();
+    }
+
+
+    /////////////////////////////////////////////////////  
+    //   javascript keyboard events arrow keys simultaneously:
+    //   https://stackoverflow.com/questions/7614340/listen-to-multiple-keydowns
+    //   http://jsfiddle.net/ATUEx/ 
+    document.addEventListener('keydown', (event) => {
+
+      let clickTime = new Date().getTime();
+      if ( clickTime - lastClickPerformed < IGNORE_CLICKS_WITHIN){
+        return;
+      }
+      lastClickPerformed = clickTime;
+
+      MOVING_STEP = SQUARE_SIZE;
+      prevLeadingOrFirstSquareCoords = leadingOrFirstSquareCoords.clone(); //FIXME: called 3 times
+
+      // pausecomp(20);
+
+      // document.addEventListener('keypress', (event) => {
+// 
+      const keyName = event.key;
+
+      //FIXME: dont use squareX & squareY
+      let squareX = leadingOrFirstSquareCoords.x;
+      let squareY = leadingOrFirstSquareCoords.y;
+      
+      let isModified  = false;
+      
+      switch(keyName){
+
+        case "ArrowDown": 
+                          maybeY= squareY+MOVING_STEP;
+                          if(maybeY< FIELDBATTLE_START_Y + FIELDBATTLE_HEIGHT)
+                             leadingOrFirstSquareCoords.y=maybeY;
+                          break;
+
+        case "ArrowUp": 
+                          maybeY= squareY-MOVING_STEP;
+                          if(maybeY  >= FIELDBATTLE_START_Y)
+                             leadingOrFirstSquareCoords.y=maybeY;
+                         break;                  
+                         
+        case "ArrowRight":
+                          maybeX= squareX+MOVING_STEP;
+                          if(maybeX  < FIELDBATTLE_START_X + FIELDBATTLE_WIDTH)
+                            leadingOrFirstSquareCoords.x=maybeX;
+                         break;             
+         
+                         
+        case "ArrowLeft": 
+                          maybeX= squareX-MOVING_STEP;
+                          if(maybeX  >= FIELDBATTLE_START_X)
+                            leadingOrFirstSquareCoords.x=maybeX;
+                         break;        
+                           
+      }
+
+     
+
+      // squareX+=10;
+      // squareY++;
+      // alert('keypress event\n\n' + 'key: ' + keyName);
+    });
+
+
+///////////////////////
+//touch solutions from: https://developer.mozilla.org/ru/docs/Web/API/Touch_events
+function handleStart(evt) {
+  evt.preventDefault();
+  console.log("touchstart.");
+  var el = canvas; // document.getElementById("canvas");
+  var ctx = el.getContext("2d");
+  var touches = evt.changedTouches;
+
+  for (var i = 0; i < touches.length; i++) {
+    console.log("touchstart:" + i + "...");
+    ongoingTouches.push(copyTouch(touches[i]));
+    var color = colorForTouch(touches[i]);
+    ctx.beginPath();
+    // ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false);  // a circle at the start
+    ctx.fillStyle = color;
+    ctx.fill();
+    console.log("touchstart:" + i + ".");
+  }
+}
+
+
+function handleMove(evt) {
+  evt.preventDefault();
+  var el = canvas; // document.getElementById("canvas");
+  var ctx = el.getContext("2d");
+  var touches = evt.changedTouches;
+
+  for (var i = 0; i < touches.length; i++) {
+    var color = colorForTouch(touches[i]);
+    var idx = ongoingTouchIndexById(touches[i].identifier);
+
+    if (idx >= 0) {
+
+
+//  ev44.pageX= touches[i].pageX ;
+//       if(document.createEvent)
+// {
+//   ev44 = new Event('mousemove');
+//   ev44.pageX= touches[i].pageX ;
+//   ev44.pageY= touches[i].pageY ;
+//   el.dispatchEvent(ev44);
+
+// }
+// else{
+//   // Internet Explorer (I think)
+//  el.fireEvent("onmousedown", event); 
+// }
+
+doTheDrawing(touches[i].pageX, touches[i].pageY);
+
+      console.log("continuing touch "+idx);
+      ctx.beginPath();
+      console.log("ctx.moveTo(" + ongoingTouches[idx].pageX + ", " + ongoingTouches[idx].pageY + ");");
+      // ctx.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY);
+      console.log("ctx.lineTo(" + touches[i].pageX + ", " + touches[i].pageY + ");");
+      // ctx.lineTo(touches[i].pageX, touches[i].pageY);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = color;
+      ctx.stroke();
+
+      ongoingTouches.splice(idx, 1, copyTouch(touches[i]));  // swap in the new touch record
+      console.log(".");
+    } else {
+      console.log("can't figure out which touch to continue");
+    }
+  }
+}
+
+
+function handleEnd(evt) {
+  evt.preventDefault();
+  log("touchend");
+  var el = canvas; // document.getElementById("canvas");
+  var ctx = el.getContext("2d");
+  var touches = evt.changedTouches;
+
+  for (var i = 0; i < touches.length; i++) {
+    var color = colorForTouch(touches[i]);
+    var idx = ongoingTouchIndexById(touches[i].identifier);
+
+    if (idx >= 0) {
+      ctx.lineWidth = 4;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      // ctx.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY);
+      // ctx.lineTo(touches[i].pageX, touches[i].pageY);
+      // ctx.fillRect(touches[i].pageX - 4, touches[i].pageY - 4, 8, 8);  // and a square at the end
+      ongoingTouches.splice(idx, 1);  // remove it; we're done
+    } else {
+      console.log("can't figure out which touch to end");
+    }
+  }
+}
+
+function handleCancel(evt) {
+  evt.preventDefault();
+  console.log("touchcancel.");
+  var touches = evt.changedTouches;
+
+  for (var i = 0; i < touches.length; i++) {
+    var idx = ongoingTouchIndexById(touches[i].identifier);
+    ongoingTouches.splice(idx, 1);  // remove it; we're done
+  }
+}
+
+function copyTouch({ identifier, pageX, pageY }) {
+  return { identifier, pageX, pageY };
+}
+
+
+function ongoingTouchIndexById(idToFind) {
+  for (var i = 0; i < ongoingTouches.length; i++) {
+    var id = ongoingTouches[i].identifier;
+
+    if (id == idToFind) {
+      return i;
+    }
+  }
+  return -1;    // not found
+}
+
+function colorForTouch(touch) {
+  var r = touch.identifier % 16;
+  var g = Math.floor(touch.identifier / 3) % 16;
+  var b = Math.floor(touch.identifier / 7) % 16;
+  r = r.toString(16); // make it a hex digit
+  g = g.toString(16); // make it a hex digit
+  b = b.toString(16); // make it a hex digit
+  var color = "#" + r + g + b;
+  console.log("color for touch with identifier " + touch.identifier + " = " + color);
+  return color;
+}
+    
+
+///////////////
+    doTheDrawing = function(clickX,clickY){
+
+      if (clickX>FIELDBATTLE_START_X && clickX<FIELDBATTLE_END_X && clickY>FIELDBATTLE_START_Y && clickY<FIELDBATTLE_END_Y ){
+
+
+// leadingOrFirstSquareCoords.x = getHalfWidth();
+// leadingOrFirstSquareCoords.y = getHalfHeight();  
+// prevLeadingOrFirstSquareCoords = leadingOrFirstSquareCoords.clone();
+
+
+// filledSquare(leadingOrFirstSquareCoords.x, leadingOrFirstSquareCoords.y, EMPTY_SQUARE_COLOR);
+leadingOrFirstSquareCoords.x = clickX - (clickX%SQUARE_SIZE)  ; //* (FIELDBATTLE_END_X - FIELDBATTLE_START_X) / SQUARE_SIZE;
+leadingOrFirstSquareCoords.y = clickY - (clickY%SQUARE_SIZE)  ;
+prevLeadingOrFirstSquareCoords = leadingOrFirstSquareCoords.clone();
+
+}
+
+    }
+
+    doTheClick = function(clickX,clickY){
+
+      if (clickX>FIELDBATTLE_START_X && clickX<FIELDBATTLE_END_X && clickY>FIELDBATTLE_START_Y && clickY<FIELDBATTLE_END_Y ){
+
+
+// leadingOrFirstSquareCoords.x = getHalfWidth();
+// leadingOrFirstSquareCoords.y = getHalfHeight();  
+// prevLeadingOrFirstSquareCoords = leadingOrFirstSquareCoords.clone();
+
+//filledSquare(prevLeadingOrFirstSquareCoords.x, prevLeadingOrFirstSquareCoords.y, TRACE_SQUARE_COLOR);
+filledSquare(leadingOrFirstSquareCoords.x, leadingOrFirstSquareCoords.y, EMPTY_SQUARE_COLOR);
+leadingOrFirstSquareCoords.x = clickX - (clickX%SQUARE_SIZE)  ; //* (FIELDBATTLE_END_X - FIELDBATTLE_START_X) / SQUARE_SIZE;
+leadingOrFirstSquareCoords.y = clickY - (clickY%SQUARE_SIZE)  ;
+prevLeadingOrFirstSquareCoords = leadingOrFirstSquareCoords.clone();
+
+}
+
+}
+
+   let  initCanvasClickHandlerINITTED = false;
+   initCanvasClickHandler = function(){
+
+      let isAndroid  =  CURR_OS=='Android'
+      let isWindows =  CURR_OS=='Windows'
+
+    canvas.addEventListener('mousedown', (event) => {
+      let clickX = event.pageX;
+      let clickY = event.pageY;
+      //log(clickX);
+
+      doTheClick(clickX,clickY);
+    });
+
+    if (isWindows)
+      canvas.addEventListener('mousemove', (event) => {
+      let  leftMouseButtonOnlyDown = event.buttons === undefined 
+    ? event.which === 1 
+    : event.buttons === 1;
+
+    if ( isAndroid || ( isWindows && !leftMouseButtonOnlyDown)){
+      return;
+     }
+
+      let clickX = event.pageX;
+      let clickY = event.pageY;
+      //log(clickX);
+
+
+doTheDrawing(clickX,clickY);
+
+    });
+
+    if ( true || ! isWindows){
+          var el = canvas; //document.getElementById("canvas");
+        el.addEventListener("touchstart", handleStart, false);
+        el.addEventListener("touchend", handleEnd, false);
+        el.addEventListener("touchcancel", handleCancel, false);
+        el.addEventListener("touchmove", handleMove, false);
+    }
+
+  }
+
+    //***************************************************** VIEW         VIEW        VIEW *********************************************************************************************************************************************
+    //***************************************************** VIEW         VIEW        VIEW *********************************************************************************************************************************************
+    //***************************************************** VIEW         VIEW        VIEW *********************************************************************************************************************************************
+
+    //globals used here:  ***************************************************************************************************************************************
+
+    let SQUARE_SIZE = 10;
+    let LEADING_OR_FIRST_SQUARE_COLOR = 'red';
+    let  TRACE_SQUARE_COLOR = 'green';
+    let  EMPTY_SQUARE_COLOR = 'white';
+
+
+    let FIELDBATTLE_START_X=-1;
+    let FIELDBATTLE_START_Y=-1;
+    let FIELDBATTLE_END_X=-1;
+    let FIELDBATTLE_END_Y=-1;
+
+    const IS_USUAL_LOOP_THRU_X = 0;
+    const IS_FULL_LOOP_THRU_X_AND_Y = ! IS_USUAL_LOOP_THRU_X;
+    const STEP =  1; //.25;
+    const WORKAREA_ZOOM = 1;
+    const X_Y_ZOOM = 2;  //better leave it =1, it's very weird otherwise :)
+    const IS_PERFORM_UPDATE = true;
+    const TIMELOUT_OF_UPDATE_IN_MS = 0;
+    
+
+    var ctx = null; // canvas.getContext('2d')
+
+    var coef_1 = 1;
+    var coef_1_go_plus = true;
+    const coef_1_delta = 15;
+    const coef_1_min = 0;
+    const coef_1_max = 400;
+
+    //todo: add min and max
+
+    OFFSET=40;
+    END_X=1300;
+    END_Y=1000;
+    
+    hexes=['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' ];
+    
+    function randomInteger(min, max) {
+      let rand = min - 0.5 + Math.random() * (max - min + 1);
+      return Math.round(rand);
+    }
+    
+    function randHexDigit() {
+      return hexes[ randomInteger(0,15) ];
+    }
+    
+    function randColor() {
+    
+        return "#"+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit();
+    
+    }
+    
+    
+    /*
+    putPixel = function( x,y, color ){
+      
+      var div = document.createElement("div");
+      div.style.backgroundColor=color;
+      div.style.width="1px";
+      div.style.height="1px";
+      div.style.fontSize="1px";
+      div.style.position="absolute";
+      div.style.top=y+"px";
+      div.style.left=x+"px";
+      document.body.appendChild(div);
+    
+    }
+    */
+    
+    //WAYS to draw a pixel:  https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+    putPixel = function( x,y, /* color: */ r, g ,b ){      
+              id.data[0] = r;
+              id.data[1] = g;
+              id.data[2] = b;
+              ctx.putImageData(id,  x , y);    
+    }
+    
+/////////////////////////////////////////////////////   
+function  putBoldPixel ( x,y, /* color: */ r, g ,b ){     
+
+
+
+BOLD_PIXEL_WIDTH_AND_HEIGHT = 4; //(4/5) * Math.min(  halfWidthDenys, halfHeightDenys );  //NB: actually number of ADDED pixels from all sides. So "1" means 3x3
+
+        // ctx.beginPath();
+    // ctx.arc(x,y,50,0,Math.PI*2);
+    // ctx.closePath();
+ 
+//  *****************  OLDER ****************************
+      // putPixel ( x,y, r, g ,b );
+
+      for (let index = x-(BOLD_PIXEL_WIDTH_AND_HEIGHT); index <= x+BOLD_PIXEL_WIDTH_AND_HEIGHT; index++) {
+        for (let index2 = y-(BOLD_PIXEL_WIDTH_AND_HEIGHT); index2 <= y+BOLD_PIXEL_WIDTH_AND_HEIGHT; index2++) {
+
+          putPixel ( index,index2, r, g ,b );
+        //   await sleep(1);
+
+        }
+      }
+      //FOR TESTING: put RED pixel at (x,y)
+      // putPixel ( x,y, 255, 0 ,0 );
+
+
+//*************** CODE BELOW WAS SAVED FOR HISTORICAL REASONS ONLY: ********************
+//pluses
+      // putPixel ( x+1,y, r, g ,b );
+      // putPixel ( x,y+1, r, g ,b );
+      // putPixel ( x+2,y, r, g ,b );
+      // putPixel ( x,y+2, r, g ,b );
+
+      // putPixel ( x+3,y, r, g ,b );
+      // putPixel ( x,y+3, r, g ,b );
+      // putPixel ( x+3,y, r, g ,b );
+      // putPixel ( x,y+3, r, g ,b );
+
+      // putPixel ( x+1,y+1, r, g ,b );
+      // putPixel ( x+2,y+2, r, g ,b );
+      // putPixel ( x+3,y+3, r, g ,b );
+//minuses
+      // putPixel ( x-1,y, r, g ,b );
+      // putPixel ( x,y-1, r, g ,b );
+      // putPixel ( x-2,y, r, g ,b );
+      // putPixel ( x,y-2, r, g ,b );
+
+      // putPixel ( x-3,y, r, g ,b );
+      // putPixel ( x,y-3, r, g ,b );
+      // putPixel ( x-3,y, r, g ,b );
+      // putPixel ( x,y-3, r, g ,b );
+
+      // putPixel ( x-1,y-1, r, g ,b );
+      // putPixel ( x-2,y-2, r, g ,b );
+      // putPixel ( x-3,y-3, r, g ,b );
+}
+
+    id = function(x){
+     return document.getElementById(x);
+    
+    }
+      
+        
+    horizontalLine = function(  startX, endX, y ){
+    
+    var i = 0;
+    
+    for ( i=startX; i<=endX;i++ )
+      putPixel(i,y+OFFSET, 255, 0, 0);
+    
+    
+    }
+    
+    
+verticalLine = function(  x, startY, endY ){
+
+var i = 0;
+
+for ( i=startY; i<=endY+OFFSET;i++ )
+  putPixel(x,i, 0, 255, 0);
+
+
+}
+
+
+
+diagonalLineDown = function( startX, endX, startY  ){
+
+	var i = 0;
+	for ( i=startX; i<=endX;i++ )
+	  putPixel(i,startY+i+OFFSET, 0, 0, 255);
+
+}
+
+
+
+diagonalLineUp = function( startX, endX, startY  ){
+
+	var i = 0;
+	for ( i=startX; i<=endX;i++ )
+	  putPixel(i,startY-i+OFFSET, 0, 0, 0);
+
+}
+    
+   /////////////////////////////////////////////////////    
+getWidth = function() {
+  return END_X;
+};   
+   
+   /////////////////////////////////////////////////////    
+getHeight= function() {
+  return END_Y;
+};   
+
+   /////////////////////////////////////////////////////    
+getHalfWidth = function() {
+  return parseInt( getWidth()/2  );
+};   
+   
+   /////////////////////////////////////////////////////    
+getHalfHeight= function() {
+  return parseInt( getHeight()/2  );
+};  
+
+/////////////////////////////////////////////////////    
+   getX= function(x) {
+  return x - getHalfWidth();
+};  
+
+/////////////////////////////////////////////////////    
+getY= function(y) {
+  // return y - getHalfHeight();
+
+  //FIXME?
+  return  getHalfHeight() - y;
+}; 
+
+  /////////////////////////////////////////////////////    
+approxeq = function(v1, v2, epsilon) {
+  if (epsilon == null) {
+    epsilon = 0.001;
+  }
+  return Math.abs(v1 - v2) < epsilon;
+};
+    
+
+/////////////////////////////////////////////////////    
+line = function(x1, y1, x2, y2) {
+    ctx.beginPath();       // Начинает новый путь
+    ctx.moveTo(x1, y1);    // Передвигает перо в точку (30, 50)
+    ctx.lineTo(x2, y2);  // Рисует линию до точки (150, 100)
+    ctx.stroke()
+};
+
+/////////////////////////////////////////////////////    
+// filledRectangle = function(x1, y1, x2, y2, x3, y3, x4, y4    ) {
+  filledRectangle = function(x1, y1, x2, y2, color   ) {
+   
+    ctx.beginPath();       // Начинает новый путь
+    // let oldFillStyle=ctx.fillStyle;
+    ctx.fillStyle = color; //"green";
+    ctx.fillRect(x1, y1, x2, y2);
+    // ctx.fillStyle='white';
+    ctx.stroke();
+  
+};
+
+
+/////////////////////////////////////////////////////    
+ // AIN'T WORKING
+  filledSquare = function(x1, y1, color   ) {
+    squreSize = SQUARE_SIZE
+    // filledRectangle(x1, y1, x1+squreSize, y1+squreSize, color   )
+    // ctx.beginPath();       // Начинает новый путь
+    ctx.fillStyle = color; //"green";
+    ctx.fillRect(x1, y1, squreSize, squreSize);
+    // ctx.stroke()
+};
+
+/////////////////////////////////////////////////////    
+function pausecomp(millis)
+{
+    var date = new Date();
+    var curDate = null;
+    do { curDate = new Date(); }
+    while(curDate-date < millis);
+}
+    
+/////////////////////////////////////////////////////        
+draw   = function(){
+
+
+            //  canvas = document.getElementById('canvas');
+            //  ctx = canvas.getContext('2d');
+            //  cw = canvas.width;
+            //  ch = canvas.height;
+            //  id = ctx.getImageData(0, 0, 1, 1);
+            // //DONT TOUCH !!
+            // // ctx.clearRect(0, 0, cw, ch);  //clearCanvas
+            // id.data[3] = 255;
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////// DRAWI8NG ********************************************************************************************************
+
+
+
+
+// line(FIELDBATTLE_START_X, FIELDBATTLE_START_Y, FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y);
+// line(FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y, FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT);
+// line(FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT, FIELDBATTLE_START_X, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT);
+// line(FIELDBATTLE_START_X, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT, FIELDBATTLE_START_X, FIELDBATTLE_START_Y);
+
+    
+
+    filledSquare(prevLeadingOrFirstSquareCoords.x, prevLeadingOrFirstSquareCoords.y, TRACE_SQUARE_COLOR);
+    filledSquare(leadingOrFirstSquareCoords.x, leadingOrFirstSquareCoords.y, LEADING_OR_FIRST_SQUARE_COLOR);
+
+
+
+    // let cloned=leadingOrFirstSquareCoords.clone();
+    // filledSquare(cloned.x, cloned.y, LEADING_OR_FIRST_SQUARE_COLOR);
+
+        return;
+
+        // diagonalLineDown(0, 0, 1000)
+        
+        // 
+        // diagonalLineUp
+       
+   if (IS_FULL_LOOP_THRU_X_AND_Y){
+
+       for (var y = 0; y < getHeight(); y+=STEP) {  //0
+
+        for (var x = 0; x < getWidth(); x+=STEP) {   //0
+          //var color=randColor();  
+
+          //    var x = Math.floor(Math.random() * cw);
+          // var y = Math.floor(Math.random() * ch);
+
+          // MAIN CONDITION:
+          // if (x==y){
+          // if   (  approxeq( x*x+y*y,500*500,1000) ){
+
+           //100% filling work area:
+          // if   (  true  ){    //TODO: try eval("x") in the func (speed?))           
+
+          //circle:
+          // if   (  approxeq(    getX(x)*getX(x)+getY(y)*getY(y) ,   400**2,    1000) ){    //TODO: try eval("x") in the func (speed?))
+
+
+          //ellipse:
+          // let a = 5;  let b = 15;   if   (  approxeq(    getX(x)*getX(x)/(a*a)+getY(y)*getY(y)/(b*b) ,   1,    500) ){    //TODO: try eval("x") in the func (speed?))
+
+          //PARABOLA:
+          // if   (  approxeq(  (1/25)*  getX(x)*getX(x) ,   getY(y),    25) ){    //TODO: try eval("x") in the func (speed?))
+
+          //line:
+          // if   (  approxeq(    getX(x) ,   getY(y),    5) ){    //TODO: try eval("x") in the func (speed?))           
+          
+
+          //hiperbla:
+          // if   (  approxeq(   (1/100)* getX(x)*getX(x)*getX(x) ,   getY(y),    30) ){    //TODO: try eval("x") in the func (speed?))
+
+            //1/x:   - FAILED SO FAR
+          // if   (  approxeq(   1/getX(x),   getY(y),    .01) ){    //TODO: try eval("x") in the func (speed?))        
+
+          //Math.abs:
+          // if   (  approxeq(  Math.abs(getX(x)) ,   getY(y),    30) ){    //TODO: try eval("x") in the func (speed?))
+
+          //sinusoida:
+          // if   (  approxeq(  (100)*  Math.sin(getX(x/111)) ,   getY(y),    2.5) ){    //TODO: try eval("x") in the func (speed?))
+
+          //tangesoida:
+          // if   (  approxeq( coef_1 * (100)*  Math.tan(getX(x/111)) ,   getY(y),    2.5) ){    //TODO: try eval("x") in the func (speed?))
+          
+          //ULITKA 2 (real) :   try a = ...
+          // let a = coef_1;  let L = a/2 /* /3.5 */ ;   if   (  approxeq(     (getX(x)*getX(x)+getY(y)*getY(y) +a*getY(y))**2 ,   L*L*( getX(x)*getX(x)+getY(y)*getY(y) ),    coef_1*1000) ){    //TODO: try eval("x") in the func (speed?))
+ 
+
+          //Hyperbolic spiral - FAILED SO FAR
+          // let p = 100;  let f = coef_1 ;   if   (  approxeq(     getX(x)  ,   p * Math.cos(f),   5)   
+          //                                            && approxeq(     getY(y) ,   p * Math.sin(f),    5)   ){    //TODO: try eval("x") in the func (speed?))
+
+          //Archimedean spiral - FAILED SO FAR - growing circle actually
+          if   (  approxeq(  Math.sqrt ( getX(x)*getX(x)+getY(y)*getY(y)  ),   0.001 *  Math.atan(getY(y) / getX(x)),    coef_1) ){    //TODO: try eval("x") in the func (speed?))
+
+              // var r = Math.floor(Math.random() * 256);
+              // var g = Math.floor(Math.random() * 256);
+              // var b = Math.floor(Math.random() * 256);
+              // id.data[0] = r;
+              // id.data[1] = g;
+              // id.data[2] = b;
+              // ctx.putImageData(id, x, y);
+
+             putPixel( Math.floor(x) * X_Y_ZOOM, Math.floor(y) * X_Y_ZOOM, /* color: */ 100, 100 ,100 );
+
+              //HERE !!
+              // id.data[0] = 100;
+              // id.data[1] = 100;
+              // id.data[2] = 100;
+              // ctx.putImageData(id,   Math.floor(x) * X_Y_ZOOM , Math.floor(y) * X_Y_ZOOM);
+
+          } // if (MAIN CONDITION)
+
+    }//for x
+
+
+    }//for y
+
+  }//   if (IS_FULL_LOOP_THRU_X_AND_Y){
+    
+  else {
+
+      alert("IS_FULL_LOOP_THRU_X_AND_Y=="+IS_FULL_LOOP_THRU_X_AND_Y);
+
+    }  //else (( ! IS_FULL_LOOP_THRU_X_AND_Y))
+    
+    // alert(2);
+
+
+      // putPixel (getHalfWidth(), getHalfHeight(), "red")
+
+
+      //START PIXEL: ****************************
+      id.data[0] = 255;
+      id.data[1] = 0;
+      id.data[2] = 0;
+      // ctx.putImageData(id, getHalfWidth(), getHalfHeight());
+      ctx.putImageData(id, 100, 100);
+      //END PIXEL: ****************************
+
+  // return;
+}
+      
+
+/////////////////////////////////////////////////////  
+//NB!!! CALL only from "async function xxx()" like this: "await sleep(1000);"  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+// from: https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+//////////////////////////////////////////////////////
+function update() {
+  coef_1 =  (coef_1_go_plus ? coef_1+coef_1_delta : coef_1 - coef_1_delta);
+
+  if (coef_1<coef_1_min) coef_1_go_plus=true;
+
+  if (coef_1>coef_1_max) coef_1_go_plus=false;  
+
+  // console.log(coef_1);
+  // clearCanvas();  //WORKHERE
+  draw();
+}
+
+/////////////////////////////////////////////////////      
+  async function init() {
+      canvas = document.getElementById('canvas');
+       
+    END_X=parseInt(canvas.width=document.body.clientWidth) * WORKAREA_ZOOM;
+    END_Y= parseInt(canvas.height=document.body.clientHeight) * WORKAREA_ZOOM  ;
+
+    FIELDBATTLE_PERCENT_FROM_SCREEN=0.9;
+    FIELDBATTLE_WIDTH=END_X * FIELDBATTLE_PERCENT_FROM_SCREEN;         
+    FIELDBATTLE_HEIGHT=END_Y * FIELDBATTLE_PERCENT_FROM_SCREEN;   
+    let ostatok = FIELDBATTLE_WIDTH % SQUARE_SIZE;
+    log(ostatok)
+    FIELDBATTLE_WIDTH -= ostatok;
+    ostatok = FIELDBATTLE_WIDTH % SQUARE_SIZE;
+    log(ostatok)
+    ostatok = FIELDBATTLE_HEIGHT % SQUARE_SIZE;
+    log(ostatok)
+    FIELDBATTLE_HEIGHT -= ostatok
+    ostatok = FIELDBATTLE_HEIGHT % SQUARE_SIZE;
+    log(ostatok)
+
+    FIELDBATTLE_HALF_WIDTH=FIELDBATTLE_WIDTH/2;         
+    FIELDBATTLE_HALF_HEIGHT=FIELDBATTLE_HEIGHT/2;             
+    FIELDBATTLE_START_X=getHalfWidth()-FIELDBATTLE_HALF_WIDTH;
+    FIELDBATTLE_START_Y=getHalfHeight() - FIELDBATTLE_HALF_HEIGHT;
+    FIELDBATTLE_END_X=getHalfWidth()+FIELDBATTLE_HALF_WIDTH;
+    FIELDBATTLE_END_Y=getHalfHeight() + FIELDBATTLE_HALF_HEIGHT;;
+
+    reInitModel();
+
+    //init canvas:
+    canvas = document.getElementById('canvas');
+    ctx = canvas.getContext('2d');
+    cw = canvas.width;
+    ch = canvas.height;
+    id = ctx.getImageData(0, 0, 1, 1);
+    //DONT TOUCH !!
+    // ctx.clearRect(0, 0, cw, ch);  //clearCanvas
+    id.data[3] = 255;
+
+      if (! initCanvasClickHandlerINITTED ){
+        initCanvasClickHandler();
+        initCanvasClickHandlerINITTED = true;
+      }
+
+    //border drawing:
+    line(FIELDBATTLE_START_X, FIELDBATTLE_START_Y, FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y);
+    line(FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y, FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT);
+    line(FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT, FIELDBATTLE_START_X, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT);
+    line(FIELDBATTLE_START_X, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT, FIELDBATTLE_START_X, FIELDBATTLE_START_Y);
+    
+      draw();
+      // await sleep(1000)
+      // clearCanvas();
+      // await sleep(1000)
+      // draw();
+
+
+      if (IS_PERFORM_UPDATE){
+          setInterval(() => {
+            update();
+          }, TIMELOUT_OF_UPDATE_IN_MS);
+      }
+
+    //   setInputFilter(document.getElementById("intervalInSecondsTextInput"), function (value) {
+    //   return /^\d*\.?\d*$/.test(value); // Allow digits and '.' only, using a RegExp
+    // });
+
+      // console.log("xx");
+}
+    
+
+
+
+/////////////////////////////////////////////////////      
+clearCanvas = function(){
+
+      
+      canvas = document.getElementById('canvas');
+       
+      const context = canvas.getContext('2d');
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+
+</script>
+
+</head>
+
+
+
+<body onload="init();" onresize="clearCanvas(); init();">
+
+
+  <span id="parent2" style="width:100px;background:red;cursor:pointer;position: absolute;top: 0px;left: 0px;">Head </span>
+  <span id="parent1" style="width:100px;background:green;cursor:pointer;position: absolute;top: 0px;left: 200px;">Trace </span>&nbsp;&nbsp;&nbsp;
+
+  <span id="sizeId" style="position: absolute;top: 20px;left: 0px;">  S:
+  <script>
+    for (let index = 1; index <= 20; index++) {
+      document.writeln(  '<button class="focus" style="font-size : 7px;" onclick="doTheClick(leadingOrFirstSquareCoords.x,leadingOrFirstSquareCoords.y); SQUARE_SIZE='+index+'; doTheClick(leadingOrFirstSquareCoords.x,leadingOrFirstSquareCoords.y);">' +index+ '</button>&nbsp;'   )
+      
+    }
+  </script>
+ <!-- <input id="intervalInSecondsTextInput" size="2" maxlength="3" value="10" onchange="SQUARE_SIZE=this.value;">  -->
+</span>
+
+
+  <canvas id="canvas" width="1" height="1">
+  
+  <script>
+    // Create a new Picker instance and set the parent element.
+    // By default, the color picker is a popup which appears when you click the parent.
+    var parent = document.querySelector('#parent1');
+    var picker = new Picker(parent);
+    picker.color = "#00ff00"
+    picker.setColour( picker.color, false)
+  
+    // You can do what you want with the chosen color using two callbacks: onChange and onDone.
+    picker.onChange = function(color) {
+        parent.style.background = color.rgbaString;
+        prevLeadingOrFirstSquareCoords = leadingOrFirstSquareCoords.clone();
+        TRACE_SQUARE_COLOR = color.rgbaString;        
+
+    //let  TRACE_SQUARE_COLOR = 'green';
+
+    };
+  
+      // Create a new Picker instance and set the parent element.
+    // By default, the color picker is a popup which appears when you click the parent.
+    var parent2= document.querySelector('#parent2');
+    var picker2 = new Picker(parent2);
+    picker2.color = "#ff0000"
+    picker2.setColour( picker2.color, false)
+  
+    // You can do what you want with the chosen color using two callbacks: onChange and onDone.
+    picker2.onChange = function(color) {
+        parent2.style.background = color.rgbaString;
+        LEADING_OR_FIRST_SQUARE_COLOR = color.rgbaString;
+    };
+  
+    // onDone is similar to onChange, but only called when you click 'Ok'.
+  </script>
+  
+	
+
+</body>
+</html>
