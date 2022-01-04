@@ -80,6 +80,8 @@
     // let squareY = 100;
     const EMPTY = 0;
     const HEAD = 1;
+    const ENEMY = 2;
+
 
     let leadingOrFirstSquareCoords = new Coords (50, 50);
     let prevLeadingOrFirstSquareCoords = leadingOrFirstSquareCoords.clone();
@@ -89,8 +91,12 @@
     let MODEL_HALF_WIDTH=-1;
     let MODEL_HALF_HEIGHT=-1;    
     let leadingOrFirstSquareMODELelementCoords  = new Coords (0, 0);;
+    const NUMBER_OF_ENEMIES  = 5;
 
 
+    function randCoords() {
+      return new Coords (randomInteger(0, MODEL_WIDTH -1), randomInteger(0, MODEL_HEIGHT -1));
+    }
 
 
 
@@ -144,6 +150,11 @@
          modelArr[leadingOrFirstSquareMODELelementCoords.x][leadingOrFirstSquareMODELelementCoords.y]= HEAD; 
 
 
+         for (let index = 0; index < NUMBER_OF_ENEMIES; index++) {
+            let rndCoords = randCoords();
+            modelArr[rndCoords.x][rndCoords.y]= ENEMY; 
+         }
+
     }
 
 
@@ -170,9 +181,18 @@
           ||  leadingOrFirstSquareMODELelementCoords.y > MODEL_HEIGHT-1
           ||  leadingOrFirstSquareMODELelementCoords.y < 0
       ){
-          gameOver() ;
+          gameOver('Border.') ;
           return false;
       }
+
+
+      if (
+      modelArr[leadingOrFirstSquareMODELelementCoords.x ][leadingOrFirstSquareMODELelementCoords.y] == ENEMY
+      ){
+          gameOver('Enemy encounter.') ;
+          return false;
+      }
+
       return true;
     }
 
@@ -268,6 +288,9 @@
     const LEADING_OR_FIRST_SQUARE_COLOR = '#0037ffff';
     const TRACE_SQUARE_COLOR = '#bbdca5ff';
     const EMPTY_SQUARE_COLOR = 'white';
+    const ENEMY_COLOR = 'red';
+
+    
 
 
     let FIELDBATTLE_START_X=-1;
@@ -315,8 +338,8 @@
     
     }
     
-    function gameOver() {    
-      msgForUser('Game over :(');
+    function gameOver(msg) {    
+      msgForUser('Game over. '+msg+' :(');
       reInitModel();
     }
     
@@ -577,6 +600,9 @@ draw   = function(){
 
           case HEAD: colorToUse=LEADING_OR_FIRST_SQUARE_COLOR;
                       break; 
+
+          case ENEMY: colorToUse=ENEMY_COLOR;
+          break;                      
                       
           default: alert('err - Unknown MODEL arr element: '+ element)
         }
@@ -792,7 +818,7 @@ initMsg= function(){
   $('mssageInTheBottle').innerHTML='Please play..';
   setTimeout(() => {
     initMsg();
-          }, 4000);
+          }, 7000);
 }
 
 /////////////////////////////////////////////////////      
