@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+   <!-- FineTuning:  -->
+ <title>SnakeMines v.1.02 - BB's canvas</title>
+
+  <!-- <link rel="stylesheet" href="default.css"> -->
+  
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+  <style>
+    html,body,#wrapper {
+         height:100%;
+         margin:0;
+         padding:0;
+         overflow: hidden;
+         background: radial-gradient(#000, #111); 
+     }
+     #wrapper {
+         position:relative;
+     }
+ 
+     #top, #middle, #bottom {
+         position:absolute;
+     }
+ 
+     #top {
+         height:0px;
+         width:100%;
+         background:grey;
+     }
+     #middle {
+         top:0px;
+         bottom:0px;
+         height:100%;
+         width:100%;
+         background:white;
+         color: black;
+         overflow: hidden;
+         word-break: break-all;
+     }
+     #bottom {
+         bottom:0;
+         height:0px;
+         width:100%;
+         background:grey;
+     }
+
+
+ </style>
+
+
+  <script>
+  //*****************************************************  COMMONS  ******************************************************************************************************************************
+    const RIGHT = 0;
+    const LEFT = 1;
+    const UP = 2;
+    const DOWN = 3;
+    let direction = RIGHT;
+    const NBSP = '&nbsp;';
+    const WELCOME_MESSAGE = 'Please play.. Use arrow keys or outer space to navigate..';
+    let modelUpdateIntervalInMs = 50;
+    let gameOverSuccessfullyFlag = false;
+
+    
+
+
+    function log(msg) {
+      console.log(msg)
+    }
+
+    
+    $ = function(x){
+        return document.getElementById(x);
+    }
+
+
+    function Coords (x, y){
+      this.x=x;
+      this.y=y;
+
+      this.clone=function(){
+        return new Coords (this.x, this.y);
+      }
+    }
+
+    //***************************************************** MODEL         MODEL        MODEL ******************************************************************************************************************************
+    // let squareX = 100;
+    // let squareY = 100;
+    const EMPTY = 0;
+    const HEAD = 1;
+    const ENEMY = 2;
+    const TAIL = 3;
+    const EXIT = 4;
+
+    const INITIAL_TAIL = 1;
+
+    let MODEL_NUMBER_OF_ITEMS = 0;
+
+
+
+
+    let leadingOrFirstSquareCoords = new Coords (50, 50);
+    let prevLeadingOrFirstSquareCoords = leadingOrFirstSquareCoords.clone();
+    let modelArr=[];
+    let MODEL_WIDTH=-1;
+    let MODEL_HEIGHT=-1;
+    let MODEL_HALF_WIDTH=-1;
+    let MODEL_HALF_HEIGHT=-1;    
+    let leadingOrFirstSquareMODELelementCoords  = new Coords (0, 0);;
+    let NUMBER_OF_ENEMIES  = 10;
+    let modelUpdateIntervalVar = null;
+
+
+    function randCoords() {
+      return new Coords (randomInteger(0, MODEL_WIDTH -1), randomInteger(0, MODEL_HEIGHT -1));
+    }
+
+
+
+    function reInitModel() {
+      //  squareX = getHalfWidth();
+      //  squareY = getHalfHeight();
+
+      if (modelUpdateIntervalVar!=null){
+        clearInterval(modelUpdateIntervalVar);
+        modelUpdateIntervalVar=null;
+      }
+
+      direction = RIGHT;
+
+       leadingOrFirstSquareCoords.x = getHalfWidth();
+       leadingOrFirstSquareCoords.y = getHalfHeight();  
+       prevLeadingOrFirstSquareCoords = leadingOrFirstSquareCoords.clone();
+
+       
+       let modelArrVerticalHeight=FIELDBATTLE_HEIGHT / SQUARE_SIZE;
+      //  log(modelArrVerticalHeight+'!!')
+
+       let modelArrHorizontalWidth=FIELDBATTLE_WIDTH/ SQUARE_SIZE;
+      //  log(modelArrHorizontalWidth+'!1!')
+
+       modelArr=new Array(modelArrHorizontalWidth)
+       for (let index = 0; index < modelArrHorizontalWidth; index++) {
+         modelArr[index] = new Array(modelArrVerticalHeight);
+        //  modelArr[index] .forEach(element => {
+        //   element=296;
+        //  });     
+        for (let index2 = 0; index2 < modelArrVerticalHeight; index2++) {
+           modelArr[index][index2] = EMPTY;          
+        }    
+       }      
+       MODEL_WIDTH=modelArr.length;
+       MODEL_HEIGHT=modelArr[MODEL_WIDTH-1].length;
+       MODEL_NUMBER_OF_ITEMS = MODEL_WIDTH * MODEL_HEIGHT;
+
+      //  log(modelArr[7][8])
+      //    modelArr[0][0] = HEAD;
+      //    log(modelArr[0][0])
+      //    log(modelArr[1][0])
+      //    log(modelArr[0][1])
+
+        //   modelArr[0][0] = HEAD; 
+        //  log(modelArr[MODEL_WIDTH-1][MODEL_HEIGHT-1])
+        // //  modelArr[MODEL_WIDTH-1][MODEL_HEIGHT-1] = HEAD;
+        //  log(modelArr[MODEL_WIDTH-1][MODEL_HEIGHT-1])
+
+        //  leadingOrFirstSquareElem = modelArr[MODEL_WIDTH-1][MODEL_HEIGHT-1];
+        //  leadingOrFirstSquareElem = HEAD; 
+        //  modelArr[MODEL_WIDTH-1][MODEL_HEIGHT-1]= HEAD; 
+
+        MODEL_HALF_WIDTH= parseInt( MODEL_WIDTH  /2);
+        MODEL_HALF_HEIGHT= parseInt( MODEL_HEIGHT  /2); 
+
+         leadingOrFirstSquareMODELelementCoords  =   new Coords ( 0, 0); // new Coords ( MODEL_HALF_WIDTH, MODEL_HALF_HEIGHT);
+         modelArr[leadingOrFirstSquareMODELelementCoords.x][leadingOrFirstSquareMODELelementCoords.y]= HEAD; 
+
+         //v1:
+        // modelArr[MODEL_WIDTH-1][MODEL_HEIGHT-1]= EXIT; 
+         //v2:
+        modelArr[randomInteger(MODEL_HALF_WIDTH, MODEL_WIDTH -2)][randomInteger(MODEL_HALF_HEIGHT, MODEL_HEIGHT -2)]= EXIT; 
+        // modelArr[78][0]= EXIT; //FIXME: del this line
+
+        new Coords (randomInteger(0, MODEL_WIDTH -1), randomInteger(0, MODEL_HEIGHT -1));
+
+         prevLeadingOrFirstSquareCoords=leadingOrFirstSquareCoords.clone()
+
+
+         NUMBER_OF_ENEMIES = parseInt(MODEL_NUMBER_OF_ITEMS / 200);
+
+         for (let index = 0; index < NUMBER_OF_ENEMIES; index++) {
+            let rndCoords = randCoords();
+            if ( modelArr[rndCoords.x][rndCoords.y] == EMPTY){
+               modelArr[rndCoords.x][rndCoords.y]= ENEMY; 
+            }
+         }
+
+
+         modelUpdateIntervalVar = setInterval(() => {
+                 updateModel();
+          }, modelUpdateIntervalInMs);
+
+    }
+
+
+    function updateModel() {
+
+      updatePrevObj();
+
+    switch(direction){
+               
+                 
+       case RIGHT:
+                  leadingOrFirstSquareMODELelementCoords.x+=MOVING_STEP;
+                  break;             
+                 
+       case LEFT:
+                  leadingOrFirstSquareMODELelementCoords.x-=MOVING_STEP;
+                  break;    
+                  
+      case UP:
+                  leadingOrFirstSquareMODELelementCoords.y-=MOVING_STEP;
+                  break; 
+                  
+      case DOWN:
+                  leadingOrFirstSquareMODELelementCoords.y+=MOVING_STEP;
+                  break;                         
+        }
+
+        
+      if (! checkIfOutOfBoardFromCurrModelXY()){
+        return;
+      }
+      updateModelFromCurrXY();
+}
+    //***************************************************** Controller         Controller        Controller ******************************************************************************************************************************
+    //***************************************************** Controller         Controller        Controller ******************************************************************************************************************************
+
+    let MOVING_STEP = 1;
+    const  IGNORE_CLICKS_WITHIN =1;
+    let lastClickPerformed = new Date().getTime();
+    const COMMAND_RIGHT = RIGHT;
+    const COMMAND_LEFT = LEFT;
+    const COMMAND_UP = UP;
+    const COMMAND_DOWN = DOWN;
+    var ongoingTouches = [];
+
+    
+    /////////////////////////////////////////////////////  
+    processCommand = function (command ){
+
+
+      //cancelling reverse moving:
+      if (
+         (direction==DOWN && command==COMMAND_UP)
+       ||(direction==UP && command==COMMAND_DOWN)
+       ||(direction==RIGHT && command==COMMAND_LEFT)
+       ||(direction==LEFT && command==COMMAND_RIGHT)
+      ){
+          return;
+      }
+
+      // MOVING_STEP = SQUARE_SIZE;
+      prevLeadingOrFirstSquareCoords = leadingOrFirstSquareCoords.clone(); //FIXME: called 3 times
+
+      // pausecomp(20);
+
+      // document.addEventListener('keypress', (event) => {
+// 
+
+
+      //FIXME: dont use squareX & squareY
+      let squareX = leadingOrFirstSquareCoords.x;
+      let squareY = leadingOrFirstSquareCoords.y;
+      
+      let isModified  = false;
+      
+      updatePrevObj();
+
+      switch(command){
+
+        case COMMAND_DOWN: 
+                          // maybeY= squareY+MOVING_STEP;
+                          // if(maybeY< FIELDBATTLE_START_Y + FIELDBATTLE_HEIGHT)
+                          //    leadingOrFirstSquareCoords.y=maybeY;
+
+                            //  updatePrevObj();
+
+                            direction = DOWN;
+                             leadingOrFirstSquareMODELelementCoords.y++;
+                          break;
+
+        case COMMAND_UP: 
+                          // maybeY= squareY-MOVING_STEP;
+                          // if(maybeY  >= FIELDBATTLE_START_Y)
+                          //    leadingOrFirstSquareCoords.y=maybeY;
+
+                            //  updatePrevObj();
+
+                            direction = UP;
+                        leadingOrFirstSquareMODELelementCoords.y--;
+                         break;                  
+                         
+        case COMMAND_RIGHT:
+                          // maybeX= squareX+MOVING_STEP;
+                          // if(maybeX  < FIELDBATTLE_START_X + FIELDBATTLE_WIDTH)
+                          //   leadingOrFirstSquareCoords.x=maybeX;
+
+                            // updatePrevObj();
+                            direction = RIGHT;
+                            // leadingOrFirstSquareMODELelementCoords.x++;
+                            
+                         break;             
+         
+                         
+        case COMMAND_LEFT: 
+                          // maybeX= squareX-MOVING_STEP;
+                          // if(maybeX  >= FIELDBATTLE_START_X)
+                          //   leadingOrFirstSquareCoords.x=maybeX;
+
+                            // updatePrevObj();
+
+                            direction = LEFT;
+                            leadingOrFirstSquareMODELelementCoords.x--;
+                         break;        
+                           
+      }
+
+      if (! checkIfOutOfBoardFromCurrModelXY()){
+        return;
+      }
+      updateModelFromCurrXY();
+    }   
+
+     /////////////////////////////////////////////////////  
+     updatePrevObj = function (){
+      prevLeadingOrFirstSquareCoords=leadingOrFirstSquareMODELelementCoords.clone();
+    }   
+    
+    /////////////////////////////////////////////////////  
+    updateModelFromCurrXY = function (){
+      modelArr[prevLeadingOrFirstSquareCoords.x][prevLeadingOrFirstSquareCoords.y]= TAIL; 
+      modelArr[leadingOrFirstSquareMODELelementCoords.x][leadingOrFirstSquareMODELelementCoords.y]= HEAD; 
+    }
+
+    /////////////////////////////////////////////////////  
+    checkIfOutOfBoardFromCurrModelXY = function (){
+
+      if (gameOverSuccessfullyFlag){
+        return;
+      }
+
+      if (leadingOrFirstSquareMODELelementCoords.x > MODEL_WIDTH-1
+          ||  leadingOrFirstSquareMODELelementCoords.x < 0
+          ||  leadingOrFirstSquareMODELelementCoords.y > MODEL_HEIGHT-1
+          ||  leadingOrFirstSquareMODELelementCoords.y < 0
+      ){
+          gameOver('Border.') ;
+          return false;
+      }
+
+
+      if (
+      modelArr[leadingOrFirstSquareMODELelementCoords.x ][leadingOrFirstSquareMODELelementCoords.y] == ENEMY
+      ){
+          gameOver('Enemy encounter.') ;
+          return false;
+      }
+
+      if (
+      modelArr[leadingOrFirstSquareMODELelementCoords.x ][leadingOrFirstSquareMODELelementCoords.y] == TAIL
+      ){
+          gameOver('Your own tail.') ;
+          return false;
+      }
+
+      if (
+      modelArr[leadingOrFirstSquareMODELelementCoords.x ][leadingOrFirstSquareMODELelementCoords.y] == EXIT
+      ){
+          // gameOver(WELCOME_MESSAGE) ;
+          updateModelFromCurrXY();
+          draw();
+          gameOverSuccessfullyFlag = true;
+          setTimeout(() => {
+            // updateModelFromCurrXY();
+            alert('WIN! WIN!! WIN!!!') ;
+            gameOverSuccessfullyFlag = false;
+            gameOver(WELCOME_MESSAGE) ;
+          }, 0);
+          
+          return false;
+      }
+
+      return true;
+    }
+
+    function ifNot() {
+      //  squareX = getHalfWidth();
+      //  squareY = getHalfHeight();
+    }
+
+
+    /////////////////////////////////////////////////////  
+    handleClickOrTouch = function (x, y) {
+      
+      if (x>FIELDBATTLE_START_X && x<FIELDBATTLE_END_X && y<FIELDBATTLE_START_Y){
+              processCommand(COMMAND_UP);
+              return;
+            }
+
+            
+            if (x>FIELDBATTLE_START_X && x<FIELDBATTLE_END_X && y>FIELDBATTLE_END_Y){
+              processCommand(COMMAND_DOWN);
+              return;
+            }
+
+            if (y>FIELDBATTLE_START_Y && y<FIELDBATTLE_END_Y && x<FIELDBATTLE_START_X){
+              processCommand(COMMAND_LEFT);
+              return;
+            }
+
+            if (y>FIELDBATTLE_START_Y && y<FIELDBATTLE_END_Y && x>FIELDBATTLE_END_X){
+              processCommand(COMMAND_RIGHT);
+              return;
+            }
+    }
+
+    
+    ///////////////////////////////////////////////////// 
+    clickEventListener = function (event) {
+      //FIXME: repeating block:
+            let clickTime = new Date().getTime();
+            if ( clickTime - lastClickPerformed < IGNORE_CLICKS_WITHIN){
+              return;
+            }
+            lastClickPerformed = clickTime;
+
+            let x = event.clientX ;
+            let y = event.clientY;;
+
+            handleClickOrTouch(x, y)
+
+            // $('mssageInTheBottle').innerHTML=    "clientX: " + event.clientX +  " - clientY: " + event.clientY;
+
+            
+    };
+    
+    /////////////////////////////////////////////////////  
+    //   javascript keyboard events arrow keys simultaneously:
+    //   https://stackoverflow.com/questions/7614340/listen-to-multiple-keydowns
+    //   http://jsfiddle.net/ATUEx/ 
+     keydownEventListener = function (event) {
+        let clickTime = new Date().getTime();
+            if ( clickTime - lastClickPerformed < IGNORE_CLICKS_WITHIN){
+              return;
+            }
+            lastClickPerformed = clickTime;
+
+            const keyName = event.key;
+
+            switch(keyName){
+
+              case "ArrowDown": processCommand(COMMAND_DOWN);
+                                break;
+
+              case "ArrowUp":  processCommand(COMMAND_UP);
+                              break;                  
+                              
+              case "ArrowRight":processCommand(COMMAND_RIGHT);                            
+                              break;             
+              
+                              
+              case "ArrowLeft": processCommand(COMMAND_LEFT);
+                              break;        
+                                
+            }
+
+            if (! checkIfOutOfBoardFromCurrModelXY()){
+              return;
+            }
+            updateModelFromCurrXY();
+    };
+
+//////////////////////////////////////////////////////////////////////////////////////////// TOUCHES STUFF STARTS
+//touch solutions from: https://developer.mozilla.org/ru/docs/Web/API/Touch_events
+function handleStart(evt) {
+
+
+  var target = evt.target || evt.srcElement;
+  let targetTagName = target.tagName.toUpperCase();
+  log('target !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' + targetTagName)
+  if (targetTagName == 'BUTTON'){
+    evt.preventDefault();
+    return;
+  }
+
+
+  // evt.preventDefault();
+  console.log("touchstart.");
+  var el = canvas; // document.getElementById("canvas");
+  var ctx = el.getContext("2d");
+  var touches = evt.changedTouches;
+
+  for (var i = 0; i < touches.length; i++) {
+    console.log("touchstart:" + i + "...");
+    ongoingTouches.push(copyTouch(touches[i]));
+    var color = colorForTouch(touches[i]);
+    ctx.beginPath();
+
+    // ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false);  // a circle at the start
+    handleClickOrTouch(touches[i].pageX, touches[i].pageY);
+
+    log('handleStart !!!!!!!!!')
+    ctx.fillStyle = color;
+    ctx.fill();
+    console.log("touchstart:" + i + ".");
+  }
+}
+
+
+function handleMove(evt) {
+  // evt.preventDefault();
+  var el = canvas; // document.getElementById("canvas");
+  var ctx = el.getContext("2d");
+  var touches = evt.changedTouches;
+
+  for (var i = 0; i < touches.length; i++) {
+    var color = colorForTouch(touches[i]);
+    var idx = ongoingTouchIndexById(touches[i].identifier);
+
+    if (idx >= 0) {
+
+      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111111111111111111
+      // doTheDrawing(touches[i].pageX, touches[i].pageY);
+
+      console.log("continuing touch "+idx);
+      ctx.beginPath();
+      console.log("ctx.moveTo(" + ongoingTouches[idx].pageX + ", " + ongoingTouches[idx].pageY + ");");
+      // ctx.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY);
+      console.log("ctx.lineTo(" + touches[i].pageX + ", " + touches[i].pageY + ");");
+      // ctx.lineTo(touches[i].pageX, touches[i].pageY);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = color;
+      ctx.stroke();
+
+      ongoingTouches.splice(idx, 1, copyTouch(touches[i]));  // swap in the new touch record
+      console.log(".");
+    } else {
+      console.log("can't figure out which touch to continue");
+    }
+  }
+}
+
+
+function handleEnd(evt) {
+  // evt.preventDefault();
+  log("touchend");
+  var el = canvas; // document.getElementById("canvas");
+  var ctx = el.getContext("2d");
+  var touches = evt.changedTouches;
+
+  for (var i = 0; i < touches.length; i++) {
+    var color = colorForTouch(touches[i]);
+    var idx = ongoingTouchIndexById(touches[i].identifier);
+
+    if (idx >= 0) {
+      ctx.lineWidth = 4;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      // ctx.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY);
+      // ctx.lineTo(touches[i].pageX, touches[i].pageY);
+      // ctx.fillRect(touches[i].pageX - 4, touches[i].pageY - 4, 8, 8);  // and a square at the end
+      ongoingTouches.splice(idx, 1);  // remove it; we're done
+    } else {
+      console.log("can't figure out which touch to end");
+    }
+  }
+}
+
+function handleCancel(evt) {
+  // evt.preventDefault();
+  console.log("touchcancel.");
+  var touches = evt.changedTouches;
+
+  for (var i = 0; i < touches.length; i++) {
+    var idx = ongoingTouchIndexById(touches[i].identifier);
+    ongoingTouches.splice(idx, 1);  // remove it; we're done
+  }
+}
+
+function copyTouch({ identifier, pageX, pageY }) {
+  return { identifier, pageX, pageY };
+}
+
+
+function ongoingTouchIndexById(idToFind) {
+  for (var i = 0; i < ongoingTouches.length; i++) {
+    var id = ongoingTouches[i].identifier;
+
+    if (id == idToFind) {
+      return i;
+    }
+  }
+  return -1;    // not found
+}
+
+function colorForTouch(touch) {
+  var r = touch.identifier % 16;
+  var g = Math.floor(touch.identifier / 3) % 16;
+  var b = Math.floor(touch.identifier / 7) % 16;
+  r = r.toString(16); // make it a hex digit
+  g = g.toString(16); // make it a hex digit
+  b = b.toString(16); // make it a hex digit
+  var color = "#" + r + g + b;
+  console.log("color for touch with identifier " + touch.identifier + " = " + color);
+  return color;
+}
+    
+//////////////////////////////////////////////////////////////////////////////////////////// TOUCHES STUFF ENDS
+
+    //***************************************************** VIEW         VIEW        VIEW *********************************************************************************************************************************************
+    //***************************************************** VIEW         VIEW        VIEW *********************************************************************************************************************************************
+    //***************************************************** VIEW         VIEW        VIEW *********************************************************************************************************************************************
+
+    //globals used here:  ***************************************************************************************************************************************
+
+    let SQUARE_SIZE = 10;
+    const LEADING_OR_FIRST_SQUARE_COLOR = '#0037ffff';
+    const TRACE_SQUARE_COLOR = '#bbdca5ff';
+    const EMPTY_SQUARE_COLOR = 'white';
+    const ENEMY_COLOR = 'red';
+    let viewUpdateIntervalVar = null;
+
+    let timeOfLastMessage=new Date().getTime();
+
+    let FIELDBATTLE_START_X=-1;
+    let FIELDBATTLE_START_Y=-1;
+    let FIELDBATTLE_END_X=-1;
+    let FIELDBATTLE_END_Y=-1;
+
+    let RIGHT_BUTTON_ELEMENT = null;
+    let LEFT_BUTTON_ELEMENT = null;
+    let UP_BUTTON_ELEMENT = null;
+    let DOWN_BUTTON_ELEMENT = null;
+
+    const IS_USUAL_LOOP_THRU_X = 0;
+    const IS_FULL_LOOP_THRU_X_AND_Y = ! IS_USUAL_LOOP_THRU_X;
+    const STEP =  1; //.25;
+    const WORKAREA_ZOOM = 1;
+    const X_Y_ZOOM = 2;  //better leave it =1, it's very weird otherwise :)
+    const IS_PERFORM_UPDATE = true;
+    let TIMELOUT_OF_UPDATE_IN_MS = 10;
+    
+
+    var ctx = null; // canvas.getContext('2d')
+
+    var coef_1 = 1;
+    var coef_1_go_plus = true;
+    const coef_1_delta = 15;
+    const coef_1_min = 0;
+    const coef_1_max = 400;
+
+    //todo: add min and max
+
+    OFFSET=40;
+    END_X=1300;
+    END_Y=1000;
+    
+    hexes=['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' ];
+    
+    function randomInteger(min, max) {
+      let rand = min - 0.5 + Math.random() * (max - min + 1);
+      return Math.round(rand);
+    }
+    
+    function randHexDigit() {
+      return hexes[ randomInteger(0,15) ];
+    }
+    
+    function randColor() {
+    
+        return "#"+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit();
+    
+    }
+    
+    function gameOver(msg) {    
+      msgForUser('Game over. '+msg+'');
+      reInitModel();
+    }
+    
+    function msgForUser(msg) { 
+       $('mssageInTheBottle').innerHTML=msg;
+        timeOfLastMessage=new Date().getTime();
+    } 
+    
+    /*
+    putPixel = function( x,y, color ){
+      
+      var div = document.createElement("div");
+      div.style.backgroundColor=color;
+      div.style.width="1px";
+      div.style.height="1px";
+      div.style.fontSize="1px";
+      div.style.position="absolute";
+      div.style.top=y+"px";
+      div.style.left=x+"px";
+      document.body.appendChild(div);
+    
+    }
+    */
+    
+    //WAYS to draw a pixel:  https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+    putPixel = function( x,y, /* color: */ r, g ,b ){      
+              id.data[0] = r;
+              id.data[1] = g;
+              id.data[2] = b;
+              ctx.putImageData(id,  x , y);    
+    }
+    
+/////////////////////////////////////////////////////   
+function  putBoldPixel ( x,y, /* color: */ r, g ,b ){     
+
+
+
+BOLD_PIXEL_WIDTH_AND_HEIGHT = 4; //(4/5) * Math.min(  halfWidthDenys, halfHeightDenys );  //NB: actually number of ADDED pixels from all sides. So "1" means 3x3
+
+        // ctx.beginPath();
+    // ctx.arc(x,y,50,0,Math.PI*2);
+    // ctx.closePath();
+ 
+//  *****************  OLDER ****************************
+      // putPixel ( x,y, r, g ,b );
+
+      for (let index = x-(BOLD_PIXEL_WIDTH_AND_HEIGHT); index <= x+BOLD_PIXEL_WIDTH_AND_HEIGHT; index++) {
+        for (let index2 = y-(BOLD_PIXEL_WIDTH_AND_HEIGHT); index2 <= y+BOLD_PIXEL_WIDTH_AND_HEIGHT; index2++) {
+
+          putPixel ( index,index2, r, g ,b );
+        //   await sleep(1);
+
+        }
+      }
+      //FOR TESTING: put RED pixel at (x,y)
+      // putPixel ( x,y, 255, 0 ,0 );
+
+
+//*************** CODE BELOW WAS SAVED FOR HISTORICAL REASONS ONLY: ********************
+//pluses
+      // putPixel ( x+1,y, r, g ,b );
+      // putPixel ( x,y+1, r, g ,b );
+      // putPixel ( x+2,y, r, g ,b );
+      // putPixel ( x,y+2, r, g ,b );
+
+      // putPixel ( x+3,y, r, g ,b );
+      // putPixel ( x,y+3, r, g ,b );
+      // putPixel ( x+3,y, r, g ,b );
+      // putPixel ( x,y+3, r, g ,b );
+
+      // putPixel ( x+1,y+1, r, g ,b );
+      // putPixel ( x+2,y+2, r, g ,b );
+      // putPixel ( x+3,y+3, r, g ,b );
+//minuses
+      // putPixel ( x-1,y, r, g ,b );
+      // putPixel ( x,y-1, r, g ,b );
+      // putPixel ( x-2,y, r, g ,b );
+      // putPixel ( x,y-2, r, g ,b );
+
+      // putPixel ( x-3,y, r, g ,b );
+      // putPixel ( x,y-3, r, g ,b );
+      // putPixel ( x-3,y, r, g ,b );
+      // putPixel ( x,y-3, r, g ,b );
+
+      // putPixel ( x-1,y-1, r, g ,b );
+      // putPixel ( x-2,y-2, r, g ,b );
+      // putPixel ( x-3,y-3, r, g ,b );
+}
+
+    id = function(x){
+     return document.getElementById(x);
+    
+    }
+      
+        
+    horizontalLine = function(  startX, endX, y ){
+    
+    var i = 0;
+    
+    for ( i=startX; i<=endX;i++ )
+      putPixel(i,y+OFFSET, 255, 0, 0);
+    
+    
+    }
+    
+    
+verticalLine = function(  x, startY, endY ){
+
+var i = 0;
+
+for ( i=startY; i<=endY+OFFSET;i++ )
+  putPixel(x,i, 0, 255, 0);
+
+
+}
+
+
+
+diagonalLineDown = function( startX, endX, startY  ){
+
+	var i = 0;
+	for ( i=startX; i<=endX;i++ )
+	  putPixel(i,startY+i+OFFSET, 0, 0, 255);
+
+}
+
+
+
+diagonalLineUp = function( startX, endX, startY  ){
+
+	var i = 0;
+	for ( i=startX; i<=endX;i++ )
+	  putPixel(i,startY-i+OFFSET, 0, 0, 0);
+
+}
+    
+   /////////////////////////////////////////////////////    
+getWidth = function() {
+  return END_X;
+};   
+   
+   /////////////////////////////////////////////////////    
+getHeight= function() {
+  return END_Y;
+};   
+
+   /////////////////////////////////////////////////////    
+getHalfWidth = function() {
+  return parseInt( getWidth()/2  );
+};   
+   
+   /////////////////////////////////////////////////////    
+getHalfHeight= function() {
+  return parseInt( getHeight()/2  );
+};  
+
+/////////////////////////////////////////////////////    
+   getX= function(x) {
+  return x - getHalfWidth();
+};  
+
+/////////////////////////////////////////////////////    
+getY= function(y) {
+  // return y - getHalfHeight();
+
+  //FIXME?
+  return  getHalfHeight() - y;
+}; 
+
+  /////////////////////////////////////////////////////    
+approxeq = function(v1, v2, epsilon) {
+  if (epsilon == null) {
+    epsilon = 0.001;
+  }
+  return Math.abs(v1 - v2) < epsilon;
+};
+    
+
+/////////////////////////////////////////////////////    
+line = function(x1, y1, x2, y2) {
+    ctx.beginPath();       // Начинает новый путь
+    ctx.moveTo(x1, y1);    // Передвигает перо в точку (30, 50)
+    ctx.lineTo(x2, y2);  // Рисует линию до точки (150, 100)
+    ctx.stroke()
+};
+
+/////////////////////////////////////////////////////    
+// filledRectangle = function(x1, y1, x2, y2, x3, y3, x4, y4    ) {
+  filledRectangle = function(x1, y1, x2, y2, color   ) {
+   
+    ctx.beginPath();       // Начинает новый путь
+    // let oldFillStyle=ctx.fillStyle;
+    ctx.fillStyle = color; //"green";
+    ctx.fillRect(x1, y1, x2, y2);
+    // ctx.fillStyle='white';
+    ctx.stroke();
+  
+};
+
+
+/////////////////////////////////////////////////////    
+ // AIN'T WORKING
+  filledSquare = function(x1, y1, color   ) {
+    squreSize = SQUARE_SIZE
+    // filledRectangle(x1, y1, x1+squreSize, y1+squreSize, color   )
+    // ctx.beginPath();       // Начинает новый путь
+    ctx.fillStyle = color; //"green";
+    ctx.fillRect(x1, y1, squreSize, squreSize);
+    // ctx.stroke()
+};
+
+/////////////////////////////////////////////////////    
+function pausecomp(millis)
+{
+    var date = new Date();
+    var curDate = null;
+    do { curDate = new Date(); }
+    while(curDate-date < millis);
+}
+    
+/////////////////////////////////////////////////////        
+draw   = function(){
+
+
+            //  canvas = document.getElementById('canvas');
+            //  ctx = canvas.getContext('2d');
+            //  cw = canvas.width;
+            //  ch = canvas.height;
+            //  id = ctx.getImageData(0, 0, 1, 1);
+            // //DONT TOUCH !!
+            // // ctx.clearRect(0, 0, cw, ch);  //clearCanvas
+            // id.data[3] = 255;
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////// DRAWI8NG ********************************************************************************************************
+
+
+
+
+// line(FIELDBATTLE_START_X, FIELDBATTLE_START_Y, FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y);
+// line(FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y, FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT);
+// line(FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT, FIELDBATTLE_START_X, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT);
+// line(FIELDBATTLE_START_X, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT, FIELDBATTLE_START_X, FIELDBATTLE_START_Y);
+
+    
+
+    filledSquare(prevLeadingOrFirstSquareCoords.x, prevLeadingOrFirstSquareCoords.y, TRACE_SQUARE_COLOR);
+    filledSquare(leadingOrFirstSquareCoords.x, leadingOrFirstSquareCoords.y, LEADING_OR_FIRST_SQUARE_COLOR);
+
+    
+    for (let index = 0; index < modelArr.length; index++) {
+      const subArr = modelArr[index];
+      for (let index2 = 0; index2 < modelArr[index].length; index2++) {
+        const element = modelArr[index][index2];
+        let colorToUse = 'black';
+        switch(element){
+          case EMPTY: colorToUse=EMPTY_SQUARE_COLOR;
+                       break;
+
+          case HEAD:
+          case EXIT:
+                      colorToUse=LEADING_OR_FIRST_SQUARE_COLOR;
+                      break; 
+
+          case ENEMY: colorToUse=ENEMY_COLOR;
+          break;      
+
+          case TAIL: colorToUse=TRACE_SQUARE_COLOR;
+          break;          
+          
+          default: alert('err - Unknown MODEL arr element: '+ element)
+        }
+        filledSquare( FIELDBATTLE_START_X + (index*SQUARE_SIZE), FIELDBATTLE_START_Y + (index2*SQUARE_SIZE), colorToUse);
+        
+      }
+      
+    }
+
+
+
+    // let cloned=leadingOrFirstSquareCoords.clone();
+    // filledSquare(cloned.x, cloned.y, LEADING_OR_FIRST_SQUARE_COLOR);
+
+        return;
+
+        // diagonalLineDown(0, 0, 1000)
+        
+        // 
+        // diagonalLineUp
+       
+   if (IS_FULL_LOOP_THRU_X_AND_Y){
+
+       for (var y = 0; y < getHeight(); y+=STEP) {  //0
+
+        for (var x = 0; x < getWidth(); x+=STEP) {   //0
+          //var color=randColor();  
+
+          //    var x = Math.floor(Math.random() * cw);
+          // var y = Math.floor(Math.random() * ch);
+
+          // MAIN CONDITION:
+          // if (x==y){
+          // if   (  approxeq( x*x+y*y,500*500,1000) ){
+
+           //100% filling work area:
+          // if   (  true  ){    //TODO: try eval("x") in the func (speed?))           
+
+          //circle:
+          // if   (  approxeq(    getX(x)*getX(x)+getY(y)*getY(y) ,   400**2,    1000) ){    //TODO: try eval("x") in the func (speed?))
+
+
+          //ellipse:
+          // let a = 5;  let b = 15;   if   (  approxeq(    getX(x)*getX(x)/(a*a)+getY(y)*getY(y)/(b*b) ,   1,    500) ){    //TODO: try eval("x") in the func (speed?))
+
+          //PARABOLA:
+          // if   (  approxeq(  (1/25)*  getX(x)*getX(x) ,   getY(y),    25) ){    //TODO: try eval("x") in the func (speed?))
+
+          //line:
+          // if   (  approxeq(    getX(x) ,   getY(y),    5) ){    //TODO: try eval("x") in the func (speed?))           
+          
+
+          //hiperbla:
+          // if   (  approxeq(   (1/100)* getX(x)*getX(x)*getX(x) ,   getY(y),    30) ){    //TODO: try eval("x") in the func (speed?))
+
+            //1/x:   - FAILED SO FAR
+          // if   (  approxeq(   1/getX(x),   getY(y),    .01) ){    //TODO: try eval("x") in the func (speed?))        
+
+          //Math.abs:
+          // if   (  approxeq(  Math.abs(getX(x)) ,   getY(y),    30) ){    //TODO: try eval("x") in the func (speed?))
+
+          //sinusoida:
+          // if   (  approxeq(  (100)*  Math.sin(getX(x/111)) ,   getY(y),    2.5) ){    //TODO: try eval("x") in the func (speed?))
+
+          //tangesoida:
+          // if   (  approxeq( coef_1 * (100)*  Math.tan(getX(x/111)) ,   getY(y),    2.5) ){    //TODO: try eval("x") in the func (speed?))
+          
+          //ULITKA 2 (real) :   try a = ...
+          // let a = coef_1;  let L = a/2 /* /3.5 */ ;   if   (  approxeq(     (getX(x)*getX(x)+getY(y)*getY(y) +a*getY(y))**2 ,   L*L*( getX(x)*getX(x)+getY(y)*getY(y) ),    coef_1*1000) ){    //TODO: try eval("x") in the func (speed?))
+ 
+
+          //Hyperbolic spiral - FAILED SO FAR
+          // let p = 100;  let f = coef_1 ;   if   (  approxeq(     getX(x)  ,   p * Math.cos(f),   5)   
+          //                                            && approxeq(     getY(y) ,   p * Math.sin(f),    5)   ){    //TODO: try eval("x") in the func (speed?))
+
+          //Archimedean spiral - FAILED SO FAR - growing circle actually
+          if   (  approxeq(  Math.sqrt ( getX(x)*getX(x)+getY(y)*getY(y)  ),   0.001 *  Math.atan(getY(y) / getX(x)),    coef_1) ){    //TODO: try eval("x") in the func (speed?))
+
+              // var r = Math.floor(Math.random() * 256);
+              // var g = Math.floor(Math.random() * 256);
+              // var b = Math.floor(Math.random() * 256);
+              // id.data[0] = r;
+              // id.data[1] = g;
+              // id.data[2] = b;
+              // ctx.putImageData(id, x, y);
+
+             putPixel( Math.floor(x) * X_Y_ZOOM, Math.floor(y) * X_Y_ZOOM, /* color: */ 100, 100 ,100 );
+
+              //HERE !!
+              // id.data[0] = 100;
+              // id.data[1] = 100;
+              // id.data[2] = 100;
+              // ctx.putImageData(id,   Math.floor(x) * X_Y_ZOOM , Math.floor(y) * X_Y_ZOOM);
+
+          } // if (MAIN CONDITION)
+
+    }//for x
+
+
+    }//for y
+
+  }//   if (IS_FULL_LOOP_THRU_X_AND_Y){
+    
+  else {
+
+      alert("IS_FULL_LOOP_THRU_X_AND_Y=="+IS_FULL_LOOP_THRU_X_AND_Y);
+
+    }  //else (( ! IS_FULL_LOOP_THRU_X_AND_Y))
+    
+    // alert(2);
+
+
+      // putPixel (getHalfWidth(), getHalfHeight(), "red")
+
+
+      //START PIXEL: ****************************
+      id.data[0] = 255;
+      id.data[1] = 0;
+      id.data[2] = 0;
+      // ctx.putImageData(id, getHalfWidth(), getHalfHeight());
+      ctx.putImageData(id, 100, 100);
+      //END PIXEL: ****************************
+
+  // return;
+}
+      
+
+/////////////////////////////////////////////////////  
+//NB!!! CALL only from "async function xxx()" like this: "await sleep(1000);"  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+// from: https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+//////////////////////////////////////////////////////
+function update() {
+  coef_1 =  (coef_1_go_plus ? coef_1+coef_1_delta : coef_1 - coef_1_delta);
+
+  if (coef_1<coef_1_min) coef_1_go_plus=true;
+
+  if (coef_1>coef_1_max) coef_1_go_plus=false;  
+
+  // console.log(coef_1);
+  // clearCanvas();  //WORKHERE
+  if (!gameOverSuccessfullyFlag){
+   draw();
+  }
+}
+
+/////////////////////////////////////////////////////      
+  async function init() {
+
+     if (viewUpdateIntervalVar==null){
+        clearInterval(viewUpdateIntervalVar);
+        viewUpdateIntervalVar=null;
+     }
+
+      canvas = document.getElementById('canvas');
+       
+      canvas.width= getAvailableWidth();   // getAvailableWidth();
+      canvas.height= getAvailableHeight();   // getAvailableHeight();
+
+      log('W/H : !!!!!!!!!!!!!!!! '+canvas.width+'; '+canvas.height)
+
+    END_X=parseInt(canvas.width );
+    END_Y= parseInt(canvas.height) ;
+
+    FIELDBATTLE_PERCENT_FROM_SCREEN=0.7;
+    FIELDBATTLE_WIDTH=END_X * FIELDBATTLE_PERCENT_FROM_SCREEN;         
+    FIELDBATTLE_HEIGHT=END_Y * FIELDBATTLE_PERCENT_FROM_SCREEN;   
+    let ostatok = FIELDBATTLE_WIDTH % SQUARE_SIZE;
+    // log(ostatok)
+    FIELDBATTLE_WIDTH -= ostatok;
+    ostatok = FIELDBATTLE_WIDTH % SQUARE_SIZE;
+    // log(ostatok)
+    ostatok = FIELDBATTLE_HEIGHT % SQUARE_SIZE;
+    // log(ostatok)
+    FIELDBATTLE_HEIGHT -= ostatok
+    ostatok = FIELDBATTLE_HEIGHT % SQUARE_SIZE;
+    // log(ostatok)
+
+    FIELDBATTLE_HALF_WIDTH=FIELDBATTLE_WIDTH/2;         
+    FIELDBATTLE_HALF_HEIGHT=FIELDBATTLE_HEIGHT/2;             
+    FIELDBATTLE_START_X=getHalfWidth()-FIELDBATTLE_HALF_WIDTH;
+    FIELDBATTLE_START_Y=getHalfHeight() - FIELDBATTLE_HALF_HEIGHT;
+    FIELDBATTLE_END_X=getHalfWidth()+FIELDBATTLE_HALF_WIDTH;
+    FIELDBATTLE_END_Y=getHalfHeight() + FIELDBATTLE_HALF_HEIGHT;;
+
+    reInitModel();
+
+    //init canvas:
+    canvas = document.getElementById('canvas');
+    ctx = canvas.getContext('2d');
+    cw = canvas.width;
+    ch = canvas.height;
+    id = ctx.getImageData(0, 0, 1, 1);
+    //DONT TOUCH !!
+    // ctx.clearRect(0, 0, cw, ch);  //clearCanvas
+    id.data[3] = 255;
+
+    //border drawing:
+    line(FIELDBATTLE_START_X, FIELDBATTLE_START_Y, FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y);
+    line(FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y, FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT);
+    line(FIELDBATTLE_START_X+FIELDBATTLE_WIDTH, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT, FIELDBATTLE_START_X, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT);
+    line(FIELDBATTLE_START_X, FIELDBATTLE_START_Y+FIELDBATTLE_HEIGHT, FIELDBATTLE_START_X, FIELDBATTLE_START_Y);
+   
+
+
+    //cursot buttons drawing: 
+    let rightBlankAreaStartX = FIELDBATTLE_END_X;
+    let rightBlankAreaEndX = END_X;
+    let rightBlankAreaWidth = rightBlankAreaEndX - rightBlankAreaStartX;
+    let rightBlankAreaMiddleX = rightBlankAreaStartX + parseInt (rightBlankAreaWidth/2)
+    let buttonWidth=  parseInt( 2* rightBlankAreaWidth /3 );
+    let halfButtonWidth=  parseInt( buttonWidth/2  )
+    let smallerButtonsWidth=  parseInt( 2* buttonWidth/3  )
+    let xForUpAndDownButtons = rightBlankAreaMiddleX - halfButtonWidth
+    let xForRightButtonGroup=FIELDBATTLE_END_X ;
+    if (UP_BUTTON_ELEMENT!=null){
+      document.body.removeChild(UP_BUTTON_ELEMENT);
+      UP_BUTTON_ELEMENT=null;
+    }
+    if (DOWN_BUTTON_ELEMENT!=null){
+      document.body.removeChild(DOWN_BUTTON_ELEMENT);
+      DOWN_BUTTON_ELEMENT=null;
+    }
+    if (RIGHT_BUTTON_ELEMENT!=null){
+      document.body.removeChild(RIGHT_BUTTON_ELEMENT);
+      RIGHT_BUTTON_ELEMENT=null;
+    }
+    if (LEFT_BUTTON_ELEMENT!=null){
+      document.body.removeChild(LEFT_BUTTON_ELEMENT);
+      LEFT_BUTTON_ELEMENT=null;
+    }
+    UP_BUTTON_ELEMENT = addCursorButton('&#8593;', function (e) {       processCommand(COMMAND_UP);     e.stopPropagation();     e.preventDefault(); return false;      } , xForUpAndDownButtons, 150, buttonWidth)
+    DOWN_BUTTON_ELEMENT = addCursorButton('&#8595;', function (e) {      processCommand(COMMAND_DOWN);     e.stopPropagation();     e.preventDefault(); return false;     }  ,xForUpAndDownButtons, 300, buttonWidth)
+    RIGHT_BUTTON_ELEMENT = addCursorButton('&#8594;', function (e) {      processCommand(COMMAND_RIGHT);        e.stopPropagation();     e.preventDefault(); return false;   } , rightBlankAreaMiddleX, 230, smallerButtonsWidth)
+    LEFT_BUTTON_ELEMENT=   addCursorButton('&#8592;', function (e) {      processCommand(COMMAND_LEFT);       e.stopPropagation();     e.preventDefault(); return false;    }   , rightBlankAreaStartX, 230, smallerButtonsWidth)
+
+      draw();
+      // await sleep(1000)
+      // clearCanvas();
+      // await sleep(1000)
+      // draw();
+
+      document.body.removeEventListener('keydown', keydownEventListener, false);
+      document.body.addEventListener('keydown', keydownEventListener, false);
+
+      document.body.removeEventListener('click', clickEventListener, false);
+      document.body.addEventListener('click', clickEventListener, false);
+
+      var el =  document.body;  //canvas; //document.getElementById("canvas");
+      el.removeEventListener('touchstart', handleStart, false);
+      el.addEventListener("touchstart", handleStart, false);
+      el.removeEventListener('touchend', handleEnd, false);
+      el.addEventListener("touchend", handleEnd, false);
+      el.removeEventListener('touchcancel', handleCancel, false);
+      el.addEventListener("touchcancel", handleCancel, false);
+      el.removeEventListener('touchmove', handleMove, false);
+      el.addEventListener("touchmove", handleMove, false);
+
+      if (IS_PERFORM_UPDATE){
+        viewUpdateIntervalVar = setInterval(() => {
+            update();
+          }, TIMELOUT_OF_UPDATE_IN_MS);
+      }
+
+      // console.log("xx");
+}
+    
+
+//
+initMsg= function(){
+  if (timeOfLastMessage + (3 * 1000) <  new Date().getTime())   {
+    $('mssageInTheBottle').innerHTML=WELCOME_MESSAGE;
+  }
+  setTimeout(() => {
+    initMsg();
+          }, 5000);
+}
+
+/////////////////////////////////////////////////////      
+clearCanvas = function(){
+
+      
+      canvas = document.getElementById('canvas');
+       
+      const context = canvas.getContext('2d');
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+
+//
+addCursorButton= function(char,  command,  left, top, buttonWidth){
+  let fontSize=parseInt(buttonWidth/2)
+  var newDiv = document.createElement("button");
+    newDiv.innerHTML=  char ;//  
+    newDiv.onclick = command;
+
+    newDiv.style.position='absolute';
+    newDiv.style.left=left+"px";
+    newDiv.style.top=(top)+"px";
+    newDiv.style.width=buttonWidth+"px";
+    newDiv.style.fontSize=fontSize+"px";
+    document.body.appendChild(newDiv);
+
+    return newDiv;
+}
+
+///////////////////////////
+function updateOrientation() {
+
+
+   log ('updateOrientation w/h:'+window.innerWidth+'; '+window.innerHeight)  
+
+   if(window.innerWidth> window.innerHeight){
+        //we are in landscape mode, add the 'LandscapeClass' class to the element
+        document.getElementById("mssageInTheBottle").innerHTML += " LandscapeClass";
+        log ('LandscapeClass')  
+    } else {
+        //we are in portrait mode, remove the class
+        document.getElementById("mssageInTheBottle").innerHTML = 
+           document.getElementById("mssageInTheBottle").innerHTML.replace
+              ( /(?:^|\s)LandscapeClass(?!\S)/ , 'porttttrait' );
+        log ('porttttrait')  
+   }
+
+  //   if(window.innerWidth> window.innerHeight){
+  //       //we are in landscape mode, add the 'LandscapeClass' class to the element
+  //       document.getElementById("element").className += " LandscapeClass";
+  //   } else {
+  //       //we are in portrait mode, remove the class
+  //       document.getElementById("element").className = 
+  //          document.getElementById("element").className.replace
+  //             ( /(?:^|\s)LandscapeClass(?!\S)/ , '' );
+  //  }
+}
+
+
+//////////////////////////
+function getAvailableWidth() {
+  // let document_body_clientWidth = document.body.clientWidth;
+  // let window_innerWidth = 1* parseInt(window.innerWidth);
+  // let window_outerWidth = 1* parseInt(window.outerWidth);
+  // let screen_width = 1* parseInt(screen.Width);
+  // return document_body_clientWidth;
+
+  return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+}
+
+//////////////////////////
+function getAvailableHeight() {
+  // let document_body_clientHeight = 1* parseInt(document.body.clientHeight );
+  // let window_innerHeight = 1* parseInt(window.innerHeight);
+  // let window_outerHeight = 1* parseInt(window.outerHeight);
+  // let screen_height = 1* parseInt(screen.height);   
+  // return document_body_clientHeight*1;
+
+return window.innerHeight|| document.documentElement.clientHeight|| document.body.clientHeight;
+}
+
+/////////////////
+onloadFunc = function(){
+    init(); 
+    initMsg();
+    $('mssageInTheBottle').innerHTML=WELCOME_MESSAGE; 
+    // alert(65)
+    // updateOrientation();
+}
+
+/////////////////
+onloadFunc_SetTimeoutWrapper = function(){
+  setTimeout(() => {  onloadFunc()  }, 300);
+  // updateOrientation();
+}
+
+/////////////////
+resizeFunc = function(){
+  //  location.reload(); 
+  //  return; 
+
+
+   clearCanvas();
+    init();
+}
+
+/////////////////
+resizeFunc_SetTimeoutWrapper = function(){
+  setTimeout(() => {  resizeFunc()  }, 300);
+  // updateOrientation();
+}
+
+</script>
+
+</head>
+
+
+<!-- ADDED style="touch-action: none;"  because otherwise " evt.preventDefault();" in the begib of touch funcs give error -->
+<body  style="touch-action: none;" onload="/*onloadFunc();*/   onloadFunc_SetTimeoutWrapper();"  onresize="resizeFunc();"  onorientationchange="return; updateOrientation();">
+
+
+	<span id="mssageInTheBottle" style="font-size : 20px;;width:1000px;color:red;cursor:pointer;position: absolute;top: 10px;left: 0px;"> Welcome. Please play.. </span>
+
+
+
+	<!-- <span id="tuning" style="font-size : 20px;;width:1000px;float: bottom;color:red;">
+    modelUpdateIntervalInMs:<input type="text" maxlength="3" onchange="modelUpdateIntervalInMs=parseInt(this.value);clearCanvas(); init();" value="50" style="width: 50px;">&nbsp;
+    viewUpdateIntervalVar:<input type="text" maxlength="3" onchange="viewUpdateIntervalVar=parseInt(this.value);clearCanvas(); init();" value="10" style="width: 50px;">&nbsp;
+    MOVING_STEP:<input type="text" maxlength="3" onchange="MOVING_STEP=parseInt(this.value);clearCanvas(); init();" value="1" style="width: 50px;">&nbsp;
+    NUMBER_OF_ENEMIES:<input type="text" maxlength="3" onchange="NUMBER_OF_ENEMIES=parseInt(this.value);clearCanvas(); init();" value="5" style="width: 50px;">&nbsp;
+    SQUARE_SIZE:<input type="text" maxlength="3" onchange="SQUARE_SIZE=parseInt(this.value);clearCanvas(); init();" value="10" style="width: 50px;">&nbsp;
+  </span> -->
+
+    
+  <canvas id="canvas" width="1" height="1">
+
+    
+
+</body>
+</html>
