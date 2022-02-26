@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <title>anti-anti-flood</title>
+
+
+</head>
+
+
+
+<body onload="doit()">
+
+<center>
+<!-- <h2>Lorem</h2> -->
+
+<h2>anti-anti-flood</h2>
+
+</center>
+
+<hr>
+
+Initial Message: <input id="msg" value="Я тебя люблю"> <button onclick="doit()"> One more! </button>
+<br><br><br>
+
+<b>anti-anti-flooded  Message:</b>
+
+<br>
+<textarea  id="anti-anti-flooded-msg" cols="100" rows="30"></textarea>
+
+
+
+
+<hr>
+<!-- <center> <img src="emailWhite.jpg"> </center> -->
+
+<script>
+
+function randomInteger(min, max) {
+      let rand = min - 0.5 + Math.random() * (max - min + 1);
+      return Math.round(rand);
+    }
+
+$ = function(x){
+        return document.getElementById(x);
+       
+}
+
+smth = function(x){
+        return   new Array( randomInteger(1,10)  + 1).join( '_' );
+}
+
+doit = function(x){
+        let message = $('msg').value;
+        let textarea = $('anti-anti-flooded-msg');
+        // alert(message)
+        let altered =    smth(); //message.split(' ').join(   new Array( randomInteger(1,4)  + 1).join( 'x' )  )
+        let splitted = message.split(' ');
+
+        // alert (splitted.length)
+
+        for (let index = 0; index < splitted.length; index++) {
+          const element = splitted[index];
+          let toAdd = smth();
+          altered += splitted[index] + toAdd ;//  .join(   new Array( randomInteger(1,4)  + 1).join( 'x' )  )
+        }
+
+
+
+        textarea.value = altered;
+       
+}
+
+</script>
+
+</body>
+</html>
