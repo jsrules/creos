@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator v.0.02</title>
+
+
+    <script>
+        //*****************************************************  COMMONS  ******************************************************************************************************************************
+
+        const UPDATE_TIME_IN_MS = 10;
+        updateTimeout = null;
+        mainDiv = null;
+        buttonsTable = null;
+
+        const COMMAND_0 = 'COMMAND_0';
+        const COMMAND_1 = 'COMMAND_1';
+        const COMMAND_2 = 'COMMAND_2';
+        const COMMAND_3 = 'COMMAND_3';
+        const COMMAND_4 = 'COMMAND_4';
+        const COMMAND_5 = 'COMMAND_5';
+        const COMMAND_6 = 'COMMAND_6';
+        const COMMAND_7 = 'COMMAND_7';
+        const COMMAND_8 = 'COMMAND_8';
+        const COMMAND_9 = 'COMMAND_9';
+
+        const COMMAND_PLUS = '+';
+        const COMMAND_MINUS = '-';
+        const COMMAND_MULTIPLY = '*';
+        const COMMAND_DIVISION = '/';
+        const COMMAND_CLEAR = 'COMMAND_CLEAR';
+        const COMMAND_EQUALS = 'COMMAND_EQUALS';
+
+        IN_THE_MIDDLE_OF_CALCULATION = false;
+
+        const IGNORE_CLICKS_WITHIN = 1;
+        lastClickPerformed = new Date().getTime()
+        const START_VISIBLE_VALUE = '0';
+        lastCommand = null;
+        lastVisibleValue = null;
+
+        ///////
+        f = function (x) {
+            return null;
+        }
+
+        ///////
+        $ = function (x) {
+            return document.getElementById(x);
+        }
+
+        ///////
+        function randomInteger(min, max) {
+            let rand = min - 0.5 + Math.random() * (max - min + 1);
+            return Math.round(rand);
+        }
+
+        ///////        
+        function log(msg) {
+            console.log(msg)
+        }
+
+        //***************************************************** MODEL         MODEL        MODEL ******************************************************************************************************************************
+        //***************************************************** MODEL         MODEL        MODEL ******************************************************************************************************************************
+
+        visibleValue = START_VISIBLE_VALUE;
+
+
+        //***************************************************** VIEW         VIEW        VIEW *********************************************************************************************************************************************
+        //***************************************************** VIEW         VIEW        VIEW *********************************************************************************************************************************************
+        //***************************************************** VIEW         VIEW        VIEW *********************************************************************************************************************************************
+
+
+        ///////
+        onLoadFunc = function () {
+            fullUpdateViewFromModel();
+            setInterval(fullUpdateViewFromModel, UPDATE_TIME_IN_MS);
+        }
+
+        ///////TODO:
+        fullUpdateViewFromModel = function () {
+            // mainDiv =  
+            // buttonsTable = $('buttonsTableId');
+            // if (mainDiv != null) {
+            //     document.body.removeChild(mainDiv);
+            // }
+            // mainDiv = document.createElement("div");
+            // // document.body.appendChild(mainDiv);
+            // // document.body.insertBefore(buttonsTable, mainDiv);            
+
+
+            let inputElement = $('display'); //document.createElement("input");
+            inputElement.disabled = true;
+
+            // mainDiv.appendChild(inputElement);
+
+            inputElement.value = visibleValue //randomInteger(0, 1000000000000000000);
+
+            document.body.removeEventListener('keydown', keydownEventListener, false);
+            document.body.addEventListener('keydown', keydownEventListener, false);
+        }
+
+        //***************************************************** Controller         Controller        Controller ******************************************************************************************************************************
+        //***************************************************** Controller         Controller        Controller ******************************************************************************************************************************
+        //***************************************************** Controller         Controller        Controller ******************************************************************************************************************************
+        //***************************************************** Controller         Controller        Controller ******************************************************************************************************************************
+
+        ///////
+        checkIf_IN_THE_MIDDLE_OF_CALCULATION_isTrue = function (x) {
+
+            //TODO:
+            //09-chkFirstZero
+            if (visibleValue == START_VISIBLE_VALUE /* && x == START_VISIBLE_VALUE */) {
+                visibleValue = x;
+                return;
+            }
+
+            if (IN_THE_MIDDLE_OF_CALCULATION === true) {
+                visibleValue = x;
+                IN_THE_MIDDLE_OF_CALCULATION = false;
+            } else {
+                visibleValue += x;
+            }
+            return null;
+        }
+
+        ///////        
+        processCommand = function (command) {
+            log(command);
+            //   visibleValue = START_VISIBLE_VALUE;
+
+            // updatePrevObj();
+
+            //TODO:  duplication in cases
+            switch (command) {
+
+                case COMMAND_0:
+                    checkIf_IN_THE_MIDDLE_OF_CALCULATION_isTrue('0');
+                    break;
+
+                case COMMAND_1:
+                    checkIf_IN_THE_MIDDLE_OF_CALCULATION_isTrue('1');
+                    break;
+
+                case COMMAND_2:
+                    checkIf_IN_THE_MIDDLE_OF_CALCULATION_isTrue('2');
+                    break;
+
+                case COMMAND_3:
+                    checkIf_IN_THE_MIDDLE_OF_CALCULATION_isTrue('3');
+                    break;
+
+                case COMMAND_4:
+                    checkIf_IN_THE_MIDDLE_OF_CALCULATION_isTrue('4');
+                    break;
+
+                case COMMAND_5:
+                    checkIf_IN_THE_MIDDLE_OF_CALCULATION_isTrue('5');
+                    break;
+
+                case COMMAND_6:
+                    checkIf_IN_THE_MIDDLE_OF_CALCULATION_isTrue('6');
+                    break;
+
+                case COMMAND_7:
+                    checkIf_IN_THE_MIDDLE_OF_CALCULATION_isTrue('7');
+                    break;
+
+                case COMMAND_8:
+                    checkIf_IN_THE_MIDDLE_OF_CALCULATION_isTrue('8');
+                    break;
+
+                case COMMAND_9:
+                    checkIf_IN_THE_MIDDLE_OF_CALCULATION_isTrue('9');
+                    break;
+
+                case COMMAND_PLUS:
+                case COMMAND_MINUS:
+                case COMMAND_MULTIPLY:
+                case COMMAND_DIVISION:
+                    lastCommand = command;
+                    IN_THE_MIDDLE_OF_CALCULATION = true;
+                    lastVisibleValue = visibleValue;
+                    break;
+
+                case COMMAND_EQUALS:
+                    if (lastCommand == null) {
+                        return;  //or break?
+                    }
+                    visibleValue = eval(lastVisibleValue + lastCommand + visibleValue);
+                    lastVisibleValue = null;
+                    lastCommand = null;
+                    break;
+
+                case COMMAND_CLEAR:
+                    visibleValue = START_VISIBLE_VALUE;
+                    IN_THE_MIDDLE_OF_CALCULATION = false;
+                    lastVisibleValue = null;
+                    lastCommand = null;
+                    break;
+
+                default: alert('processCommand(): Unknown command: ' + command);
+            }
+        }
+
+        /////////////////////////////////////////////////////  
+        //   javascript keyboard events arrow keys simultaneously:
+        //   https://stackoverflow.com/questions/7614340/listen-to-multiple-keydowns
+        //   http://jsfiddle.net/ATUEx/ 
+        keydownEventListener = function (event) {
+            let clickTime = new Date().getTime();
+            if (clickTime - lastClickPerformed < IGNORE_CLICKS_WITHIN) {
+                return;
+            }
+            lastClickPerformed = clickTime;
+
+            const keyName = event.key;
+
+            //TODO:  duplication in cases
+            switch (keyName) {
+
+                case "0": processCommand(COMMAND_0);
+                    break;
+
+                case "1": processCommand(COMMAND_1);
+                    break;
+
+                case "2": processCommand(COMMAND_2);
+                    break;
+
+                case "3": processCommand(COMMAND_3);
+                    break;
+
+                case "4": processCommand(COMMAND_4);
+                    break;
+
+                case "5": processCommand(COMMAND_5);
+                    break;
+
+                case "6": processCommand(COMMAND_6);
+                    break;
+
+                case "7": processCommand(COMMAND_7);
+                    break;
+
+                case "8": processCommand(COMMAND_8);
+                    break;
+
+                case "9": processCommand(COMMAND_9);
+                    break;
+
+                case "+": processCommand(COMMAND_PLUS);
+                    break;
+
+                case "-": processCommand(COMMAND_MINUS);
+                    break;
+
+                case "*": processCommand(COMMAND_MULTIPLY);
+                    break;
+
+                case "/": processCommand(COMMAND_DIVISION);
+                    break;
+
+                case "Escape": processCommand(COMMAND_CLEAR);
+                    break;
+
+                case "=":
+                case "Enter": processCommand(COMMAND_EQUALS);
+                    break;
+
+
+            }
+
+            // if (!checkIfOutOfBoardFromCurrModelXY()) {
+            //     return;
+            // }
+            // updateModelFromCurrXY();
+        };
+
+    </script>
+
+
+</head>
+
+<body onload="onLoadFunc();">
+    Calculator
+    <!-- <div id="main">
+    </div> -->
+    <table id="buttonsTableId">
+        <tr>
+            <td colspan="4">
+                <input type="text" name="display" id="display" disabled>
+            </td>
+        </tr>
+        <tr>
+            <td><input type="button" name="one" value="1" onclick="processCommand(COMMAND_1)"></td>
+            <td><input type="button" name="two" value="2" onclick="processCommand(COMMAND_2)"></td>
+            <td><input type="button" name="three" value="3" onclick="processCommand(COMMAND_3)"></td>
+            <td><input type="button" class="operator" name="plus" value="+" onclick="processCommand(COMMAND_PLUS)">
+            </td>
+        </tr>
+        <tr>
+            <td><input type="button" name="four" value="4" onclick="processCommand(COMMAND_4)"></td>
+            <td><input type="button" name="five" value="5" onclick="processCommand(COMMAND_5)"></td>
+            <td><input type="button" name="six" value="6" onclick="processCommand(COMMAND_6)"></td>
+            <td><input type="button" class="operator" name="minus" value="-" onclick="processCommand(COMMAND_MINUS)">
+            </td>
+        </tr>
+        <tr>
+            <td><input type="button" name="seven" value="7" onclick="processCommand(COMMAND_7)"></td>
+            <td><input type="button" name="eight" value="8" onclick="processCommand(COMMAND_8)"></td>
+            <td><input type="button" name="nine" value="9" onclick="processCommand(COMMAND_9)"></td>
+            <td><input type="button" class="operator" name="times" value="x" onclick="processCommand(COMMAND_MULTIPLY)">
+            </td>
+        </tr>
+        <tr>
+            <td><input type="button" id="clear" name="clear" value="c" onclick="processCommand(COMMAND_CLEAR);"></td>
+            <td><input type="button" name="zero" value="0" onclick="processCommand(COMMAND_0)"></td>
+            <td><input type="button" name="doit" value="=" onclick="processCommand(COMMAND_EQUALS);"></td>
+            <td><input type="button" class="operator" name="div" value="/" onclick="processCommand(COMMAND_DIVISION)">
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>
