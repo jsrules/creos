@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix letters (with lang selection) - v.1.0</title>
+</head>
+
+<body>
+
+    <center>
+    <h2>Matrix letters</h2>
+    
+    <h1>Matrix letters (with lang selection)</h1>
+    
+    </center>
+    
+    <hr>
+
+    <form method="get" action="matrix-v0.01.html">
+
+
+        <input type="submit" value="       Submit !!..       ">
+
+        <BR>          <BR>    
+
+        <!-- chars to use: <input type="text" value= "αβγδεζηθικλμνξοπρςστυφχψω ,.·;"  name="abc" size="100"> -->
+
+        chars to use: <input type="text" value= "      0123456789ABCDEF"  name="abc" size="100" id="abcId">
+
+        <p><select multiple onchange=" $('abcId').value=this.options[this.selectedIndex].value  " size="7" style="overflow:auto;">
+
+            <option value="αβγδεζηθικλμνξοπρςστυφχψω ,.·;          ">Greek - αβγδεζηθικλμνξοπρςστυφχψω ,.·;</option>
+
+
+            <option value="अआइईउऊऋॠलृएऐओऔक्ख्गघ्ङ्च्छ्ज्झ्ञ्ट्ठ्ड्ढ्ण्त्थ्द्ध्न्प्फ्ब्भ्म्य्र्ल्व्श्ष्स्ह्  :           ">Sanskrit - अआइईउऊऋॠलृएऐओऔक्ख्गघ्ङ्च्छ्ज्झ्ञ्ट्ठ्ड्ढ्ण्त्थ्द्ध्न्प्फ्ब्भ्म्य्र्ल्व्श्ष्स्ह्  : </option>
+
+            とは平凡な、やさしいという意で、当時普通に使用する文字体系であったことを意味する。 漢字は書簡文や重要な文章などを書く場合に用いる公的な文字であるのに対して、 平仮名は漢字の知識に乏しい人々などが用いる私的な性格のものであった
+
+            <option value="とは平凡な、やさしいという意で、当時普通に使用する文字体系であったことを意味する。 漢字は書簡文や重要な文章などを書く場合に用いる公的な文字であるのに対して、 平仮名は漢字の知識に乏しい人々などが用いる私的な性格のものであった">
+            Japanese -  とは平凡な、やさしいという意で、当時普通に使用する文字体系であったことを意味する。 漢字は書簡文や重要な文章などを書く場合に用いる公的な文字であるのに対して、 平仮名は漢字の知識に乏しい人々などが用いる私的な性格のものであった
+            </option>
+
+            <option value="诶比西迪伊艾弗吉艾尺艾杰开艾勒艾马艾娜哦屁吉吾艾儿艾丝提伊吾维豆贝尔维艾克斯吾艾贼德                                 ">Chinese - 诶比西迪伊艾弗吉艾尺艾杰开艾勒艾马艾娜哦屁吉吾艾儿艾丝提伊吾维豆贝尔维艾克斯吾艾贼德</option>
+
+            <option value="                   أَلِفبَاءتَاءثَاءجِيمحَاءخَاءدَالذَالرَاءزَايسِينشِينصَادضَادطَاءظَاءعَيْنغَيْنفَاءقَافكَافلاَممِيمنُونهَاءوَاويَاءهَمْزةأَلِفهَمْزةوَاوهَمْزةيَاءهَمْزةأَلِفمَدَّةتاءمربوطةالفمقصورة">Arabic - أَلِفبَاءتَاءثَاءجِيمحَاءخَاءدَالذَالرَاءزَايسِينشِينصَادضَادطَاءظَاءعَيْنغَيْنفَاءقَافكَافلاَممِيمنُونهَاءوَاويَاءهَمْزةأَلِفهَمْزةوَاوهَمْزةيَاءهَمْزةأَلِفمَدَّةتاءمربوطةالفمقصورة</option>
+
+
+            <option value="                       אָלֶף‎בֵּית‎בֵית‎גִּימֵל‎גִימֵל‎ דָּלֶת‎דָלֶת‎ הֵא‎וָו‎זַיִן‎חֵית‎טֵית‎יוֹד‎כַּף‎כַף‎כַּף סוֹפִית‎כַף סוֹפִית‎לָמֶד‎מֵם‎מֵם סוֹפִית‎נוּן‎נוּן סוֹפִית‎ְסָמֶך‎עַיִן‎פֵּא, פֵּה‎פֵא, פֵה‎פֵא סוֹפִית, פֵה סוֹפִית‎צַדִי, צדיק‎קוֹף‎רֵישׁ‎">Hebrew - אָלֶף‎בֵּית‎בֵית‎גִּימֵל‎גִימֵל‎ דָּלֶת‎דָלֶת‎ הֵא‎וָו‎זַיִן‎חֵית‎טֵית‎יוֹד‎כַּף‎כַף‎כַּף סוֹפִית‎כַף סוֹפִית‎לָמֶד‎מֵם‎מֵם סוֹפִית‎נוּן‎נוּן סוֹפִית‎ְסָמֶך‎עַיִן‎פֵּא, פֵּה‎פֵא, פֵה‎פֵא סוֹפִית, פֵה סוֹפִית‎צַדִי, צדיק‎קוֹף‎רֵישׁ‎</option>
+
+
+            <option value="АаБбВвГгҐґДдЕеЄєЖжЗзИиІіЇїЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЬьЮюЯяʼ            ">Cyrillic (Ukrainian) - АаБбВвГгҐґДдЕеЄєЖжЗзИиІіЇїЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЬьЮюЯяʼ</option>
+
+            <option value="ABCDEFGHIKLMNOPQRSTVXYZ             ">Latin - ABCDEFGHIKLMNOPQRSTVXYZ</option>
+
+
+            </select></p>
+
+
+        fontSize: <input type="text" value="28"  name="fontSize" size="3">
+
+        <br>        <br>  
+        <input type="submit" value="       Submit !!..       ">
+        
+    </form>
+    
+    <script>
+
+$ = function(x){
+        return document.getElementById(x);
+       
+    }
+    </script>
+    
+    <!-- <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+    do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+    ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+    aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit
+    in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+    officia deserunt mollit anim id est laborum. </p> -->
+    
+
+    
+    <hr>
+    <center> <img src="emailWhite.jpg"> </center>
+    
+    
+    </body>
+    </html>
