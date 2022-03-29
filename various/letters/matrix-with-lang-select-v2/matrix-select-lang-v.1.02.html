@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix letters (with lang selection) - v.1.02</title>
+</head>
+
+<body>
+
+    <center>
+    <h2>Matrix letters</h2>
+    
+    <h1>Matrix letters (with lang selection)</h1>
+    
+    </center>
+    
+    <hr>
+
+    <form method="get" action="matrix-v0.01.html">
+
+
+     
+
+        <BR>          <BR>    
+
+        <!-- chars to use: <input type="text" value= "αβγδεζηθικλμνξοπρςστυφχψω ,.·;"  name="abc" size="100"> -->
+
+        chars to use: <input type="text" value= "      0123456789ABCDEF"  name="abc" size="100" id="abcId">    <input type="submit" value="       Submit !!..       ">
+        <br>
+        NOTE: you may want to add some spaces
+        <br>
+        NOTE: click any language below to copy it to the "chars to use" input
+
+        <p><select multiple onchange=" $('abcId').value=this.options[this.selectedIndex].value  " size="12" style="overflow:auto;">
+
+            <option value="καὶ ἦν πᾶσα ἡ γῆ χεῖλος ἕν, καὶ φωνὴ μία πᾶσι.">Ancient Greek - καὶ ἦν πᾶσα ἡ γῆ χεῖλος ἕν, καὶ φωνὴ μία πᾶσι.</option>
+
+
+            <option value="अआइईउऊऋॠलृएऐओऔक्ख्गघ्ङ्च्छ्ज्झ्ञ्ट्ठ्ड्ढ्ण्त्थ्द्ध्न्प्फ्ब्भ्म्य्र्ल्व्श्ष्स्ह्  :           ">Sanskrit - अआइईउऊऋॠलृएऐओऔक्ख्गघ्ङ्च्छ्ज्झ्ञ्ट्ठ्ड्ढ्ण्त्थ्द्ध्न्प्फ्ब्भ्म्य्र्ल्व्श्ष्स्ह्  : </option>
+
+               <option value="さて，地上の人々は皆，1つの言語，同じ言葉を話していた。">
+            Japanese -  さて，地上の人々は皆，1つの言語，同じ言葉を話していた。
+            </option>
+
+            <option value="诶比西迪伊艾弗吉艾尺艾杰开艾勒艾马艾娜哦屁吉吾艾儿艾丝提伊吾维豆贝尔维艾克斯吾艾贼德                                 ">Chinese - 诶比西迪伊艾弗吉艾尺艾杰开艾勒艾马艾娜哦屁吉吾艾儿艾丝提伊吾维豆贝尔维艾克斯吾艾贼德</option>
+
+            <option value="وَكَانَ أَهْلُ الأَرْضِ جَمِيعاً يَتَكَلَّمُونَ أَوَّلاً بِلِسَانٍ وَاحِدٍ وَلُغَةٍ وَاحِدَةٍ.">Arabic - وَكَانَ أَهْلُ الأَرْضِ جَمِيعاً يَتَكَلَّمُونَ أَوَّلاً بِلِسَانٍ وَاحِدٍ وَلُغَةٍ وَاحِدَةٍ.</option>
+
+
+            <option value="וַיְהִי כָל-הָאָרֶץ, שָׂפָה אֶחָת, וּדְבָרִים, אֲחָדִים.">Hebrew - וַיְהִי כָל-הָאָרֶץ, שָׂפָה אֶחָת, וּדְבָרִים, אֲחָדִים.</option>
+
+            <option value="처음에 세상에는 언어가 하나뿐이어서, 모두가 같은 말을 썼다">Korean - 처음에 세상에는 언어가 하나뿐이어서, 모두가 같은 말을 썼다</option>
+
+            <option value="ერთი ენა ჰქონდათ და ერთნაირად მეტყველებდნენ მთელ დედამიწაზე.">Georgian (Asomtavruli) - ერთი ენა ჰქონდათ და ერთნაირად მეტყველებდნენ მთელ დედამიწაზე.</option>
+
+            <option value="ⲟⲩⲟϩ ⲛⲁⲣⲉ ⲡⲕⲁϩⲓ ⲧⲏⲣϥ ⲟⲓ ⲛ̇ⲟⲩⲥⲯⲟⲧⲟⲩ ⲛ̇ⲟⲩⲱⲧ ⲛⲉⲙ ⲟⲩⲥⲙⲏ ⲛ̇ⲟⲩⲱⲧ">Coptic - Bohairic - ⲟⲩⲟϩ ⲛⲁⲣⲉ ⲡⲕⲁϩⲓ ⲧⲏⲣϥ ⲟⲓ ⲛ̇ⲟⲩⲥⲯⲟⲧⲟⲩ ⲛ̇ⲟⲩⲱⲧ ⲛⲉⲙ ⲟⲩⲥⲙⲏ ⲛ̇ⲟⲩⲱⲧ </option>
+
+            <option value="І була вся земля одна мова та слова одні.">Cyrillic (Ukrainian) - І була вся земля одна мова та слова одні.</option>
+
+            <option value="erat autem terra labii unius et sermonum eorundem">Latin - erat autem terra labii unius et sermonum eorundem </option>
+
+
+            </select></p>
+
+
+        fontSize: <input type="text" value="28"  name="fontSize" size="3">
+
+        <br>        <br>  
+        <input type="submit" value="       Submit !!..       ">
+        
+    </form>
+    
+    <script>
+
+$ = function(x){
+        return document.getElementById(x);
+       
+    }
+    </script>
+    
+    <!-- <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+    do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+    ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+    aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit
+    in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+    officia deserunt mollit anim id est laborum. </p> -->
+    
+
+    
+    <hr>
+    <center> <img src="emailWhite.jpg"> </center>
+    
+    
+    </body>
+    </html>
