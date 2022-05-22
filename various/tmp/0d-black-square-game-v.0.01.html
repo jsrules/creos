@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0d black square game - v.0.01</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+    <style>
+        .centered {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            /* bring your own prefixes */
+            transform: translate(-50%, -50%);
+
+            width: 100px;
+            height: 100px;
+            background-color: black;
+        }
+
+        /* .hideDivClass {
+            visibility: hidden;
+        } */
+
+        /* html,body,#wrapper {
+           height:100%;
+           margin:0;
+           padding:0;
+           overflow: hidden;
+           background: radial-gradient(#000, #111); 
+       }
+       #wrapper {
+           position:relative;
+       }
+   
+       #top, #middle, #bottom {
+           position:absolute;
+       }
+   
+       #top {
+           height:0px;
+           width:100%;
+           background:grey;
+       }
+       #middle {
+           top:0px;
+           bottom:0px;
+           height:100%;
+           width:100%;
+           background:white;
+           color: black;
+           overflow: hidden;
+           word-break: break-all;
+       }
+       #bottom {
+           bottom:0;
+           height:0px;
+           width:100%;
+           background:grey;
+       } */
+    </style>
+
+
+    <script>
+        //*****************************************************  COMMONS  ******************************************************************************************************************************
+        var divWithSquare = null;
+        var divStatus = null;
+        // var messageForTheUser = null;
+        var messageForTheUserDiv = null;
+        var START_TIME_MS = new Date().getTime();
+        var waitPress = false;
+        var onePressed = false;
+        var bothPressed = false;
+        const LEFT = 'LEFT';
+        const RIGHT = 'RIGHT';
+        var lastPressed = null;
+
+        $ = function (x) {
+            return document.getElementById(x);
+        }
+
+
+        getSecs = function (x) {
+            return (x - START_TIME_MS) / 1000;
+        }
+
+        function randomInteger(min, max) {
+            let rand = min - 0.5 + Math.random() * (max - min + 1);
+            return Math.round(rand);
+        }
+
+        function log(msg) {
+            console.log(msg)
+        }
+
+        //*****************************************************  MODEL  ******************************************************************************************************************************
+
+        initModel = function () {
+            divStatus = true;
+            // messageForTheUser = 'Press a key when smth changes... LeftPlayer - press Esc, RightPlayer - press Enter. '
+            updateViewFromModel();  // ?
+        }
+
+        //*****************************************************  VIEW  ******************************************************************************************************************************
+
+
+        //*****************************************************  CONTROLLER  ******************************************************************************************************************************
+
+
+        toggleVisibility = function () {
+            divWithSquare.style.visibility = divWithSquare.style.visibility == 'hidden' ? 'visible' : 'hidden';
+            waitPress = true;
+            START_TIME_MS = new Date().getTime();
+            // messageForTheUserDiv.innerHTML = messageForTheUser;
+        }
+
+
+        leftDone = function () {
+            $('leftUserResultsId').innerHTML += '<br>' + '<span style="color: ' + (onePressed ? 'red' : 'green') + ';">' + $('messageForTheUserId').innerHTML + '</span>';
+            lastPressed = LEFT
+        }
+
+        rightDone = function () {
+            $('rightUserResultsId').innerHTML += '<br>' + '<span style="color: ' + (onePressed ? 'red' : 'green') + ';">' + $('messageForTheUserId').innerHTML + '</span>';
+            lastPressed = RIGHT
+        }
+
+        function keydownListener(e) {
+
+            if (!waitPress) return;
+
+            if (e.key === "Escape" && lastPressed != LEFT) {
+                leftDone();
+                if (onePressed) bothPressed = true;
+                onePressed = true;
+            }
+
+            if (e.key === "Enter" && lastPressed != RIGHT) {
+                rightDone();
+                if (onePressed) bothPressed = true;
+                onePressed = true;
+            }
+
+            if (bothPressed) {
+
+                // if (lastPressed==LEFT){
+                //     $('leftUserResultsId').style.color='red'
+                //    $('rightUserResultsId').style.color='green'
+                // }
+
+                // if (lastPressed==RIGHT){
+                //     $('leftUserResultsId').style.color='green'
+                //    $('rightUserResultsId').style.color='red'
+                // }
+
+                bothPressed = false;
+                onePressed = false;
+                lastPressed = null
+                // START_TIME_MS = new Date().getTime();
+
+                $('messageForTheUserId').innerHTML = '0.000'
+
+                waitPress = false;
+
+                setTimeout(() => {
+                    toggleVisibility()
+                }, randomInteger(400, 3569));
+            }
+
+            // alert(4)
+            // divWithSquare.classList.toggle('hideDivClass');
+            // divStatus = !divStatus;
+            // updateViewFromModel();
+
+
+
+        }
+
+        updateViewFromModel = function () {
+            divWithSquare.style.visibility = divStatus ? 'visible' : 'hidden';
+            // messageForTheUserDiv.innerHTML = messageForTheUser;
+        }
+
+        periodicFunc = function () {
+            // $('rightUserResultsId').innerHTML += '<br>'+new Date();
+            if (waitPress)
+                $('messageForTheUserId').innerHTML = '' + getSecs(new Date().getTime());
+
+
+
+        }
+
+
+        onloadFunc = function () {
+            divWithSquare = $('divWithSquareId')
+            messageForTheUserDiv = $('messageForTheUserId')
+            initModel();
+            document.addEventListener('keydown', keydownListener);
+
+            setInterval(() => {
+                periodicFunc();
+            }, 10);
+
+            setTimeout(() => {
+                toggleVisibility()
+            }, randomInteger(400, 3569));
+        }
+
+    </script>
+
+</head>
+
+<!-- TODO: smarter onresize -->
+
+<body onload="onloadFunc();" onresize="location.reload()">
+
+    <div id="messageForTheUserId" style="font-size: 24px">Press a key when smth changes... LeftPlayer - press Esc,
+        RightPlayer - press Enter.</div>
+
+    <!-- <div id="timerId" style="float:right; font-size: 24px"></div> -->
+
+    <div id="leftUserResultsId" class="scoreDivs" style="float:left; font-size: 24px">Left player results:&nbsp;&nbsp; </div>
+
+    <div id="rightUserResultsId" class="scoreDivs" style="float:left; ; font-size: 24px">Right player results: </div>
+
+    <div class="centered" id="divWithSquareId"></div>
+
+</body>
+
+</html>
