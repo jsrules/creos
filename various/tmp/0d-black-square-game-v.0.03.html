@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0d black square game - v.0.03</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+    <style>
+        .centered {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            /* bring your own prefixes */
+            transform: translate(-50%, -50%);
+
+            width: 100px;
+            height: 100px;
+            background-color: black;
+        }
+
+        #bottomLeft {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 47%;
+            height: 33%;
+        }
+
+        #bottomRight {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 47%;
+            height: 33%;
+        }
+    </style>
+
+    <script>
+
+        //*****************************************************  COMMONS  ******************************************************************************************************************************
+        var divWithSquare = null;
+        var divStatus = null;
+        // var messageForTheUser = null;
+        var messageForTheUserDiv = null;
+        var START_TIME_MS = new Date().getTime();
+        var waitPress = false;
+        var onePressed = false;
+        var bothPressed = false;
+        const LEFT = 'LEFT';
+        const RIGHT = 'RIGHT';
+        var lastPressed = null;
+        const CMD_RIGHT_PLAYER_CLICK = 'CMD_RIGHT_PLAYER_CLICK';
+        const CMD_LEFT_PLAYER_CLICK = 'CMD_LEFT_PLAYER_CLICK';
+
+        $ = function (x) {
+            return document.getElementById(x);
+        }
+
+
+        getSecs = function (x) {
+            return (x - START_TIME_MS) / 1000;
+        }
+
+        function randomInteger(min, max) {
+            let rand = min - 0.5 + Math.random() * (max - min + 1);
+            return Math.round(rand);
+        }
+
+        function log(msg) {
+            console.log(msg)
+        }
+
+        //*****************************************************  MODEL  ******************************************************************************************************************************
+
+        initModel = function () {
+            divStatus = false;
+            // messageForTheUser = 'Press a key when smth changes... LeftPlayer - press Esc, RightPlayer - press Enter. '
+            updateViewFromModel();  // ?
+        }
+
+        //*****************************************************  VIEW  ******************************************************************************************************************************
+
+
+        //*****************************************************  CONTROLLER  ******************************************************************************************************************************
+
+
+        toggleVisibility = function () {
+            divWithSquare.style.visibility = divWithSquare.style.visibility == 'hidden' ? 'visible' : 'hidden';
+            waitPress = true;
+            START_TIME_MS = new Date().getTime();
+            // messageForTheUserDiv.innerHTML = messageForTheUser;
+        }
+
+
+        leftDone = function () {
+            $('leftUserResultsId').innerHTML += '<br>' + '<span style="color: ' + (onePressed ? 'red' : 'green') + ';">' + $('messageForTheUserId').innerHTML + '</span>';
+            lastPressed = LEFT
+        }
+
+        rightDone = function () {
+            $('rightUserResultsId').innerHTML += '<br>' + '<span style="color: ' + (onePressed ? 'red' : 'green') + ';">' + $('messageForTheUserId').innerHTML + '</span>';
+            lastPressed = RIGHT
+        }
+
+        function keydownListener(e) {
+            if (e.key === "Escape") {
+                processCommand(CMD_LEFT_PLAYER_CLICK);
+            }
+
+            if (e.key === "Enter") {
+                processCommand(CMD_RIGHT_PLAYER_CLICK);
+            }
+        }
+
+        updateViewFromModel = function () {
+            divWithSquare.style.visibility = divStatus ? 'visible' : 'hidden';
+            // messageForTheUserDiv.innerHTML = messageForTheUser;
+        }
+
+        periodicFunc = function () {
+            // $('rightUserResultsId').innerHTML += '<br>'+new Date();
+            if (waitPress)
+                $('messageForTheUserId').innerHTML = '' + getSecs(new Date().getTime());
+        }
+
+        onloadFunc = function () {
+            divWithSquare = $('divWithSquareId')
+            messageForTheUserDiv = $('messageForTheUserId')
+            initModel();
+            document.addEventListener('keydown', keydownListener);
+
+            setInterval(() => {
+                periodicFunc();
+            }, 10);
+
+            setTimeout(() => {
+                toggleVisibility()
+            }, randomInteger(400, 3569));
+        }
+
+        processCommand = function (command) {
+
+
+            if (!waitPress) {
+                if (command === CMD_LEFT_PLAYER_CLICK) {
+                    $('leftUserResultsId').innerHTML += '<br>' + '<span style="color: ' + (true ? 'red' : 'green') + ';">' + '-0.000' + '</span>';
+                    $('rightUserResultsId').innerHTML += '<br>' + '<span style="color: ' + (false ? 'red' : 'green') + ';">' + '-0.000' + '</span>';
+                }
+                if (command === CMD_RIGHT_PLAYER_CLICK) {
+                    $('rightUserResultsId').innerHTML += '<br>' + '<span style="color: ' + (true ? 'red' : 'green') + ';">' + '-0.000' + '</span>';
+                    $('leftUserResultsId').innerHTML += '<br>' + '<span style="color: ' + (false ? 'red' : 'green') + ';">' + '-0.000' + '</span>';
+                }
+                return;
+            } else {
+
+                if (onePressed && lastPressed == LEFT && command != CMD_RIGHT_PLAYER_CLICK) {
+                    return
+                }
+
+                if (onePressed && lastPressed == RIGHT && command != CMD_LEFT_PLAYER_CLICK) {
+                    return
+                }
+
+            }
+
+            switch (command) {
+                case CMD_LEFT_PLAYER_CLICK:
+                    // alert('CMD_LEFT_PLAYER_CLICK command.')
+
+                    if (lastPressed != LEFT) {
+                        leftDone();
+                        if (onePressed) bothPressed = true;
+                        onePressed = true;
+                    }
+                    break;
+
+                case CMD_RIGHT_PLAYER_CLICK:
+                    // alert('CMD_RIGHT_PLAYER_CLICK command.')
+                    if (lastPressed != RIGHT) {
+                        rightDone();
+                        if (onePressed) bothPressed = true;
+                        onePressed = true;
+                    }
+                    break;
+
+                default: alert('Error: Unknown command.')
+            }
+
+
+            if (bothPressed) {
+
+                bothPressed = false;
+                onePressed = false;
+                lastPressed = null
+                // START_TIME_MS = new Date().getTime();
+                $('messageForTheUserId').innerHTML = '0.000'
+
+                waitPress = false;
+                divWithSquare.style.visibility = 'hidden';
+
+                setTimeout(() => {
+                    toggleVisibility()
+                }, randomInteger(400, 3569));
+            }
+        }
+
+    </script>
+
+</head>
+
+<!-- TODO: smarter onresize -->
+
+<body onload="onloadFunc();" onresize="location.reload()">
+
+
+
+<div id="messageForTheUserId" style="font-size: 24px">
+    Press a key when the square appears... LeftPlayer - press Esc, RightPlayer - press Enter.</div>
+
+<!-- <div id="timerId" style="float:right; font-size: 24px"></div> -->
+
+<div id="leftUserResultsId" class="scoreDivs" style="float:left; font-size: 14px">Left player results:&nbsp;&nbsp;
+</div>
+
+<div id="rightUserResultsId" class="scoreDivs" style="float:left; ; font-size: 14px">Right player results: </div>
+
+<div class="centered" id="divWithSquareId"></div>
+
+<button id="bottomLeft" onclick="processCommand(CMD_LEFT_PLAYER_CLICK)">Left Player (Esc)</button>
+<button id="bottomRight" onclick="processCommand(CMD_RIGHT_PLAYER_CLICK)">Right Player (Enter)</button>
+
+</body>
+
+</html>
