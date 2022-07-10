@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="default.css">
+    <title>Tic-tac-toe with a friend - v0.01</title>
+
+    <meta name="keywords" content="Tic tac toe">
+    <meta name="description" content="Tic tac toe">
+    <meta name="abstract" content="Tic tac toe">
+    <meta name="robots" content="follow">
+
+    <meta name="revisit-after" content="7 days">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="Expires" content="Wed, 26 Feb 1999 08:21:57 GMT">
+    <meta http-equiv="Pragma" content="no-cache">
+
+
+    <style>
+        #spanId {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -50px;
+            margin-left: -50px;
+            /* width: 100px;
+            height: 100px; */
+        }
+
+        #footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        td img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: auto;
+            margin-top: auto;
+
+        }
+    </style>
+
+    <script>
+
+        //*****************************************************  VARS & CONSTS  ******************************************************************************************************************************
+
+
+        const EMPTY = 0;
+        const CROSS = 1;
+        const ZERO = 2;
+
+        let endGame = false;
+        let moveOrder = CROSS;
+
+        let board = Array();
+        board[0] = Array();
+        board[1] = Array();
+        board[2] = Array();
+
+
+
+        board[0][0] = EMPTY;
+        board[0][1] = EMPTY;
+        board[0][2] = EMPTY;
+
+
+        board[1][0] = EMPTY;
+        board[1][1] = EMPTY;
+        board[1][2] = EMPTY;
+
+
+        board[2][0] = EMPTY;
+        board[2][1] = EMPTY;
+        board[2][2] = EMPTY;
+
+        //*****************************************************  COMMONS  ******************************************************************************************************************************
+
+        $ = function (x) {
+            return document.getElementById(x);
+
+        }
+
+        function randomInteger(min, max) {
+            let rand = min - 0.5 + Math.random() * (max - min + 1);
+            return Math.round(rand);
+        }
+
+        function log(msg) {
+            console.log(msg)
+        }
+
+
+        //*****************************************************  MODEL  ******************************************************************************************************************************
+
+        initModel = function () {
+            // divStatus = false;
+            // messageForTheUser = 'Press a key when smth changes... LeftPlayer - press Esc, RightPlayer - press Enter. '
+            // updateViewFromModel();  // ?
+        }
+
+        isDraw = function () {
+            var i = 0;
+            var j = 0;
+            for (i = 0; i < 3; ++i) {
+                for (j = 0; j < 3; ++j) {
+                    if (board[i][j] == EMPTY) {
+                        return false;
+                    }
+                }
+            }
+            endGame = true;
+            setMessage("Draw.");
+            return true;
+        }
+
+
+        zeroWins = function () {
+            return isThisOneWins(ZERO);
+        }
+
+        crossWins = function () {
+            return isThisOneWins(CROSS)
+        }
+
+
+        isThisOneWins = function (type) {
+
+
+            if (
+
+                (
+                    (board[0][0] == type)
+                    &&
+                    (board[0][1] == type)
+                    &&
+                    (board[0][2] == type)
+                )
+
+                ||
+
+                (
+                    (board[1][0] == type)
+                    &&
+                    (board[1][1] == type)
+                    &&
+                    (board[1][2] == type)
+                )
+
+                ||
+
+                (
+                    (board[2][0] == type)
+                    &&
+                    (board[2][1] == type)
+                    &&
+                    (board[2][2] == type)
+                )
+
+                ||
+
+                (
+                    (board[0][0] == type)
+                    &&
+                    (board[1][0] == type)
+                    &&
+                    (board[2][0] == type)
+                )
+                ||
+                (
+                    (board[0][1] == type)
+                    &&
+                    (board[1][1] == type)
+                    &&
+                    (board[2][1] == type)
+                )
+
+                ||
+
+                (
+                    (board[0][2] == type)
+                    &&
+                    (board[1][2] == type)
+                    &&
+                    (board[2][2] == type)
+                )
+
+                ||
+
+                (
+                    (board[0][0] == type)
+                    &&
+                    (board[1][1] == type)
+                    &&
+                    (board[2][2] == type)
+                )
+
+
+                ||
+                (
+                    (board[0][2] == type)
+                    &&
+                    (board[1][1] == type)
+                    &&
+                    (board[2][0] == type)
+                )
+
+
+
+            ) {
+                // drawRedLine();
+                document.getElementById("message").innerHTML = (type == CROSS ? "Cross" : "Zero (naught)") + " wins. <a href='#' onclick='location.reload();'>Click here to start again.</a>";
+                return true;
+            }
+
+            return false;
+        }
+
+        //*****************************************************  VIEW  ******************************************************************************************************************************
+
+        myAlert = function (s) {
+            //  setTimeout( "alert('"+s+"')", 200  );
+        }
+
+        updateFromModel = function () {
+            var i = 0;
+            var j = 0;
+            for (i = 0; i < 3; ++i) {
+                for (j = 0; j < 3; ++j) {
+                    if (board[i][j] == EMPTY) {
+                        document.getElementById(i + "" + j).innerHTML = "<img src=\"empty.jpg\">";
+                    } else {
+                        document.getElementById(i + "" + j).innerHTML = "<img src=\"" + (board[i][j] == CROSS ? "cross" : "zero") + ".jpg\">";
+                    }
+                }
+            }
+        }
+
+        setMessage = function (msg) {
+            document.getElementById("message").innerHTML = msg;
+        }
+
+        //*****************************************************  CONTROLLER  ******************************************************************************************************************************
+
+        processClick = function (row, column) {
+            // alert(row + '--' + column);
+            if (endGame)
+                return;
+
+
+            if (board[row][column] != EMPTY)
+                return;
+
+            board[row][column] = moveOrder;
+
+            moveOrder = moveOrder == CROSS ? ZERO : CROSS;
+
+            updateFromModel();
+
+            if (zeroWins()) {
+                myAlert("Nought(zero) wins");
+                endGame = true;
+                return;
+            }
+
+            if (crossWins()) {
+                myAlert("Cross wins");
+                endGame = true;
+                return;
+            }
+
+            isDraw();
+
+        }
+
+        onloadFunction = function (x) {
+            // alert('onloadFunction');
+            updateFromModel();
+        }
+
+    </script>
+
+</head>
+
+<body onload="onloadFunction()">
+
+    <center>
+        <h2>Tic-tac-toe with a friend</h2>
+
+        <!-- <h1>Lorem ipsum dolor sit amet</h1> -->
+
+    </center>
+
+    <hr>
+
+    <span id='spanId'>
+
+        <h4 id="message" style="visibility:visible">
+            Cross...Your turn.
+        </h4>
+
+        <!-- <table border=1 style="position:absolute;left:10px;top:100px"> -->
+        <table border=1>
+
+            <TR>
+                <td onclick="processClick(0,0)" id="00"><img src="empty.jpg"></td>
+                <td onclick="processClick(0,1)" id="01"><img src="empty.jpg"></td>
+                <td onclick="processClick(0,2)" id="02"><img src="empty.jpg"></td>
+
+            </tr>
+            <TR>
+                <td onclick="processClick(1,0)" id="10"><img src="empty.jpg"></td>
+                <td onclick="processClick(1,1)" id="11"><img src="empty.jpg"></td>
+                <td onclick="processClick(1,2)" id="12"><img src="empty.jpg"></td>
+            </tr>
+
+            <TR>
+                <td onclick="processClick(2,0)" id="20"><img src="empty.jpg"></td>
+                <td onclick="processClick(2,1)" id="21"><img src="empty.jpg"></td>
+                <td onclick="processClick(2,2)" id="22"><img src="empty.jpg"></td>
+            </tr>
+
+        </table>
+
+
+    </span>
+
+
+    <span id="footer">
+        <hr>
+        <center> <img src="emailWhite.jpg"> </center>
+    </span>
+
+</body>
+
+</html>
