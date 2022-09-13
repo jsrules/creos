@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- <link rel="stylesheet" href="default.css"> -->
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Filling with Random Lines v.1.00</title>
+
+    <style>
+        html,
+        body,
+        #wrapper {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #wrapper {
+            position: relative;
+        }
+
+        #top,
+        #middle,
+        #bottom {
+            position: absolute;
+        }
+
+        #top {
+            height: 0px;
+            width: 100%;
+            background: grey;
+        }
+
+        #middle {
+            top: 0px;
+            bottom: 0px;
+            height: 100%;
+            width: 100%;
+            background: white;
+            color: black;
+            overflow: hidden;
+            word-break: break-all;
+        }
+
+        #bottom {
+            bottom: 0;
+            height: 0px;
+            width: 100%;
+            background: grey;
+        }
+    </style>
+
+    <script>
+
+        //globals used here:  ***************************************************************************************************************************************
+        const DEFAULT_COLOR = '#ff0000';
+        const X_OR_Y_VALUE_OUT_OF_VISIBILITY = -1111;
+        IS_PERFORM_UPDATE = 1;
+        const TIMELOUT_OF_UPDATE_IN_MS = 1;
+        x1=0;
+        y1=0;
+        x2=0;
+        y2=0;
+        var coef_1 = 10;
+        var coef_1_go_plus = true;
+        const coef_1_delta = 1;
+        const coef_1_min = coef_1
+        const coef_1_max = 300;
+
+        /////////////////////////////////////////////////////   
+        $ = function (x) {
+            return document.getElementById(x);
+
+        }
+
+        /////////////////////////////////////////////////////   
+        function randomInteger(min, max) {
+            let rand = min - 0.5 + Math.random() * (max - min + 1);
+            return Math.round(rand);
+        }
+
+        //////////////////////////////////////////////////////
+        function seCurrXAndYToStart() {
+            currX = -1;
+            currY = 0;
+        }
+
+        /////////////////////////////////////////////////////   
+        putPixel = function (x, y, /* color: */ r, g, b) {
+            id.data[0] = r;
+            id.data[1] = g;
+            id.data[2] = b;
+            ctx.putImageData(id, x, y);
+        }
+
+        /////////////////////////////////////////////////////        
+        draw2 = function () {
+
+
+            ////////////////OPENING STUFF:
+            cw = canvas.width;
+            ch = canvas.height;
+            id = ctx.getImageData(0, 0, 1, 1);
+            //  ctx.clearRect(0, 0, cw, ch);
+            id.data[3] = 255;
+            ctx.beginPath();
+
+
+            ///////////////////////////////////////// OLD DRAWING STUFF (for vertical rands) --= BEGIN
+            // currX = (currX < END_X ? currX + 1 : X_OR_Y_VALUE_OUT_OF_VISIBILITY);
+            // let r = randomInteger(0, 255);
+            // let g = randomInteger(0, 255);
+            // let b = randomInteger(0, 255);
+            // //FIXED here (it  was  index <= END_X).. I am stupid  workh
+            // for (let index = 0; index <= END_Y; index++) {
+            //     putPixel(currX, index, r, g, b);
+            //     // }
+            // }
+            // if (currX == X_OR_Y_VALUE_OUT_OF_VISIBILITY || currY == X_OR_Y_VALUE_OUT_OF_VISIBILITY) {
+            //     seCurrXAndYToStart()
+            // }
+            ///////////////////////////////////////// OLD STUFF (for vertical rands) --= BEGIN
+
+
+
+
+            ////////////////////////////// DRAWING:
+            ctx.moveTo(x1, y1);    // Передвигает перо в точку (30, 50)
+            ctx.lineTo(x2, y2);  // Рисует линию до точки (150, 100)
+            ctx.strokeStyle = DEFAULT_COLOR ;
+            ctx.stroke();          // Отображает путь
+
+
+
+
+            ////////////////CLOSING STUFF:
+            ctx.closePath();
+            ctx.fill();
+            ctx.textAlign = 'center';
+            //  ctx.fillText('[ 0, 0 ]',0,-10);
+            //////////////////////////  RETURN //////////////////////////////////// 
+            return;
+        }
+
+        //////////////////////////////////////////////////////
+        function update() {
+
+            if (!IS_PERFORM_UPDATE) {
+                return;
+            }
+
+            coef_1 = (coef_1_go_plus ? coef_1 + coef_1_delta : coef_1 - coef_1_delta);
+
+            if (coef_1 < coef_1_min) coef_1_go_plus = true;
+
+            if (coef_1 > coef_1_max) coef_1_go_plus = false;
+
+            // console.log(coef_1);
+
+            //  clearCanvas();  //FIXME!!!!
+
+            x1=randomInteger(0, END_X)
+            x2=randomInteger(0, END_X)
+            y1=randomInteger(0, END_Y)
+            y2=randomInteger(0, END_Y)
+
+             //TODO:
+            // if (x2<END_X){
+            //     x2++;
+            // }
+            // else{
+            //     x2=0;
+            //     y2++;
+
+            //     if (y2>END_Y){
+            //         x2=y2=0;
+            //     }
+            // }
+
+            draw2();
+        }
+
+        /////////////////////////////////////////////////////      
+        async function init() {
+            canvas = $('canvas');
+            ctx = canvas.getContext('2d');
+
+
+    //         canvas.width = document.body.clientWidth; //document.width is obsolete
+    // canvas.height = document.body.clientHeight; //document.height is obsolete
+
+            // alert(455)
+
+            END_X = parseInt(canvas.width = document.body.clientWidth) /*    *WORKAREA_ZOOM    */;
+            END_Y = parseInt(canvas.height = document.body.clientHeight) /*    *WORKAREA_ZOOM    */;
+
+//             canvas.width = window.innerWidth;
+// canvas.height = window.innerHeight;
+
+
+            seCurrXAndYToStart()
+
+            //UNCOMMENT ctx.translate(... below to have (0,0) in the center of the canvas.. !!!!!!!!!!!!!111111111111111111111111111111111111111111
+            // set the canvas origin (0,0) to center canvas
+            // All coordinates to the left of center canvas are negative
+            // All coordinates below center canvas are negative            
+            // ctx.translate(canvas.width / 2, canvas.height / 2);   //SHOULD BE RIGHT BEFORE " draw2();"  !!!!!!!!!!!!!!!!!!!!!!11
+
+            draw2();
+
+            // await sleep(1000)
+            // clearCanvas();
+            // await sleep(1000)
+            // draw();
+
+
+            if (IS_PERFORM_UPDATE) {
+                setInterval(() => {
+                    update();
+                }, TIMELOUT_OF_UPDATE_IN_MS);
+            }
+
+        }
+
+        /////////////////////////////////////////////////////      
+        clearCanvas = function () {
+
+
+            //for  in (0,0) in center:
+            // ctx.clearRect(-canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+
+                        //for  in (0,0) in left upper coner::
+            ctx.clearRect(0, 0,  canvas.width, canvas.height);
+
+
+        }
+
+    </script>
+
+</head>
+
+<body onload="init();" onresize=" location.reload() /*clearCanvas(); init();*/">
+    <canvas id="canvas">
+</body>
+
+</html>
