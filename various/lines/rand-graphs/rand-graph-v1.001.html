@@ -219,13 +219,16 @@
             //     }
             // }
 
-
             lastX++;
             if (lastX>END_X){
                 lastX=0;
             }
             lastY = isGoingUp ? lastY - 1 : lastY + 1;
-            if (randomInteger(0, isGoingUpChangedEveryXtimes) == 0 ) {
+            if (lastY < 0 || lastY > END_Y) {
+                isGoingUp = !isGoingUp;
+            }
+
+            if (randomInteger(0, isGoingUpChangedEveryXtimes) == 0) {
                 isGoingUp = !isGoingUp;
             }
 
