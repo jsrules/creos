@@ -241,8 +241,9 @@
                     return;
                 }
 
-
+            if (document.activeElement !=  $('userInputTextfield') {
                 $('userInputTextfield').value = event.key.toLowerCase();
+            }
 
                 if (event.key.toLowerCase() == STRINGS_TO_TEST[curr][1]) {
                     $('s').style.color = 'green';
