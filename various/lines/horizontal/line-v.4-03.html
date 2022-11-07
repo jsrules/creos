@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- <link rel="stylesheet" href="default.css"> -->
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <title>line-v.4-02.html</title>
+
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden;
+            /* border: 1px solid black; */
+        }
+
+
+        canvas {
+            /* border: 1px solid red; */
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <script>
+
+        //globals
+        let ctx = null;
+        let canvas = null;
+        let END_X = -1
+        let END_Y = -1
+        const TIMELOUT_OF_UPDATE_IN_MS = 1000;
+
+        hexes = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+
+        /////////////////////////////////////////////////////   
+        $ = function (x) {
+            return document.getElementById(x);
+
+        }
+
+        /////////////////////////////////////////////////////
+        function ctg(x) { return 1 / Math.tan(x); }
+
+        /////////////////////////////////////////////////////
+        function arcctg(x) { return Math.PI / 2 - Math.atan(x); }
+
+        /////////////////////////////////////////////////////   
+        function randomInteger(min, max) {
+            let rand = min - 0.5 + Math.random() * (max - min + 1);
+            return Math.round(rand);
+        }
+
+        /////////////////////////////////////////////////////   
+        function randHexDigit() {
+            return hexes[randomInteger(0, 15)];
+        }
+
+        /////////////////////////////////////////////////////   
+        function randColor() {
+            return "#" + randHexDigit() + randHexDigit() + randHexDigit() + randHexDigit() + randHexDigit() + randHexDigit();
+        }
+
+        /////////////////////////////////////////////////////   
+        function randShadeOfRed() {
+            return "#" + randHexDigit() + randHexDigit() + '0000';
+        }
+
+        /////////////////////////////////////////////////////   
+        function randShadeOfGreen() {
+            return "#00" + randHexDigit() + randHexDigit() + '00';
+        }
+
+        /////////////////////////////////////////////////////   
+        function randShadeOfBlues() {
+            return "#0000" + randHexDigit() + randHexDigit();
+        }
+
+        /////////////////////////////////////////////////////   
+        putLineStandard = function (x1, y1, x2, y2) {
+            ctx.moveTo(x1, y1);    // Передвигает перо в точку (30, 50)
+            ctx.lineTo(x2, y2);  // Рисует линию до точки (150, 100)
+            ctx.strokeStyle = randShadeOfRed(); // DEFAULT_COLOR;
+            ctx.stroke();
+        }
+
+
+
+        /////////////////////////////////////////////////////
+        function ctg(x) { return 1 / Math.tan(x); }
+
+        /////////////////////////////////////////////////////
+        function arcctg(x) { return Math.PI / 2 - Math.atan(x); }
+
+        /////////////////////////////////////////////////////   
+        function randomInteger(min, max) {
+            let rand = min - 0.5 + Math.random() * (max - min + 1);
+            return Math.round(rand);
+        }
+
+        /////////////////////////////////////////////////////  
+        //solution from https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+        dot = function (x, y, r, g, b, alfa) {
+            ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + (alfa / 255) + ")";
+            ctx.fillRect(x, y, 1, 1);
+        }
+
+        /////////////////////////////////////////////////////  
+        line = function (x1, y1, x2, y2, r, g, b, alfa) {
+
+
+
+            // let y = 100
+            // for (let x = x1; x <= x2; x++) {
+            //     dot(x, y, r, g, b, alfa)
+            // }
+
+            let dx = x2 - x1;
+            let dy = y2 - y1;
+            let tan = dy / dx;
+            // let tan = dx / dy;
+
+
+            let arctan = Math.atan(tan);
+            // let arctan = arcctg(tan);
+
+
+            // if (tan < 0) {
+            //     arctan = 0.5*Math.PI + arctan;
+            // } else if (tan > 0) {
+            //     arctan = -(0.5*Math.PI - arctan);
+            // }
+
+            let k = arctan //* 180 / Math.PI;
+            let z = y2 * ctg(arctan)
+            let coef = 0; //5; //- z;         //WORKHERE !!!!!!!!!!!!!11111111111 SET CORRECT b, think about ctx.translate, ctx.translate
+
+            for (let index = x1; index < x2; index++) {
+                const currX = index;
+                // putPixel(currX,  (((k * currX) + b)))  // add  var "b" (kx+b)
+                dot(currX, (k * currX) + coef, r, g, b, alfa)
+            }
+
+        }
+
+
+
+        /////////////////////////////////////////////////////  
+        horizontalLine = function (x1, x2, y, r, g, b, alfa) {
+            for (let index = x1; index <= x2; index++) {
+                const currX = index;
+                // putPixel(currX,  (((k * currX) + b)))  // add  var "b" (kx+b)
+                dot(currX, y, r, g, b, alfa)
+            }
+        }
+
+        /////////////////////////////////////////////////////  
+        verticalLine = function (x, y1, y2, r, g, b, alfa) {
+            for (let index = y1; index <= y2; index++) {
+                const currY = index;
+                // putPixel(currX,  (((k * currX) + b)))  // add  var "b" (kx+b)
+                dot(x, currY, r, g, b, alfa)
+            }
+        }
+
+        draw = function () {
+
+
+            let r = randomInteger(0, 255)
+            let g = randomInteger(0, 255)
+            let b = randomInteger(0, 255)
+            let alfa = 255
+            // for (let y = 0; y < END_Y; y++) {
+            // line(0, 0, END_X, END_Y, r, g, b, alfa)
+
+            // putLineStandard(10, 10, END_X, END_Y)
+            line(10, 10, END_X/2, END_Y, r, g, b, alfa)
+
+            horizontalLine(10, END_X - 10, 10, r, g, b, alfa)
+            horizontalLine(10, END_X - 10, END_Y-10, r, g, b, alfa)
+            // verticalLine(100, 10, END_Y-10,  r, g, b, alfa)
+            verticalLine(END_X-10, 10, END_Y-10,  r, g, b, alfa)
+            verticalLine(10, 10, END_Y-10,  r, g, b, alfa)
+
+            // for (let x = 0; x < END_X; x++) {
+            //     let r = randomInteger(0, 255)
+            //     let g = randomInteger(0, 255)
+            //     let b = randomInteger(0, 255)
+            //     let alfa = 255
+            //     for (let y = 0; y < END_Y; y++) {
+            //         dot(x, y, r, g, b, alfa)
+            //     }
+            // }
+        }
+
+        init = function () {
+            canvas = document.getElementById('canvas');
+            ctx = canvas.getContext('2d');
+            END_X = canvas.width = parseInt(document.body.clientWidth); //document.width is obsolete
+            END_Y = canvas.height = parseInt(document.body.clientHeight)  //document.height is obsolete
+            ctx.translate(0, canvas.height);
+            ctx.scale(1, -1);
+
+            draw();
+
+            setInterval(() => {
+                //         clearCanvas();
+                draw()
+            }, TIMELOUT_OF_UPDATE_IN_MS);
+
+        }
+
+        /////////////////////////////////////////////////////      
+        clearCanvas = function () {
+            ctx.clearRect(0, 0, END_X, END_Y);
+        }
+
+    </script>
+
+</head>
+
+
+
+<body onload="init()" onresize="location.reload()" style="padding: 0; margin:0">
+    <canvas id="canvas" style="padding: 0; margin:0"></canvas>
+
+
+</body>
+
+</html>
