@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- <link rel="stylesheet" href="default.css"> -->
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <title>Function graph v1.02 - BB's canvas</title>
+
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden;
+            /* border: 1px solid black; */
+        }
+
+
+        canvas {
+            /* border: 1px solid red; */
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <script>
+
+        //globals
+        let ctx = null;
+        let canvas = null;
+        let END_X = -1
+        let END_Y = -1
+        const TIMELOUT_OF_UPDATE_IN_MS = 1000;
+        // let startRed = 0;
+        // // let startPlus = true;
+        let startAlfa = 0;
+        ZERO_X = -100
+        ZERO_Y = -100
+
+        /////////////////////////////////////////////////////   
+        $ = function (x) {
+            return document.getElementById(x);
+
+        }
+
+        /////////////////////////////////////////////////////
+        function ctg(x) { return 1 / Math.tan(x); }
+
+        /////////////////////////////////////////////////////
+        function arcctg(x) { return Math.PI / 2 - Math.atan(x); }
+
+        /////////////////////////////////////////////////////   
+        function randomInteger(min, max) {
+            let rand = min - 0.5 + Math.random() * (max - min + 1);
+            return Math.round(rand);
+        }
+
+        //solution from https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+        dot = function (x, y, r, g, b, alfa) {
+            ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + (alfa / 255) + ")";
+            ctx.fillRect(x, y, 1, 1);
+        }
+
+
+        /////////////////////////////////////////////////////  
+        horizontalLine = function (x1, x2, y, r, g, b, alfa) {
+            for (let index = x1; index <= x2; index++) {
+                const currX = index;
+                // putPixel(currX,  (((k * currX) + b)))  // add  var "b" (kx+b)
+                dot(currX, y, r, g, b, alfa)
+            }
+        }
+
+        /////////////////////////////////////////////////////  
+        verticalLine = function (x, y1, y2, r, g, b, alfa) {
+            for (let index = y1; index <= y2; index++) {
+                const currY = index;
+                // putPixel(currX,  (((k * currX) + b)))  // add  var "b" (kx+b)
+                dot(x, currY, r, g, b, alfa)
+            }
+        }
+
+
+        let getXconverted = function (x) {
+            return x - ZERO_X
+
+        }
+
+        let getYconverted = function (y) {
+            return y + ZERO_Y
+        }
+
+        drawTheFunctionGraph = function () {
+
+
+            let r = 0
+            let g = 0
+            let b = 0
+            let alfa = 255
+
+            // const ZERO_X = END_X / 2;
+            // const ZERO_Y = END_Y / 2;
+
+            // horizontalLine(0, END_X, ZERO_Y, r, g, b, alfa)
+
+            // verticalLine(ZERO_X, 0, END_Y, r, g, b, alfa)
+
+
+            // const functionDef = '.1*x**2';//2*x+100';
+            let functionDef = $('f').value;
+            for (let currX = 0; currX <= END_X; currX += .1) {
+                let x = getXconverted(currX);
+                dot(currX, getYconverted(eval(functionDef)) /*getYconverted(eval(functionDef)  )*/, r, g, b, alfa)
+            }
+
+
+        }
+
+        draw = function () {
+
+
+            let r = 0
+            let g = 0
+            let b = 0
+            let alfa = 255
+
+            // let ZERO_X = END_X / 2;
+
+            // let ZERO_Y = END_Y / 2;
+
+            horizontalLine(0, END_X, ZERO_Y, r, g, b, alfa)
+
+            verticalLine(ZERO_X, 0, END_Y, r, g, b, alfa)
+
+            drawTheFunctionGraph()
+
+
+        }
+
+        focusForm = function () {
+
+
+            let r = 0
+            let g = 0
+            let b = 0
+            let alfa = 255
+
+            // let ZERO_X = END_X / 2;
+
+            // let ZERO_Y = END_Y / 2;
+
+            horizontalLine(0, END_X, ZERO_Y, r, g, b, alfa)
+
+            verticalLine(ZERO_X, 0, END_Y, r, g, b, alfa)
+
+            drawTheFunctionGraph();
+
+            $('f').focus();
+
+        }
+
+
+        toggle = function () {
+            // $('canvas').style.display 
+
+            var x = document.getElementById("canvas");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+                clearCanvas()
+                draw();
+            } else {
+                x.style.display = "none";
+               focusForm();
+            }
+        }
+
+        init = function () {
+            canvas = document.getElementById('canvas');
+            ctx = canvas.getContext('2d');
+            END_X = canvas.width = parseInt(document.body.clientWidth); //document.width is obsolete
+            END_Y = canvas.height = parseInt(document.body.clientHeight)  //document.height is obsolete
+            ctx.translate(0, canvas.height);
+            ctx.scale(1, -1);
+
+            ZERO_X = END_X / 2;
+            ZERO_Y = END_Y / 2;
+
+            // draw();
+            focusForm();
+
+            document.body.addEventListener("dblclick", (event) => {
+
+
+                toggle();
+
+            });
+
+            // setInterval(() => {
+            //     //         clearCanvas();
+            //     draw()
+            // }, TIMELOUT_OF_UPDATE_IN_MS);
+
+        }
+
+        /////////////////////////////////////////////////////      
+        clearCanvas = function () {
+            ctx.clearRect(0, 0, END_X, END_Y);
+        }
+
+    </script>
+
+</head>
+
+
+
+<body onload="init()" onresize="location.reload()" style="padding: 0; margin:0">
+    <canvas id="canvas" style="padding: 0; margin:0; display: none;"></canvas>
+    <span id="spanWithFunc">
+        <h2>
+        Use the form below to draw a function graph. <br>Use javascript syntax.<br> Use double-click to see the form again.<br><br>
+        f(x)=
+        <input id="f" style="display: inline" value="(x**2) / 100">
+        <input type="button" onclick="toggle();" value="Draw!">
+    </h2> </span>
+
+
+</body>
+
+</html>
