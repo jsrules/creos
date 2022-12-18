@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <!-- <link rel="stylesheet" href="default.css"> -->
+  <title>Lorem ipsum dolor sit amet</title>
+
+  <style>
+    html,
+    body,
+    #wrapper {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<script>
+
+
+  let globalPlus = 20;
+
+  function randomInteger(min, max) {
+    let rand = min - 0.5 + Math.random() * (max - min + 1);
+    return Math.round(rand);
+  }
+
+  /////////////////////////////////////////////////////   
+  $ = function (x) {
+    return document.getElementById(x);
+  }
+
+  //solution from https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+  dot = function (x, y, r, g, b, alfa) {
+    context.fillStyle = "rgba(" + r + "," + g + "," + b + "," + (alfa / 255) + ")";
+    context.fillRect(x, y, 1, 1);
+  }
+
+  /////////////////////////////////////////////////////      
+  function init() {
+    canvas = document.getElementById('canvas');
+
+    END_X = parseInt(canvas.width = document.body.clientWidth);
+    END_Y = parseInt(canvas.height = document.body.clientHeight);
+
+
+    const image = document.getElementById('image');
+    // image.setAttribute('crossOrigin', '');
+    // image.crossOrigin = "Anonymous"
+    // const canvas = document.createElement('canvas');
+    context = canvas.getContext('2d', { willReadFrequently: true });
+    const width = image.width;
+    const height = image.height;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    context.drawImage(image, 0, 0, width, height);
+
+
+    document.addEventListener('mousemove', (e) => {  //
+      // alert(6)
+      var x = e.pageX //- pos.x;
+      var y = e.pageY //- pos.y;
+
+
+      const data = context.getImageData(x, y, 1, 1).data;
+      const RED = data[0]
+      const GREEN = data[1]
+      const BLUE = data[2]
+      const ALPHA = data[3]
+
+      $('textId').innerHTML = 'COORDS: (' + x + ';' + y + '). RGBA:' + '(' + RED + ';' + GREEN + ';' + BLUE + ';' + ALPHA + ')';
+
+    });
+
+    document.addEventListener('click', (e) => {  //
+      let width = canvas.width //= ;
+      let height = canvas.height //= ;
+      // startDissolve()
+      // alert(width + '--' + height)
+
+      const part = 1
+      for (let x = 0; x < width / part; x++) {
+        for (let y = 0; y < height / part; y++) {
+          // const element = array[index];
+          const data = context.getImageData(x, y, 1, 1).data;
+          const RED = data[0]
+          const GREEN = data[1]
+          const BLUE = data[2]
+          const ALPHA = 255//data[3]
+
+          globalPlus += 0;
+          let ADD = globalPlus;
+
+
+
+          //intact:
+          // dot(x, y, RED, GREEN , BLUE, ALPHA)
+          dot(x, y, RED + ADD, RED + ADD, RED + ADD, ALPHA)
+          // dot(x, y, GREEN, BLUE, RED, ALPHA)
+
+
+        }
+        // alert('done')
+      }
+
+    });
+
+    // draw();
+
+    // if (IS_PERFORM_UPDATE){
+    //     setInterval(() => {
+    //       update();
+    //     }, TIMELOUT_OF_UPDATE_IN_MS);
+    // }
+
+  }
+
+
+  startDissolve = function () {
+    setInterval(() => {
+      dissolve()
+    }, 0);
+  }
+
+  dissolve = function () {
+    let width = canvas.width //= ;
+    let height = canvas.height //= ;
+    let x = randomInteger(0, width)
+    let y = randomInteger(0, height)
+    const data = context.getImageData(x, y, 1, 1).data;
+    const RED = data[0]
+    const GREEN = data[1]
+    const BLUE = data[2]
+    const ALPHA = data[3]
+    dot(x, y, 255, 255, 255, 255)
+  }
+
+  // randomInteger
+
+  /////////////////////////////////////////////////////      
+  clearCanvas = function () {
+
+
+    canvas = document.getElementById('canvas');
+
+    context = canvas.getContext('2d');
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+
+</script>
+
+
+<body onload="init();" onresize="clearCanvas(); init();">
+
+  <div id="textId" style="display:none;">DATA</div>
+  <img src="1.jpg" id="image">
+
+  <canvas id="canvas" width="1301" height="1001">
+
+
+
+</body>
+
+</body>
+
+</html>
