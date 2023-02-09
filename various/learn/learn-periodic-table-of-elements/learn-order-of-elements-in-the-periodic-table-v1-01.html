@@ -225,9 +225,15 @@
         start = function () {
             // alert('Press Arabic digit corresponding to the Slavonic digit you see.')
             $('orderOfTestingRadiobuttonsId').style.display = 'block'
+
+
+
             nextLettter()
             $('howto').innerHTML = '<br>Use your keyboard to enter the short name for the element number you see. <br> A beep sound will be played if you press a wrong char.<br> (After that, just press the right char and the last char in the text field will be replaced.) <!-- &nbsp; <br>Use dot (.) for decimal period. <br>Use asterisk(*) for adding exp form ("10^" will be added automatically). -->  <br><span style="color: red;" id="dffgr44767"> MAKE SURE ENGLISH LOCALE IS ON!!!!    </span> <BR> <br> <span style="color: red;" id="dffgg5r44767">     <a href="#" style="font-size: 20px; margin: 0px;" onclick="location.reload(); return false;">Return to the list</a>    </span>'
             $('thx').innerHTML = ''
+
+            //scroll to the top of the page !!!!!!!!!!!!!!!!!!!!!!!1111111111111111111111111111
+            window.scrollTo(0, 0);
 
             testModeStarted = true
         }
@@ -250,18 +256,22 @@
             $('s').style.color = USER_INPUT_IN_PROGRESS_COLOR;
             $('s').innerHTML = '' + ((!isAbsentScreenShotForChar(STRINGS_TO_TEST[curr][0])) ? ' <img src="img/' + (curr + 1) + '.jpg"> ' : ' <span style="font-size: 80px;" id="s">#' + STRINGS_TO_TEST[curr][0] + '</span>') +
                 '  <span style="" id="equalSignId">=</span> <input type="text" style="font-size:80px; height:80px; width: 1000px; color: red;" id="userInputTextfield" disabled="true" maxlength ="20"> <br> ' +
-                ' <span id="hintHref" style="font-size: 30px; margin: 0px;"> <a href="#" style="font-size: 20px; margin: 0px;" onclick="showHint(\'' + STRINGS_TO_TEST[curr] + '\'); return false;">show hint</span><br>' +
+                ' <span id="hintHref" style="font-size: 30px; margin: 0px;"> <a href="#" style="font-size: 20px; margin: 0px;" onclick="showHint(\'' + STRINGS_TO_TEST[curr] + '\'); return false;">show hint</span><br><span id="hintText233445" style="display:none"></span>' +
                 // NBSP + NBSP + NBSP + 
                 ' <span id="nextHref" style="font-size: 30px; margin: 0px;"> <a href="#" style="font-size: 20px; margin: 0px;" onclick="nextLettter(); return false;">next</span>'
             //  + '<span style="font-size: 80px; >'
             // +    '</span>'
 
-            showHint(STRINGS_TO_TEST[curr]);
+            let h = STRINGS_TO_TEST[curr];
+            $('hintText233445').innerHTML = '#' + h[0] + HYPHEN_SIGN + h[1] + HYPHEN_SIGN + h[3] + ' ( ' + h[2] + ' )'
+
+            // showHint(STRINGS_TO_TEST[curr]);
         }
 
         showHint = function (h) {
 
-            $('hintHref').innerHTML = '#' + h[0] + HYPHEN_SIGN + h[1] + HYPHEN_SIGN + h[3] + ' ( ' + h[2] + ' )'
+            // $('hintText233445').style.display = 'block'
+            $('hintHref').innerHTML = $('hintText233445').innerHTML; // '<span id="hintText233445">#' + h[0] + HYPHEN_SIGN + h[1] + HYPHEN_SIGN + h[3] + ' ( ' + h[2] + ' )</span>'
         }
 
         /////////////////////////////////////////////////////   
@@ -356,9 +366,9 @@
                         $('userInputTextfield').style.color = USER_INPUT_COMPLETED_CORRECTLY_COLOR
                         correctionMode = false;
                         setTimeout(() => {
-
+                            // showHint(STRINGS_TO_TEST[curr]);
                             if (ORDER == ORDER_ONE_BY_ONE) {
-                                $('doneElementsId').innerHTML += $('hintHref').innerHTML + '<br>';
+                                $('doneElementsId').innerHTML += $('hintText233445').innerHTML + '<br>';
                                 window.scrollTo(0, document.body.scrollHeight);
                             }
                             nextLettter()
@@ -389,7 +399,7 @@
 <body onload="init();" onresize="location.reload()">
 
 
-    <div id="doneElementsId" style="font-size: 50px;">
+    <div id="doneElementsId" style="font-size: 25px;">
 
     </div>
 
