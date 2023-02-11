@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- <link rel="stylesheet" href="default.css"> -->
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <title>Snake v.0-01 (one-pixel framework example)</title>
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden;
+            /* border: 1px solid black; */
+        }
+
+        canvas {
+            /* border: 1px solid red; */
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <script>
+
+        ////////////////////////////////////////////////////////// commons ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+        //globals
+        let ctx = null;
+        let canvas = null;
+        let END_X = -1
+        let END_Y = -1
+        const TIMELOUT_OF_UPDATE_IN_MS = 1;
+        let currX = 0;
+        let currY = 0;
+        const MOVE_STEP = 10;
+
+
+        //NOT used for now:
+        let snakeLength = 2;
+        let SQUARE_SIZE = 10;
+        const LEADING_OR_FIRST_SQUARE_COLOR = '#0037ffff';
+        const TRACE_SQUARE_COLOR = '#bbdca5ff';
+        const EMPTY_SQUARE_COLOR = 'white';
+        const ENEMY_COLOR = 'red';
+        const FOOD_SQUARE_COLOR = 'green';
+
+
+        const hexes = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+        const MIN_COLOR = 0;
+        const MAX_COLOR = 255;
+
+
+        /////////////////////////////////////////////////////   
+        function $(x) {
+            return document.getElementById(x);
+
+        }
+
+        /////////////////////////////////////////////////////   
+        function log(s) {
+            console.log(s)
+        }
+
+        /////////////////////////////////////////////////////
+        function ctg(x) { return 1 / Math.tan(x); }
+
+        /////////////////////////////////////////////////////
+        function arcctg(x) { return Math.PI / 2 - Math.atan(x); }
+
+        /////////////////////////////////////////////////////   
+        function randomInteger(min, max) {
+            let rand = min - 0.5 + Math.random() * (max - min + 1);
+            return Math.round(rand);
+        }
+
+        /////////////////////////////////////////////////////   
+        function randHexDigit() {
+            return hexes[randomInteger(0, 15)];
+        }
+
+        /////////////////////////////////////////////////////   
+        function randColor() {
+            return "#" + randHexDigit() + randHexDigit() + randHexDigit() + randHexDigit() + randHexDigit() + randHexDigit();
+        }
+
+        /////////////////////////////////////////////////////   
+        function randShadeOfRed() {
+            return "#" + randHexDigit() + randHexDigit() + '0000';
+        }
+
+        /////////////////////////////////////////////////////   
+        function randShadeOfGreen() {
+            return "#00" + randHexDigit() + randHexDigit() + '00';
+        }
+
+        /////////////////////////////////////////////////////   
+        function randShadeOfBlues() {
+            return "#0000" + randHexDigit() + randHexDigit();
+        }
+
+
+
+        ////////////////////////////////////////////////////////// output ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+        /////////////////////////////////////////////////////  
+        //solution from https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+        function dot(x, y, r, g, b, alfa) {
+            ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + (alfa / 255) + ")";
+            ctx.fillRect(x, y, 1, 1);
+        }
+
+        /////////////////////////////////////////////////////      
+        function clearCanvas() {
+            ctx.clearRect(0, 0, END_X, END_Y);
+        }
+        ////////////////////////////////////////////////////////// input ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+
+        ////////////////////////////////////////////////////////// 2d ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+        /////////////////////////////////////////////////////  
+        function line(x1, y1, x2, y2, r, g, b, alfa) {
+            let dx = x2 - x1;
+            let dy = y2 - y1;
+            let tan = dy / dx;
+            let iterateOverX = Math.abs(tan) > 0.5;
+            if (y1 == y2) {
+                horizontalLine(x1, x2, y1, r, g, b, alfa);
+                return;
+            }
+            if (x1 == x2) {
+                verticalLine(x1, y1, y2, r, g, b, alfa);
+                return;
+            }
+            if (iterateOverX && x2 < x1) {
+                line(x2, y2, x1, y1, r, g, b, alfa);
+                return;
+            }
+            if ((!iterateOverX) && y2 < y1) {
+                line(x2, y2, x1, y1, r, g, b, alfa);
+                return;
+            }
+            let ctan = dx / dy;
+            let alfaCorner = Math.atan(tan);
+            let betaCorner = (Math.PI / 2) - alfaCorner;
+            let deltaXinTheLoop = .05;
+            let lastY = null;
+            let lastX = null;
+            let setOfUsedY = new Set();
+
+            if (iterateOverX)
+                for (let index = x1; index < x2; index += deltaXinTheLoop) {
+                    const currX = index;
+                    //strictly dfiagonal:
+                    // dot(currX, currX, r, g, b, alfa);
+
+                    //arbitrary:
+                    // let currY = Math.round (y1 + ((Math.sin(alfaCorner) * (currX - x1)) / Math.sin(betaCorner)))         //Math.round  -NO BRCKTS !!
+                    // let currY = Math.round (y1 + ((Math.tan(alfaCorner) * (currX - x1)) )) 
+                    let currY = Math.round(y1 + ((tan * (currX - x1))))
+
+
+                    let deltaY = lastY == null ? 0 : Math.abs(currY - lastY);
+                    // if (deltaY > 1) {
+                    //     deltaXinTheLoop *= 0.01;
+                    // }
+                    if (true && !setOfUsedY.has(currY)) {
+                        dot(currX, currY, r, g, b, alfa);
+                        setOfUsedY.add(currY);
+                        // log(tan + '--' + currY)
+                    } else {
+                        // log("else")
+                    }
+                    lastY = currY;
+                }
+
+            if (!iterateOverX) {
+                for (let index = y1; index < y2; index += deltaXinTheLoop) {
+                    const currY = index;
+                    //strictly dfiagonal:
+                    // dot(currX, currX, r, g, b, alfa);
+
+                    //arbitrary:
+                    // let currY = Math.round (y1 + ((Math.sin(alfaCorner) * (currX - x1)) / Math.sin(betaCorner)))         //Math.round  -NO BRCKTS !!
+                    // let currY = Math.round (y1 + ((Math.tan(alfaCorner) * (currX - x1)) )) 
+                    // let currY = y1 + tan * currX - tan * x1
+
+                    // let currY = y1 + ((tan * (currX - x1)))
+                    // currX = Math.round((y1 - currY - (tan * x1)) / tan)
+                    // let currY = Math.round(y1 + ((tan * (currX - x1))))
+                    let currX = Math.round(x1 + (ctan * (currY - y1)))
+
+                    let deltaX = lastX == null ? 0 : Math.abs(currX - lastX);
+                    // if (deltaY > 1) {
+                    //     deltaXinTheLoop *= 0.01;
+                    // }
+                    if (true && !setOfUsedY.has(currX)) {
+                        dot(currX, currY, r, g, b, alfa);
+                        setOfUsedY.add(currX);
+                        // log(tan + '--' + currX)
+                    } else {
+                        // log("else")
+                    }
+                    lastX = currX;
+                }
+                // log('done iterateOverY')
+            }
+        }
+
+
+
+        /////////////////////////////////////////////////////  
+        function horizontalLine(x1, x2, y, r, g, b, alfa) {
+            for (let index = x1; index <= x2; index++) {
+                const currX = index;
+                // putPixel(currX,  (((k * currX) + b)))  // add  var "b" (kx+b)
+                dot(currX, y, r, g, b, alfa)
+            }
+        }
+
+        /////////////////////////////////////////////////////  
+        function verticalLine(x, y1, y2, r, g, b, alfa) {
+            for (let index = y1; index <= y2; index++) {
+                const currY = index;
+                // putPixel(currX,  (((k * currX) + b)))  // add  var "b" (kx+b)
+                dot(x, currY, r, g, b, alfa)
+            }
+        }
+
+        /////////////////////////////////////////////////////   
+        function putLineStandard(x1, y1, x2, y2) {
+            ctx.lineWidth = 1;
+            ctx.moveTo(x1, y1);    // Передвигает перо в точку (30, 50)
+            ctx.lineTo(x2, y2);  // Рисует линию до точки (150, 100)
+            ctx.strokeStyle = '#000000';   //randShadeOfRed(); // DEFAULT_COLOR;
+            ctx.stroke();
+        }
+
+
+        ///////  NB: fully opaque alfa is 255 !!!111111  //////////////////////////////////////////   
+        function putBoldPixel(x, y, /* color: */ r, g, b, alfa) {
+            const BOLD_PIXEL_WIDTH_AND_HEIGHT = 5; //(4/5) * Math.min(  halfWidthDenys, halfHeightDenys );  //NB: actually number of ADDED pixels from all sides. So "1" means 3x3
+            for (let index = x - (BOLD_PIXEL_WIDTH_AND_HEIGHT); index <= x + BOLD_PIXEL_WIDTH_AND_HEIGHT; index++) {
+                for (let index2 = y - (BOLD_PIXEL_WIDTH_AND_HEIGHT); index2 <= y + BOLD_PIXEL_WIDTH_AND_HEIGHT; index2++) {
+
+                    dot(index, index2, r, g, b, alfa);
+
+                }
+            }
+            //FOR TESTING: put RED pixel at (x,y)
+            // putPixel ( x,y, 255, 0 ,0 );
+        }
+
+        ////////////////////////////////////////////////////////// model ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+        //no model here (much easier to develop)
+
+        ////////////////////////////////////////////////////////// view ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+        function redraw() {
+
+
+            // putBoldPixel(100, 100, 255, 0, 0, 255);
+            // alert(55)
+            // return
+
+            let r = 0//randomInteger(0, 255)
+            let g = 0// randomInteger(0, 255)
+            let b = 0//randomInteger(0, 255)
+            let alfa = 255
+            //    line(0, 100, END_X, 0, r, g, b, alfa)
+
+
+            // r = randomInteger(0, 255)
+            // g = randomInteger(0, 255)
+            // b = randomInteger(0, 255)
+
+
+            // hor:
+            // line(0, 100, END_X, 50, r, g, b, alfa)
+            // line(0, 100, END_X, 100, r, g, b, alfa)
+            // line(0, 100, END_X, 250, r, g, b, alfa)
+            // line(0, 100, END_X, 270, r, g, b, alfa)
+            // line(0, 100, END_X, 300, r, g, b, alfa)
+            // line(0, 100, END_X, 150, r, g, b, alfa)
+            // line(0, 100, END_X, 25, r, g, b, alfa)
+            // line(0, 100, END_X, 50, r, g, b, alfa)
+            // line(0, 100, END_X, 0, r, g, b, alfa)
+
+            // // vert:
+            // line(100, 0, 100, END_Y, r, g, b, alfa)
+            // line(100, 0, 200, END_Y, r, g, b, alfa)
+
+            putBoldPixel(currX, currY, 255, 0, 0, 255)
+
+
+
+            //RAMKA:
+            // horizontalLine(10, END_X - 10, 10, r, g, b, alfa)
+            // horizontalLine(10, END_X - 10, END_Y-10, r, g, b, alfa)
+            // verticalLine(END_X-10, 10, END_Y-10,  r, g, b, alfa)
+            // verticalLine(10, 10, END_Y-10,  r, g, b, alfa)
+
+
+            // for (let x = 0; x < END_X; x++) {
+            //     let r = randomInteger(0, 255)
+            //     let g = randomInteger(0, 255)
+            //     let b = randomInteger(0, 255)
+            //     let alfa = 255
+            //     for (let y = 0; y < END_Y; y++) {
+            //         dot(x, y, r, g, b, alfa)
+            //     }
+            // }
+        }
+        ////////////////////////////////////////////////////////// controller ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+        const UP_CURSOR_KEY = 'ArrowUp';
+        const DOWN_CURSOR_KEY = 'ArrowDown';
+        const RIGHT_CURSOR_KEY = 'ArrowRight';
+        const LEFT_CURSOR_KEY = 'ArrowLeft';
+
+        function initListeners() {
+            document.body.addEventListener("keydown", (event) => {
+                if (event.isComposing || event.keyCode === 229) {
+                    return;
+                }
+                let enteredKey = event.key
+                // document.body.innerHTML += enteredKey;
+
+                switch (enteredKey) {
+                    case UP_CURSOR_KEY: currY += MOVE_STEP;
+                        break;
+                    case DOWN_CURSOR_KEY: currY -= MOVE_STEP;
+                        break;
+                    case RIGHT_CURSOR_KEY: currX += MOVE_STEP;
+                        break;
+                    case LEFT_CURSOR_KEY: currX -= MOVE_STEP;
+                        break;
+                }  //switch
+            });  //ddEventListener("keydown"
+        }  //function initListeners() 
+
+        ////////////////////////////////////////////////////////// index.html ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+
+
+        function init() {
+
+            alert('Use cursor keys on your keyboard to move.')
+
+            initListeners();
+            // return;
+
+            canvas = document.getElementById('canvas');
+            ctx = canvas.getContext('2d');
+            END_X = canvas.width = parseInt(document.body.clientWidth); //document.width is obsolete
+            END_Y = canvas.height = parseInt(document.body.clientHeight)  //document.height is obsolete
+            ctx.translate(0, canvas.height);
+            ctx.scale(1, -1);
+
+            // redraw();
+
+
+
+            //UPDATES:
+            setInterval(() => {
+                //         clearCanvas();
+                redraw()
+            }, TIMELOUT_OF_UPDATE_IN_MS);
+
+        }
+
+
+
+
+    </script>
+
+</head>
+
+
+
+<body onload="init()" onresize="location.reload()" style="padding: 0; margin:0">
+    <canvas id="canvas" style="padding: 0; margin:0"></canvas>
+</body>
+
+</html>
