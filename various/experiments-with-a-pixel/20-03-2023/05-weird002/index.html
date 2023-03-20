@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- <link rel="stylesheet" href="default.css"> -->
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <title>line-v.4-04.html</title>
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden;
+            /* border: 1px solid black; */
+        }
+
+        canvas {
+            /* border: 1px solid red; */
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <script src="commons.js"></script>
+    <script src="output.js"></script>
+    <script src="input.js"></script>
+    <script src="2d.js"></script>
+    <script src="model.js"></script>
+    <script src="view.js"></script>
+    <script src="controller.js"></script>
+
+
+    <script>
+        ////////////////////////////////////////////////////////// index.html ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+
+        //globals
+        let ctx = null;
+        let canvas = null;
+        let END_X = -1
+        let END_Y = -1
+        const TIMELOUT_OF_UPDATE_IN_MS = Infinity;//0;
+        let currX = -1;
+        let currY = -1;
+        let currR = -1;
+
+
+        function draw() {
+
+            // let r = 0//randomInteger(0, 255)
+            // let g = 0// randomInteger(0, 255)
+            // let b = 0//randomInteger(0, 255)
+            // let alfa = 255
+
+
+            currX = currX < END_X ? currX + 1 : 0;
+            // currY = currY < END_Y ? currY + 1 : 0;
+            currR = currR < 255 ? currR + 1 : 0;
+
+
+            let r = currR // randomInteger(0, 255)
+            let g = 0 // randomInteger(0, 255)
+            let b = randomInteger(0, 255)
+            let alfa = 255
+
+            verticalLine(currX, 0, END_Y, r, g, b, alfa);
+            // horizontalLine(0, END_X, currY, r, g, b, alfa);
+
+
+            // //copypasted from verticalLine()
+            // for (let index = 0; index <= END_X; index++) {
+            //     const currX = index;
+            //     // putPixel(currX,  (((k * currX) + b)))  // add  var "b" (kx+b)
+            //     let r = randomInteger(0, 255)
+            //     let g = randomInteger(0, 255)
+            //     let b = randomInteger(0, 255)
+            //     dot(currX, currY, r, g, b, alfa)
+            // }
+
+
+
+            // // hor:
+            // line(0, 100, END_X, 50, r, g, b, alfa)
+            // line(0, 100, END_X, 100, r, g, b, alfa)
+            // line(0, 100, END_X, 250, r, g, b, alfa)
+            // line(0, 100, END_X, 270, r, g, b, alfa)
+            // line(0, 100, END_X, 300, r, g, b, alfa)
+            // line(0, 100, END_X, 150, r, g, b, alfa)
+            // line(0, 100, END_X, 25, r, g, b, alfa)
+            // line(0, 100, END_X, 50, r, g, b, alfa)
+            // line(0, 100, END_X, 0, r, g, b, alfa)
+
+            // // vert:
+            // line(100, 0, 100, END_Y, r, g, b, alfa)
+            // line(100, 0, 200, END_Y, r, g, b, alfa)
+
+
+
+            //RAMKA:
+            // horizontalLine(10, END_X - 10, 10, r, g, b, alfa)
+            // horizontalLine(10, END_X - 10, END_Y-10, r, g, b, alfa)
+            // verticalLine(END_X-10, 10, END_Y-10,  r, g, b, alfa)
+            // verticalLine(10, 10, END_Y-10,  r, g, b, alfa)
+
+
+        }
+
+        function init() {
+
+            // alert(55)
+
+            canvas = document.getElementById('canvas');
+            ctx = canvas.getContext('2d');
+            END_X = canvas.width = parseInt(document.body.clientWidth); //document.width is obsolete
+            END_Y = canvas.height = parseInt(document.body.clientHeight)  //document.height is obsolete
+            ctx.translate(0, canvas.height);
+            ctx.scale(1, -1);
+
+            draw();
+
+            //UPDATES:
+            setInterval(() => {
+                //         clearCanvas();
+                draw()
+            }, TIMELOUT_OF_UPDATE_IN_MS);
+
+        }
+
+
+
+    </script>
+
+</head>
+
+
+
+<body onload="init()" onresize="location.reload()" style="padding: 0; margin:0">
+    <canvas id="canvas" style="padding: 0; margin:0"></canvas>
+</body>
+
+</html>
