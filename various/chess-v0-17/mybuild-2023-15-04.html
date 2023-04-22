@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- <link rel="stylesheet" href="default.css"> -->
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <title>Corners v.0.02</title>
+
+    <style>
+        /* html,
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden;
+        }
+
+        canvas {
+            margin: 0;
+            padding: 0;
+        } */
+        .chessboard-table {
+            border-collapse: collapse;
+        }
+
+        <script> 
+            ////////////////////////////////////////////////////////// commons ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+
+        const hexes=['0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        'A',
+        'B',
+        'C',
+        'D',
+        'E',
+        'F'];
+        const MIN_COLOR=0;
+        const MAX_COLOR=255;
+
+        /////////////////////////////////////////////////////    solution from https://stackoverflow.com/questions/979975/get-the-values-from-the-get-parameters-javascript
+        function getUrlParam(param) {
+            var url_string=self.location.href; //"http://www.example.com/t.html?a=1&b=3&c=m2-m3-m4-m5"; //window.location.href
+            var url=new URL(url_string);
+            var c=url.searchParams.get(param);
+            // console.log('Param-param:'+c);
+            return c;
+        }
+
+        /////////////////////////////////////////////////////   
+        function w(x) {
+            return document.write(x);
+
+        }
+
+        /////////////////////////////////////////////////////   
+        function $(x) {
+            return document.getElementById(x);
+
+        }
+
+        /////////////////////////////////////////////////////   
+        function log(s) {
+            console.log(s)
+        }
+
+        /////////////////////////////////////////////////////
+        function ctg(x) {
+            return 1 / Math.tan(x);
+        }
+
+        /////////////////////////////////////////////////////
+        function arcctg(x) {
+            return Math.PI / 2 - Math.atan(x);
+        }
+
+        /////////////////////////////////////////////////////   
+        function randomInteger(min, max) {
+            let rand=min - 0.5+Math.random() * (max - min + 1);
+            return Math.round(rand);
+        }
+
+        /////////////////////////////////////////////////////   
+        function randHexDigit() {
+            return hexes[randomInteger(0, 15)];
+        }
+
+        /////////////////////////////////////////////////////   
+        function randColor() {
+            return "#"+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit()+randHexDigit();
+        }
+
+        /////////////////////////////////////////////////////   
+        function randShadeOfRed() {
+            return "#"+randHexDigit()+randHexDigit()+'0000';
+        }
+
+        /////////////////////////////////////////////////////   
+        function randShadeOfGreen() {
+            return "#00"+randHexDigit()+randHexDigit()+'00';
+        }
+
+        /////////////////////////////////////////////////////   
+        function randShadeOfBlues() {
+            return "#0000"+randHexDigit()+randHexDigit();
+        }
+
+        /////////////////////////////////////////////////////   
+        function getFilenameFromURL(url){
+        return url.substring(url.lastIndexOf('/') + 1);
+        }
+
+        ////////////////////////////Stack//////////////////////////
+        function Stack() {
+            this._size=0;
+
+            this._storage= {}
+
+            ;
+        }
+
+        Stack.prototype.push=function (data) {
+            var size=++this._size;
+            this._storage[size]=data;
+        }
+
+        ;
+
+        Stack.prototype.pop=function () {
+            var size=this._size,
+            deletedData;
+
+            if (size) {
+                deletedData=this._storage[size];
+                delete this._storage[size];
+                this._size--;
+                return deletedData;
+            }
+        }
+
+        ;
+        ////////////////////////////////////////////////////////// output ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+        /////////////////////////////////////////////////////  
+        //solution from https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+        function dot(x, y, r, g, b, alfa) {
+            ctx.fillStyle="rgba("+r+","+g+","+b+","+(alfa / 255)+")";
+            ctx.fillRect(x, y, 1, 1);
+        }
+
+        /////////////////////////////////////////////////////      
+        function clearCanvas() {
+            ctx.clearRect(0, 0, END_X, END_Y);
+        }
+
+        ////////////////////////////////////////////////////////// input ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+
+        ////////////////////////////////////////////////////////// 2d ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+        /////////////////////////////////////////////////////  
+        function line(x1, y1, x2, y2, r, g, b, alfa) {
+            let dx=x2 - x1;
+            let dy=y2 - y1;
+            let tan=dy / dx;
+            let iterateOverX=Math.abs(tan)>0.5;
+
+            if (y1==y2) {
+                horizontalLine(x1, x2, y1, r, g, b, alfa);
+                return;
+            }
+
+            if (x1==x2) {
+                verticalLine(x1, y1, y2, r, g, b, alfa);
+                return;
+            }
+
+            if (iterateOverX && x2 < x1) {
+                line(x2, y2, x1, y1, r, g, b, alfa);
+                return;
+            }
+
+            if (( !iterateOverX) && y2 < y1) {
+                line(x2, y2, x1, y1, r, g, b, alfa);
+                return;
+            }
+
+            let ctan=dx / dy;
+            let alfaCorner=Math.atan(tan);
+            let betaCorner=(Math.PI / 2) - alfaCorner;
+            let deltaXinTheLoop=.05;
+            let lastY=null;
+            let lastX=null;
+            let setOfUsedY=new Set();
+
+            if (iterateOverX) for (let index=x1; index < x2; index +=deltaXinTheLoop) {
+                const currX=index;
+                //strictly dfiagonal:
+                // dot(currX, currX, r, g, b, alfa);
+
+                //arbitrary:
+                // let currY = Math.round (y1 + ((Math.sin(alfaCorner) * (currX - x1)) / Math.sin(betaCorner)))         //Math.round  -NO BRCKTS !!
+                // let currY = Math.round (y1 + ((Math.tan(alfaCorner) * (currX - x1)) )) 
+                let currY=Math.round(y1 + ((tan * (currX - x1)))) let deltaY=lastY==null ? 0: Math.abs(currY - lastY);
+
+                // if (deltaY > 1) {
+                //     deltaXinTheLoop *= 0.01;
+                // }
+                if (true && !setOfUsedY.has(currY)) {
+                    dot(currX, currY, r, g, b, alfa);
+                    setOfUsedY.add(currY);
+                    // log(tan + '--' + currY)
+                }
+
+                else {
+                    // log("else")
+                }
+
+                lastY=currY;
+            }
+
+            if ( !iterateOverX) {
+                for (let index=y1; index < y2; index +=deltaXinTheLoop) {
+                    const currY=index;
+                    //strictly dfiagonal:
+                    // dot(currX, currX, r, g, b, alfa);
+
+                    //arbitrary:
+                    // let currY = Math.round (y1 + ((Math.sin(alfaCorner) * (currX - x1)) / Math.sin(betaCorner)))         //Math.round  -NO BRCKTS !!
+                    // let currY = Math.round (y1 + ((Math.tan(alfaCorner) * (currX - x1)) )) 
+                    // let currY = y1 + tan * currX - tan * x1
+
+                    // let currY = y1 + ((tan * (currX - x1)))
+                    // currX = Math.round((y1 - currY - (tan * x1)) / tan)
+                    // let currY = Math.round(y1 + ((tan * (currX - x1))))
+                    let currX=Math.round(x1 + (ctan * (currY - y1))) let deltaX=lastX==null ? 0: Math.abs(currX - lastX);
+
+                    // if (deltaY > 1) {
+                    //     deltaXinTheLoop *= 0.01;
+                    // }
+                    if (true && !setOfUsedY.has(currX)) {
+                        dot(currX, currY, r, g, b, alfa);
+                        setOfUsedY.add(currX);
+                        // log(tan + '--' + currX)
+                    }
+
+                    else {
+                        // log("else")
+                    }
+
+                    lastX=currX;
+                }
+
+                // log('done iterateOverY')
+            }
+        }
+
+
+
+        /////////////////////////////////////////////////////  
+        function horizontalLine(x1, x2, y, r, g, b, alfa) {
+            for (let index=x1; index <=x2; index++) {
+                const currX=index;
+                // putPixel(currX,  (((k * currX) + b)))  // add  var "b" (kx+b)
+                dot(currX, y, r, g, b, alfa)
+            }
+        }
+
+        /////////////////////////////////////////////////////  
+        function verticalLine(x, y1, y2, r, g, b, alfa) {
+            for (let index=y1; index <=y2; index++) {
+                const currY=index;
+                // putPixel(currX,  (((k * currX) + b)))  // add  var "b" (kx+b)
+                dot(x, currY, r, g, b, alfa)
+            }
+        }
+
+        /////////////////////////////////////////////////////   
+        function putLineStandard(x1, y1, x2, y2) {
+            ctx.lineWidth=1;
+            ctx.moveTo(x1, y1); // Передвигает перо в точку (30, 50)
+            ctx.lineTo(x2, y2); // Рисует линию до точки (150, 100)
+            ctx.strokeStyle='#000000'; //randShadeOfRed(); // DEFAULT_COLOR;
+            ctx.stroke();
+        }
+
+        ////////////////////////////////////////////////////////// model ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+        function initModel() {
+
+            modelArr=new Array(FIELD_WIDTH);
+
+            for (let i=0; i < modelArr.length; i++) {
+                modelArr[i]=new Array(FIELD_HEIGHT);
+                modelArr[i].fill(0)
+            }
+
+            // console.log(modelArr);
+
+            for (let i=0; i < NUMBER_OF_MINES; i++) {
+                do {
+                    var widthRand=randomInteger(0, FIELD_WIDTH - 1);
+                    var heightRand=randomInteger(0, FIELD_HEIGHT - 1);
+                }
+
+                while (modelArr[widthRand][heightRand] !==0) modelArr[widthRand][heightRand]=1;
+            }
+        }
+
+
+        function findNumberOfNeighbourhoodMines(modelArrWidth, modelArrHeight) {
+            let total=0;
+
+            for (let i=-1; i < 2; i++) {
+                for (let j=-1; j < 2; j++) {
+
+                    if (i==0 && j==0) {
+                        continue;
+                    }
+
+                    try {
+                        var currValue=modelArr[modelArrWidth+i][modelArrHeight+j]
+                    }
+
+                    catch (error) {
+                        currValue=0;
+                    }
+
+                    total+=( !isNaN(currValue) ? currValue : 0);
+                }
+            }
+
+            return total;
+        }
+
+        function getModelArrWithNumberOfNeighbours() {
+            // let resultArr = []
+
+            //NB: similar name as global var!!!
+            let modelArrCopy=new Array(FIELD_WIDTH);
+
+            for (let i=0; i < modelArrCopy.length; i++) {
+                modelArrCopy[i]=new Array(FIELD_HEIGHT);
+                modelArrCopy[i].fill(0)
+            }
+
+            for (let index1=0; index1 < FIELD_HEIGHT; index1++) {
+                for (let index=0; index < FIELD_WIDTH; index++) {
+                    modelArrCopy[index][index1]=findNumberOfNeighbourhoodMines(index, index1)
+                }
+            }
+
+            console.log(modelArrCopy) return modelArrCopy
+        }
+
+        function isThereAMineAt(modelArrWidth, modelArrHeight) {
+            return modelArr[modelArrWidth][modelArrHeight] !==0;
+        }
+
+        ////////////////////////////////////////////////////////// view ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+        function setDefaultColorsOnAllBoard() {
+            //TODO
+        }
+
+        /////////////////////////////////////////////////////
+        function myAlert(s) {
+            setTimeout("alert('" + s + "')", 200);
+        }
+
+        /////////////////////////////////////////////////////
+        function myAlertAndReloadThePage(s) {
+            setTimeout("alert('" + s + "');  location.reload();", 200);
+        }
+
+        /////////////////////////////////////////////////////
+        //gets 1 and 3 and returns string "1,3"
+        function createId(first, second) {
+            return first+second;
+        }
+
+        /////////////////////////////////////////////////////
+        //gets string like "1,3" and returns array [1,3]
+        function breakId(id) {
+            var pos=id.indexOf(COMMA);
+            return [parseInt(id.slice(0, pos)),
+            parseInt(id.slice(pos + 1, id.length))];
+        }
+
+        function redrawMinesLeft() {
+            $('spanWithNumberOfminesLeftId').innerHTML=minesLeft;
+        }
+
+        // function redrawBoard(isStart) {
+        //     let htmlToAdd = '';
+        //     let imgToDraw = null;
+        //     let gameOverMsg = null;
+
+        //     for (let index1 = 0; index1 < FIELD_HEIGHT; index1++) {
+
+        //         for (let index = 0; index < FIELD_WIDTH; index++) {
+
+        //             if (isStart) {
+        //                 imgToDraw = START_SQWARE_IMG
+        //             }
+        //             else {
+        //                 let numberOfNeighbourhoodMines = findNumberOfNeighbourhoodMines(index, index1)
+        //                 let imgToUse = EMPTY_SQWARE_WITH_NUMBER_IMG_FIRST_PART + String(numberOfNeighbourhoodMines) + EMPTY_SQWARE_WITH_NUMBER_IMG_LAST_PART;
+        //                 imgToDraw = modelArr[index][index1] == 0 ? imgToUse : MINE_SQWARE_IMG;
+        //                 if (isGameOver) {
+        //                     gameOverMsg != 'Fail' && (gameOverMsg = 'Success!!! Congrats, you won.')
+        //                     let imgOnTheExistingBoard = $(createId(index, index1))
+        //                     if (getFilenameFromURL(imgOnTheExistingBoard.src) == getFilenameFromURL(MARKED_SQWARE_IMG) && !isThereAMineAt(index, index1)) {
+        //                         imgToDraw = FALSELY_MARKED_SQWARE_IMG;
+        //                         gameOverMsg = 'Fail'
+        //                     }
+        //                 }
+        //             }
+
+        //             let idToUse = createId(index, index1)
+        //             htmlToAdd += '<img id="' + idToUse + '" style="display:inline; Font-Size:0px; Line-Height: 0px; width:30px;height:30px;margin: 0px;  padding: 0px;border: none;" border="0" src="' + imgToDraw +
+        //                 '" alt="" onClick="imgClickHandler(this)" oncontextmenu="imgRightClickHandler(this)"  role="button"  tabIndex="0" />';
+
+        //         }
+
+        //         htmlToAdd += '<br>'
+        //     }
+        //     $('fieldDivId').innerHTML = htmlToAdd
+        //     gameOverMsg && myAlert(gameOverMsg)
+        // }
+
+        function getInvertedFieldColor(bgColor) {
+            return bgColor !=FIRST_LEFT_UPPER_FIELD_COLOR ? FIRST_LEFT_UPPER_FIELD_COLOR: OPPOSING_LEFT_UPPER_FIELD_COLOR;
+        }
+
+        function getHTMLStringOfTheBoar(isStart) {
+            savedInitialColorsArr=[] let htmlToAdd='    <table class="chessboard-table">';
+            let imgToDraw=null;
+            let gameOverMsg=null;
+            let bgColor=null;
+
+            for (let index1=0; index1 < FIELD_HEIGHT + 1; index1++) {
+                let numberOfRow=(FIELD_HEIGHT - index1) htmlToAdd+='  <tr><th> '+(numberOfRow ? numberOfRow : '')+' </th>'
+
+                for (let index=0; index < FIELD_WIDTH; index++) {
+
+                    let startTag=''
+                    let endTag=''
+                    let fieldContent='';
+                    let letter=''+HORIZONTAL_FIELD_LETTERS.charAt(index);
+
+                    let id=letter+numberOfRow let idStr='id="'+id+'"'
+
+
+                    if (index1 < FIELD_HEIGHT) {
+                        bgColor=getInvertedFieldColor(bgColor);
+                        startTag='<td onclick="fieldClickHandler(this)"  '+idStr+' style=" background-color: '+bgColor+'" '+'>' // +id
+                        endTag='</td>'
+                        fieldContent='';
+                        savedInitialColorsArr[id]=bgColor
+                    }
+
+                    else {
+                        startTag='<th>'
+                        endTag='</th>'
+                        fieldContent=''+letter //HORIZONTAL_FIELD_LETTERS.charAt(index);
+                        //  log(7)
+                    }
+
+                    // fieldContent = index > FIELD_HEIGHT ? : ''
+
+                    // let idToUse = createId(index, index1)
+                    htmlToAdd+=startTag+fieldContent+endTag // '<img id="' + idToUse + '" style="display:inline; Font-Size:0px; Line-Height: 0px; width:30px;height:30px;margin: 0px;  padding: 0px;border: none;" border="0" src="' + imgToDraw +
+                    //     '" alt="" onClick="imgClickHandler(this)" oncontextmenu="imgRightClickHandler(this)"  role="button"  tabIndex="0" />';
+
+                }
+
+
+                htmlToAdd+='</tr>'
+                bgColor=getInvertedFieldColor(bgColor);
+            }
+
+            htmlToAdd+=' </table>'
+            // $('fieldDivId').innerHTML = htmlToAdd
+            // gameOverMsg && myAlert(gameOverMsg)
+
+            // log(htmlToAdd)
+            return htmlToAdd
+        }
+
+        function putPiece(id, imgSrc) {
+            // log(fillStartPosition)
+            $(id).innerHTML='<img src="img/'+imgSrc+'.png">'
+        }
+
+        //this is done in getHTMLStringOfTheBoar() method
+        function saveInitialColors() {
+            // // log(44)
+            // let color = savedInitialColorsArr['a1']
+            // log(color + '!!!')
+            // color = savedInitialColorsArr['a2']
+            // log(color + '!!!')
+        }
+
+        function restoreInitialColorsOfFields() {
+            lastClickedTD=null;
+            lastClickedTDSavedColor=null;
+            clickProcessed=true;
+
+            for (var key in savedInitialColorsArr) {
+                // console.log(savedInitialColorsArr[key]);
+                $(key).style.backgroundColor=savedInitialColorsArr[key];
+            }
+        }
+
+        function fillStartPosition() {
+
+            let shashkaW='bP'
+
+            for (let index=0; index < 3; index++) {
+                for (let index2=4; index2 < 7; index2++) {
+                    putPiece(HORIZONTAL_FIELD_LETTERS.charAt(index) + '' + (index2 + 2), shashkaW)
+                }
+            }
+
+            shashkaW='wP'
+
+            for (let index=0; index < 3; index++) {
+                for (let index2=4; index2 < 7; index2++) {
+                    putPiece(HORIZONTAL_FIELD_LETTERS.charAt(index + 5) + '' + (index2 + 2 - 5), shashkaW)
+                }
+            }
+
+            // log(fillStartPosition)
+            // putPiece('a1', 'wR')
+            // putPiece('h1', 'wR')
+            // putPiece('a8', 'bR')
+            // putPiece('h8', 'bR')
+
+            // for (let index = 0; index < FIELD_WIDTH; index++) {
+            //     putPiece(HORIZONTAL_FIELD_LETTERS.charAt(index) + '7', 'bP')
+            //     putPiece(HORIZONTAL_FIELD_LETTERS.charAt(index) + '6', 'bP')
+            //     putPiece(HORIZONTAL_FIELD_LETTERS.charAt(index) + '5', 'bP')
+
+            //     putPiece(HORIZONTAL_FIELD_LETTERS.charAt(index) + '2', 'wP')
+            //     putPiece(HORIZONTAL_FIELD_LETTERS.charAt(index) + '3', 'wP')
+            //     putPiece(HORIZONTAL_FIELD_LETTERS.charAt(index) + '4', 'wP')
+            // }
+
+        }
+
+        function draw() {
+            // return
+
+            // alert(5)
+            // $('fieldDivId').innerHTML ='fieldDivId !!!1111' + new Date()
+
+
+            // alert( $('fieldDivId').innerHTML )
+
+            redrawBoard(true) return;
+
+            // let r = 0//randomInteger(0, 255)
+            // let g = 0// randomInteger(0, 255)
+            // let b = 0//randomInteger(0, 255)
+            // let alfa = 255
+
+
+            currX=currX < END_X ? currX+1: 0;
+            // currY = currY < END_Y ? currY + 1 : 0;
+            currR=currR < 255 ? currR+1: 0;
+
+
+            let r=255 // randomInteger(0, 255)
+            let g=255 //randomInteger(0, 255)  //randomInteger(0, 255)
+            let b=randomInteger(0, 255) let alfa=255 verticalLine(currX, 0, END_Y, r, g, b, alfa);
+            // horizontalLine(0, END_X, currY, r, g, b, alfa);
+
+
+            // //copypasted from verticalLine()
+            // for (let index = 0; index <= END_X; index++) {
+            //     const currX = index;
+            //     // putPixel(currX,  (((k * currX) + b)))  // add  var "b" (kx+b)
+            //     let r = randomInteger(0, 255)
+            //     let g = randomInteger(0, 255)
+            //     let b = randomInteger(0, 255)
+            //     dot(currX, currY, r, g, b, alfa)
+            // }
+
+
+
+            // // hor:
+            // line(0, 100, END_X, 50, r, g, b, alfa)
+            // line(0, 100, END_X, 100, r, g, b, alfa)
+            // line(0, 100, END_X, 250, r, g, b, alfa)
+            // line(0, 100, END_X, 270, r, g, b, alfa)
+            // line(0, 100, END_X, 300, r, g, b, alfa)
+            // line(0, 100, END_X, 150, r, g, b, alfa)
+            // line(0, 100, END_X, 25, r, g, b, alfa)
+            // line(0, 100, END_X, 50, r, g, b, alfa)
+            // line(0, 100, END_X, 0, r, g, b, alfa)
+
+            // // vert:
+            // line(100, 0, 100, END_Y, r, g, b, alfa)
+            // line(100, 0, 200, END_Y, r, g, b, alfa)
+
+
+
+            //RAMKA:
+            // horizontalLine(10, END_X - 10, 10, r, g, b, alfa)
+            // horizontalLine(10, END_X - 10, END_Y-10, r, g, b, alfa)
+            // verticalLine(END_X-10, 10, END_Y-10,  r, g, b, alfa)
+            // verticalLine(10, 10, END_Y-10,  r, g, b, alfa)
+
+
+        }
+
+        ////////////////////////////////////////////////////////// controller ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+        // alert(554)
+
+        function stopEvent(event) {
+            if (event.preventDefault !=undefined) event.preventDefault();
+            if (event.stopPropagation !=undefined) event.stopPropagation();
+        }
+
+
+
+        function fieldClickHandler(td) {
+
+            if (td.innerHTML=='' && lastClickedTD==null) {
+                return;
+            }
+
+            // log(td.id)
+            if (lastClickedTD==td) {
+                // lastClickedTD.style.backgroundColor = lastClickedTDSavedColor
+                restoreInitialColorsOfFields() return
+            }
+
+            else if (lastClickedTD !=null
+
+                /* && lastMoveFromTd==null */
+            ) {
+
+
+                if (( !POSSIBLE_TO_CAPTURE) && td.innerHTML !='') {
+                    restoreInitialColorsOfFields() return;
+                }
+
+                td.innerHTML=lastClickedTD.innerHTML lastClickedTD.innerHTML=''
+                lastClickedTD.style.backgroundColor=lastClickedTDSavedColor lastMoveFromTdSavedColor=lastClickedTD.style.backgroundColor lastMoveToTdSavedColor=td.style.backgroundColor lastClickedTD.style.backgroundColor=COLOR_OF_LAST_MOVE_FROM td.style.backgroundColor=COLOR_OF_LAST_MOVE_TO lastMoveFromTd=lastClickedTD lastMoveToTd=td // lastMoveToTd = null
+                // lastMoveFromTd = null
+                lastClickedTDSavedColor=null;
+                // lastMoveFromTdSavedColor = null
+                // lastMoveToTdSavedColor = null
+
+                lastClickedTD=null // lastStateOfTheBoard = $('chessBoardId').innerHTML
+                $('undoLastMoveLinkId').style.color='blue'
+
+                clickProcessed=true;
+                return;
+            }
+
+            // if (lastMoveToTd == null) {
+            // lastStateOfTheBoard = $('chessBoardId').innerHTML
+            // }
+            lastClickedTDSavedColor=null;
+            lastClickedTD=td lastClickedTDSavedColor=td.style.backgroundColor;
+            lastStateOfTheBoard=$('chessBoardId').innerHTML td.style.backgroundColor=COLOR_OF_FIELD_WITH_PIECE_TO_MOVE // log(td)
+
+            if (lastMoveFromTd !=null) {
+                lastMoveFromTd.style.backgroundColor=lastMoveFromTdSavedColor lastMoveToTd.style.backgroundColor=lastMoveToTdSavedColor lastMoveToTd=null lastMoveFromTd=null lastMoveFromTdSavedColor=null lastMoveToTdSavedColor=null
+            }
+
+            clickProcessed=true;
+        }
+
+        function imgRightClickHandler(img) {
+
+            // alert(100000000)
+            if (getFilenameFromURL(img.src) !=getFilenameFromURL(START_SQWARE_IMG) && getFilenameFromURL(img.src) !=getFilenameFromURL(MARKED_SQWARE_IMG)) {
+                return
+            }
+
+
+            // img.src = getFilenameFromURL(img.src) != getFilenameFromURL(MARKED_SQWARE_IMG) ? MARKED_SQWARE_IMG : START_SQWARE_IMG;
+
+
+            if (getFilenameFromURL(img.src) !=getFilenameFromURL(MARKED_SQWARE_IMG)) {
+                img.src=MARKED_SQWARE_IMG minesLeft--
+            }
+
+            else {
+                img.src=START_SQWARE_IMG minesLeft++
+            }
+
+            redrawMinesLeft() if (minesLeft==0) {
+                isGameOver=true;
+                redrawBoard(false) // alert('Done!')
+            }
+
+
+            return false
+        }
+
+
+
+        function documentDoubleClick(e) {
+            // alert(554);
+            // img.src = MARKED_SQWARE_IMG;// 'img/marked-square.jpg'
+            alert(e)
+        }
+
+        function undoLastMove() {
+
+            // alert(undoLastMove)
+            if (lastStateOfTheBoard !=null) {
+                $('chessBoardId').innerHTML=lastStateOfTheBoard lastStateOfTheBoard=null restoreInitialColorsOfFields() $('undoLastMoveLinkId').style.color='grey'
+                // if (lastClickedTD != null) {
+                //     lastClickedTD.style.backgroundColor = lastClickedTDSavedColor
+                //     log(454545)
+                // }
+            }
+
+        }
+
+        /* .chessboard-table tr:nth-child(odd) td:nth-child(odd),
+        tr:nth-child(even) td:nth-child(even) {
+            background-color: #D08B47;
+        }
+
+        .chessboard-table tr:nth-child(even) td:nth-child(odd),
+        tr:nth-child(odd) td:nth-child(even) {
+            background-color: #FFCE9E
+        } */
+    </style>
+
+    <script src="commons.js"></script>
+    <script src="output.js"></script>
+    <script src="input.js"></script>
+    <script src="2d.js"></script>
+    <script src="model.js"></script>
+    <script src="view.js"></script>
+    <script src="controller.js"></script>
+
+
+    <script>
+        ////////////////////////////////////////////////////////// index.html ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+
+        //globals
+        let lastMoveFromTdSavedColor = null
+        let lastMoveToTdSavedColor = null
+        let lastMoveFromTd = null
+        let lastMoveToTd = null
+        let movesStack = new Stack()
+        let lastStateOfTheBoard = null
+        const HORIZONTAL_FIELD_LETTERS = 'abcdefgh'
+        let clickProcessed = false;
+        const WHITE = true;
+        const BLACK = false;
+        let whoMoves = WHITE;
+        const COLOR_OF_FIELD_WITH_PIECE_TO_MOVE = 'yellow';
+        const COLOR_OF_LAST_MOVE_FROM = 'gray';
+        const COLOR_OF_LAST_MOVE_TO = 'green';
+        let lastClickedTD = null;
+        let lastClickedTDSavedColor = null;
+        let modelArr = null;
+        let setOfAutoclickeddSquares = new Set();
+        let clickLevel = 0;
+        let ctx = null;
+        let canvas = null;
+        let END_X = -1
+        let END_Y = -1
+        const TIMELOUT_OF_UPDATE_IN_MS = Infinity;//0;
+        let currX = -1;
+        let currY = -1;
+        let currR = -1;
+        let FIELD_WIDTH_to_use = getUrlParam('width') ? Number(getUrlParam('width')) : 10
+        const FIELD_WIDTH = 8; //Math.min(FIELD_WIDTH_to_use, 1000)
+        let FIELD_HEIGHT_to_use = getUrlParam('height') ? Number(getUrlParam('height')) : 10
+        const FIELD_HEIGHT = 8; // Math.min(FIELD_HEIGHT_to_use, 1000)
+        let NUMBER_OF_MINES_to_use = getUrlParam('numberOfMines') ? Number(getUrlParam('numberOfMines')) : 18;
+        const NUMBER_OF_MINES = Math.min(NUMBER_OF_MINES_to_use, FIELD_WIDTH * FIELD_HEIGHT)  //getUrlParam('numberOfMines') ? Number(getUrlParam('numberOfMines')) : 18  //2; //899
+        const START_SQWARE_IMG = 'img/start-square.jpg'
+        const MINE_SQWARE_IMG = 'img/mine-square.jpg'
+        const MARKED_SQWARE_IMG = 'img/marked-square.jpg'
+        const FALSELY_MARKED_SQWARE_IMG = 'img/falsely-marked-square.jpg'
+        const EMPTY_SQWARE_IMG = 'img/empty-square.jpg'
+        const EMPTY_SQWARE_WITH_NUMBER_IMG_FIRST_PART = 'img/empty-square-'
+        const EMPTY_SQWARE_WITH_NUMBER_IMG_LAST_PART = '.jpg'
+        const COMMA = ',';
+        let minesLeft = NUMBER_OF_MINES;
+        let isGameOver = false;
+        const POSSIBLE_TO_CAPTURE = false;
+        let savedInitialColorsArr = null;
+        const FIRST_LEFT_UPPER_FIELD_COLOR = '#FFCE9E'
+        const OPPOSING_LEFT_UPPER_FIELD_COLOR = '#D08B47'
+
+
+
+        function init() {
+
+            // alert('in init()' + getUrlParam('width'))
+
+
+            // log($('chessBoardId').innerHTML)
+
+            $('chessBoardId').innerHTML = getHTMLStringOfTheBoar(true)
+            // saveInitialColors() ;
+
+            fillStartPosition()
+
+            setTimeout(() => {
+                saveInitialColors();
+            }, 1);
+
+            document.addEventListener("click", (e) => {
+                // card.classList.toggle("large");
+                if (clickProcessed) {
+                    clickProcessed = false;
+                    return
+                }
+                restoreInitialColorsOfFields()
+
+                // if (lastClickedTD != null) {
+                //     lastClickedTD.style.backgroundColor = lastClickedTDSavedColor
+                //     lastClickedTD = null;
+                //     lastClickedTDSavedColor = null;
+                //     clickProcessed = true;
+                // }
+                // log('event=' + e)
+
+                stopEvent(e)
+            });
+
+            return;
+            // canvas = document.getElementById('canvas');
+            // ctx = canvas.getContext('2d');
+            // END_X = canvas.width = parseInt(document.body.clientWidth); //document.width is obsolete
+            // END_Y = canvas.height = parseInt(document.body.clientHeight)  //document.height is obsolete
+            // ctx.translate(0, canvas.height);
+            // ctx.scale(1, -1);
+
+
+            initModel();
+            draw();
+            // saveInitialColors() ;
+
+
+
+            // document.addEventListener("dblclick", (e) => {
+            //     // card.classList.toggle("large");
+            //     alert(e)
+            // });
+
+            // document.addEventListener("contextmenu", (e) => {
+            //     // card.classList.toggle("large");
+            //     stopEvent(e)
+            // });
+
+
+
+            //UPDATES:
+            // setInterval(() => {
+            //     //         clearCanvas();
+            //     // draw()
+            // }, TIMELOUT_OF_UPDATE_IN_MS);
+
+        }
+
+
+
+    </script>
+
+</head>
+
+<!-- onresize="location.reload()" -->
+
+<body onload="init()">
+    <!-- <canvas id="canvas" style="padding: 0; margin:0"></canvas> -->
+    <!-- <div id="minesLeftDivId" style="font-size: 50PX;float: right;margin: 10px;  padding: 10px;">
+        <img src="img/mine-square.jpg" alt="" style="width:1px;height: 1px;">
+        <img src="img/marked-square.jpg" alt="" style="width:1px;height: 1px;">
+        <img src="img/falsely-marked-square.jpg" alt="" style="width:1px;height: 1px;">
+        left: <span id="spanWithNumberOfminesLeftId">
+            <script> w(minesLeft)   </script>
+        </span> <br>
+    </div>
+
+    <div id="minesLeftDivId" style="font-size: 20PX; margin: 10px;  padding: 10px; position: absolute; bottom: 0;">
+        Left mouse-click to open a field, right mouse-click to put a mark. Refresh the page or
+        <a href="#" onclick="location.reload(); return false;">click HERE</a> to start again.
+    </div>
+
+    <div id="fieldDivId"></div> -->
+
+    <!-- table & css from: https://codepen.io/gtes/pen/XwWeQM -->
+
+    <!-- <table class="chessboard-table">
+        <tr>
+            <th>8</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>7</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>6</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>5</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>4</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>3</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>2</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>1</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th></th>
+            <th>a</th>
+            <th>b</th>
+            <th>c</th>
+            <th>d</th>
+            <th>e</th>
+            <th>f</th>
+            <th>g</th>
+            <th>h</th>
+        </tr>
+    </table>  -->
+
+    <div id="chessBoardId"></div>
+
+    <div id="minesLeftDivId" style="font-size: 20PX; margin: 10px;  padding: 10px;">
+
+        <a href="#" id="undoLastMoveLinkId" onclick="undoLastMove(); return false;" disabled="true"
+            style="color:grey">Undo last move</a>
+    </div>
+
+    <div id="minesLeftDivId" style="font-size: 20PX; margin: 10px;  padding: 10px; position: absolute; bottom: 0;">
+        Left mouse-click to select a piece to move, then left mouse-click on the field to make a move. Refresh the page
+        or
+        <a href="#" onclick="location.reload(); return false;">click HERE</a> to start again.
+    </div>
+
+</body>
+
+</html>
