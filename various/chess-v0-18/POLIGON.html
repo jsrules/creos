@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="default.css">
+    <title>Lorem ipsum dolor sit amet</title>
+
+
+</head>
+
+<script>
+    // x = 2
+    var y = 1, x = y = typeof x;
+    console.log(typeof x);
+    console.log(x);
+
+
+    const isFizz = n => n % 3 === 0
+    const isBuzz = n => n % 5 === 0
+    const isNeither = n => !isFizz(n) && !isBuzz(n)
+    // the magic:
+    const optional = (f, x) => Array(Number(f(x))).fill(x)
+    const fizzbuzz = n => {
+        const fizz = optional(isFizz, n).map(_ => 'Fizz')
+        const buzz = optional(isBuzz, n).map(_ => 'Buzz')
+        const num = optional(isNeither, n).map(String)
+        return `${fizz.join('')}${buzz.join('')}${num.join('')}`
+    }
+
+    // alert(fizzbuzz(300))
+
+    answerkey = ['', 'Fizz', 'Buzz', 0];
+
+    function FBSolve_Map(number, answerkey) {
+        answer = answerkey[0 + !((number % 3) / (number % 3))] +
+            answerkey[(!((number % 5) / (number % 5)) + 0) * 2] +
+            answerkey[!(!((number % 5) / (number % 5)) || !((number % 3) / (number % 3))) * 3];
+        return answer;
+    }
+
+
+    function FBSolve_Map_Optimized(number, answerkey) {
+        let mod3 = !((number % 3) / (number % 3));
+        let mod5 = !((number % 5) / (number % 5));
+        answer = answerkey[0 + mod3] + answerkey[(mod5 + 0) * 2] + answerkey[!(mod5 || mod3) * 3];
+        return answer;
+    }
+
+    // alert(FBSolve_Map_Optimized(30, answerkey))
+
+    function reverse(s) {
+        return s.split('').reverse().join('');
+    }
+
+    function isPalindorme(s) {
+        return s === s.split('').reverse().join('');
+    }
+
+    function myIsPalindorme(s) {
+        const chkTill = parseInt(s.length / 2)
+
+        for (let index = 0; index < chkTill; index++) {
+            const element = s.charAt(index);
+            const contr_element = s.charAt(s.length - 1 - index);
+            console.log(element + '--' + contr_element);
+            if (element !== contr_element) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // console.log(isPalindorme(''))
+
+    function funcToApplyToEveryArrayElement(x) {
+        return x + 2
+    }
+
+    function fillArr() {
+        // return new Array(5) .fill(-1)
+
+        // let i=0;
+        // return [ ...Array(5).keys() ].map( i => i+1);
+
+        return [...Array(5).keys()].map(funcToApplyToEveryArrayElement);
+
+    }
+
+
+    // console.log(x = fillArr())
+    // console.log(x[0])
+
+    const fizzBuzz = (from = 1, till = 100, ruleMap = {
+        3: "Fizz",
+        5: "Buzz",
+    }) => from > till || console.log(
+        Object.keys(ruleMap)
+            .filter(number => from % number === 0)
+            .map(number => ruleMap[number]).join("") || from
+    ) || fizzBuzz(from + 1, till, ruleMap);
+
+    // Usage:
+    // console.log(fizzBuzz(/*Default values*/))
+    ;
+
+
+    // const array1 = ['a', 'b', 'c'];
+    // array1.forEach(element => console.log(element));
+
+
+    function fillArrFromZero() {
+        return [...Array(5).keys()];
+    }
+
+    // console.log(x = fillArrFromZero())
+
+    function fillArrFromOne() {
+        return [...Array(100).keys()].map(i => i + 1);;
+    }
+
+    function fizzBuzzWithPlainFor(arr, n, text) {
+        for (let index = 0; index < arr.length; index += n) {
+            arr[index - 1] = text
+        }
+    }
+
+    // console.log(x = fillArrFromOne())
+    x = fillArrFromOne()
+    fizzBuzzWithPlainFor(x, 3, 'Fizz')
+    fizzBuzzWithPlainFor(x, 5, 'Buzz')
+    fizzBuzzWithPlainFor(x, 15, 'FizzBuzz')
+    console.log(x)
+
+
+    console.log('xxxxxxxxxxxxxxxxxxxxxx')
+    function plainFuncForMap(element) {
+        if (element % 15 == 0) {
+            return "FizzBuzz";
+        }
+        if (element % 3 == 0) {
+            return "Fizz";
+        }
+        if (element % 5 == 0) {
+            return "Buzz";
+        }
+        return element;
+    }
+
+    x = fillArrFromOne()
+    x = x.map(plainFuncForMap);
+    console.log(x)
+
+    console.log('xxxxxxxxxxxxxxxxxxxxxx')
+    for (let i = 1; i <= 100; i++) {
+        let out = '';
+        if (i % 3 === 0) out += 'Fizz';
+        if (i % 5 === 0) out += 'Buzz';
+        console.log(out || i);
+    }
+
+    console.log('yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy')
+    x = fillArrFromOne()
+    x = x.map(element => element % 15 == 0 ? "FizzBuzz" : element)
+        .map(element => element % 3 == 0 ? "Fizz" : element)
+        .map(element => element % 5 == 0 ? "Buzz" : element);
+    console.log(x)
+
+
+    console.log('яяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяя')
+    let tmp = 70
+    arr4343 = [...new Array(50)].map(_ => tmp++);
+    console.log(arr4343)
+
+    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+    // alert( 1 / 0 );
+    // alert( "не число" / 2 )
+    // console.log(NaN ** 0)
+    // alert( `результат: ${1 + 2}` ); // результат: 3
+
+    let age = 123;
+    // изменяем значение на undefined
+    age = undefined;
+    // alert(age); // "undefined"
+
+    var a = 1;
+    function b() {
+        console.log(typeof a)
+        a = 10;
+        return;
+        // function a() {
+        // }
+    }
+    b();
+    console.log(a);
+
+    var a = {};
+    var b = { key: 'b' };
+    var c = { key: 'c' };
+
+    a[b] = 123;
+    a[c] = 456;
+    console.log(a[b]);
+
+    console.log("1" + 2);
+    console.log(2 + "1");
+    console.log(1 + 2 + 3 + 4 + "5");
+
+    arr = [1, 2]
+    function greetAll() {
+        var args = Array.prototype.slice.call(arguments, 0);
+        console.log(args);
+
+    }
+    greetAll(3, 4, 5)
+    greetAll(arr)
+    console.log(arr);
+
+    function test() {
+        console.log(a);
+        console.log(foo());
+
+        var a = 1;
+
+        function foo() {
+            return 2;
+        }
+    }
+    test();
+
+    // (function () {
+    //     alert(inner);
+    //     inner();
+    //     function inner() {
+    //         alert('inner');
+    //     }
+    // })();
+
+    // (function() {
+    //     alert(inner);
+    //     inner();
+    //     var inner = function () {
+    //         alert('inner');
+    //     }
+    // })()
+
+    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
+
+    (function () {
+        f();
+        f = function () {
+            console.log(1);
+        }
+    })();
+    function f() {
+        console.log(2)
+    }
+    f();
+
+    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
+    (function () {
+        var x = 1;
+
+        function x() { };
+
+        console.log(x);
+    })();
+
+    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
+
+    // var f = function g() { return 23; };
+    // typeof g();
+
+    // delete x
+    x = undefined
+
+    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+    var y = 1, x = y = typeof x;
+    console.log(typeof x);
+    console.log(x);
+
+    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+    let zzz = (function (foo) {
+        return typeof foo.foo.bar;
+    })({ foo: { bar: 1 } });
+    console.log(zzz);
+
+    // console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+    // let age111 = prompt('Сколько тебе лет?', 100);
+
+    // alert(`Тебе ${age111} лет!`); // Тебе 100 лет!
+
+
+</script>
+
+<body>
+
+    <center>
+        <h2>Lorem</h2>
+
+        <h1>Lorem ipsum dolor sit amet</h1>
+
+    </center>
+
+    <hr>
+    <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+        ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+        aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit
+        in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+        officia deserunt mollit anim id est laborum. </p>
+
+    <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+        ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+        aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit
+        in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+        officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit
+        amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+        exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
+        dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+        proident, sunt in culpa qui officia deserunt mollit anim id est
+        laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+        ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+        aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit
+        in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+        officia deserunt mollit anim id est laborum. </p>
+
+    <p> Таким образом реализация намеченных плановых заданий влечет
+        за собой процесс внедрения и модернизации дальнейших направлений
+        развития. Задача организации, в особенности же сложившаяся структура
+        организации в значительной степени обуславливает создание модели
+        развития. Товарищи! постоянное информационно-пропагандистское
+        обеспечение нашей деятельности в значительной степени обуславливает
+        создание направлений прогрессивного развития. Не следует, однако
+        забывать, что консультация с широким активом играет важную роль в
+        формировании существенных финансовых и административных условий. Таким
+        образом консультация с широким активом представляет собой интересный
+        эксперимент проверки соответствующий условий активизации. Разнообразный
+        и богатый опыт реализация намеченных плановых заданий требуют от нас
+        анализа форм развития. </p>
+
+    <p> Повседневная практика показывает, что сложившаяся структура
+        организации обеспечивает широкому кругу (специалистов) участие в
+        формировании существенных финансовых и административных условий. Равным
+        образом рамки и место обучения кадров требуют определения и уточнения
+        систем массового участия. Таким образом реализация намеченных плановых
+        заданий способствует подготовки и реализации существенных финансовых и
+        административных условий. Повседневная практика показывает, что
+        сложившаяся структура организации играет важную роль в формировании
+        существенных финансовых и административных условий. </p>
+
+    <p>С другой стороны постоянное информационно-пропагандистское
+        обеспечение нашей деятельности требуют определения и уточнения
+        дальнейших направлений развития. Равным образом дальнейшее развитие
+        различных форм деятельности представляет собой интересный эксперимент
+        проверки системы обучения кадров, соответствует насущным потребностям.
+        Не следует, однако забывать, что постоянное
+        информационно-пропагандистское обеспечение нашей деятельности
+        обеспечивает широкому кругу (специалистов) участие в формировании
+        соответствующий условий активизации. Задача организации, в особенности
+        же консультация с широким активом представляет собой интересный
+        эксперимент проверки системы обучения кадров, соответствует насущным
+        потребностям. Разнообразный и богатый опыт укрепление и развитие
+        структуры позволяет оценить значение дальнейших направлений развития.
+        Повседневная практика показывает, что сложившаяся структура организации
+        влечет за собой процесс внедрения и модернизации направлений
+        прогрессивного развития. </p>
+
+    <p> Равным образом рамки и место обучения кадров позволяет
+        оценить значение систем массового участия. Значимость этих проблем
+        настолько очевидна, что дальнейшее развитие различных форм деятельности
+        в значительной степени обуславливает создание форм развития. Не
+        следует, однако забывать, что реализация намеченных плановых заданий
+        представляет собой интересный эксперимент проверки модели развития.
+        Задача организации, в особенности же укрепление и развитие структуры
+        требуют от нас анализа соответствующий условий активизации. Идейные
+        соображения высшего порядка, а также консультация с широким активом
+        требуют определения и уточнения модели развития. Таким образом начало
+        повседневной работы по формированию позиции обеспечивает широкому кругу
+        (специалистов) участие в формировании форм развития.</p>
+
+    <p>Таким образом реализация намеченных плановых заданий влечет за собой
+        процесс внедрения и модернизации дальнейших направлений развития.
+        Задача организации, в особенности же сложившаяся структура организации
+        в значительной степени обуславливает создание модели развития.
+        Товарищи! постоянное информационно-пропагандистское обеспечение нашей
+        деятельности в значительной степени обуславливает создание направлений
+        прогрессивного развития. Не следует, однако забывать, что консультация
+        с широким активом играет важную роль в формировании существенных
+        финансовых и административных условий. Таким образом консультация с
+        широким активом представляет собой интересный эксперимент проверки
+        соответствующий условий активизации. Разнообразный и богатый опыт
+        реализация намеченных плановых заданий требуют от нас анализа форм
+        развития.</p>
+    <p>Проверка. ппппппппппппппппппппппппппппппппппппппппппппппппп
+        ппппппрррррррррррррррррррррррррррррррррррррррр
+        ооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооооо
+        вввввввввввввввввввввввввввввввв еееееееееее ррррррррррррррррррррр
+        кккккккккккккккккккккккккк аааааааааааааааааааааааааааа.</p>
+
+    <hr>
+    <center> <img src="emailWhite.jpg"> </center>
+
+
+</body>
+
+</html>
