@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- <link rel="stylesheet" href="default.css"> -->
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <title>Added knights - Chess v0.29.1</title>
+
+    <style>
+        /* html,
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden;
+        }
+
+        canvas {
+            margin: 0;
+            padding: 0;
+        } */
+        .chessboard-table {
+            border-collapse: collapse;
+        }
+
+        .chessboard-table td {
+            border: 1px solid #803e00;
+            width: 85px;
+            height: 85px;
+        }
+
+        .chessboard-table th {
+            padding: 10px;
+        }
+
+
+        /* .chessboard-table tr:nth-child(odd) td:nth-child(odd),
+        tr:nth-child(even) td:nth-child(even) {
+            background-color: #D08B47;
+        }
+
+        .chessboard-table tr:nth-child(even) td:nth-child(odd),
+        tr:nth-child(odd) td:nth-child(even) {
+            background-color: #FFCE9E
+        } */
+    </style>
+
+    <script src="commons.js"></script>
+    <script src="output.js"></script>
+    <script src="input.js"></script>
+    <script src="2d.js"></script>
+    <script src="model.js"></script>
+    <script src="view.js"></script>
+    <script src="controller.js"></script>
+    <script src="chess.js"></script>
+
+
+    <script>
+        ////////////////////////////////////////////////////////// index.html ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+        // alert(4545)
+
+        /*
+        TODO:
+        1.show who moves now: white or black
+        2.when piece promotion select is shown, disable everything else
+        3. learn games by heart
+        4. chk if the moves are correct !!!!!!!!!!!11111111111
+        */
+        //globals
+        const EMPTY_STR = '';
+        let isCapturedPromotedPiece = false
+        let savedIdOfPromotionFMoveFROM = null
+        let savedIdOfPromotionFMoveTO = null
+        let savedInnerHTMLOfPromotionFMoveFROM = null
+        let isUndoNowPossible = false;
+        let saved_lastClickedTD = null;
+        let td_in_fieldClickHandler = null;
+        let isPromotionSelectMoving = true;  //stupid hack, dont know how 2 do it better
+        let lastClickX = null;
+        let lastClickY = null;
+        let lastMoveFromTdSavedColor = null
+        let lastMoveToTdSavedColor = null
+        let lastMoveFromTd = null
+        let lastMoveToTd = null
+        let movesStack = new Stack()
+        let lastStateOfTheBoard = null
+        const HORIZONTAL_FIELD_LETTERS = 'abcdefgh'
+        let clickProcessed = false;
+        const WHITE = true;
+        const BLACK = false;
+        let whoMoves = WHITE;
+        const COLOR_OF_FIELD_WITH_PIECE_TO_MOVE = 'yellow';
+        const COLOR_OF_LAST_MOVE_FROM = 'gray';
+        const COLOR_OF_LAST_MOVE_TO = 'green';
+        const COLOR_OF_PAWN_PROMOTION_SELECT = 'aquamarine';
+        const COLOR_OF_POSSIBLE_MOVES_HINT = 'BLUE';
+
+        let lastClickedTD = null;
+        let lastClickedTDSavedColor = null;
+        let modelArr = null;
+        let setOfAutoclickeddSquares = new Set();
+        let clickLevel = 0;
+        let ctx = null;
+        let canvas = null;
+        let END_X = -1
+        let END_Y = -1
+        const TIMELOUT_OF_UPDATE_IN_MS = Infinity;//0;
+        let currX = -1;
+        let currY = -1;
+        let currR = -1;
+        let FIELD_WIDTH_to_use = getUrlParam('width') ? Number(getUrlParam('width')) : 10
+        const FIELD_WIDTH = 8; //Math.min(FIELD_WIDTH_to_use, 1000)
+        let FIELD_HEIGHT_to_use = getUrlParam('height') ? Number(getUrlParam('height')) : 10
+        const FIELD_HEIGHT = 8; // Math.min(FIELD_HEIGHT_to_use, 1000)
+        let NUMBER_OF_MINES_to_use = getUrlParam('numberOfMines') ? Number(getUrlParam('numberOfMines')) : 18;
+        const NUMBER_OF_MINES = Math.min(NUMBER_OF_MINES_to_use, FIELD_WIDTH * FIELD_HEIGHT)  //getUrlParam('numberOfMines') ? Number(getUrlParam('numberOfMines')) : 18  //2; //899
+        const START_SQWARE_IMG = 'img/start-square.jpg'
+        const MINE_SQWARE_IMG = 'img/mine-square.jpg'
+        const MARKED_SQWARE_IMG = 'img/marked-square.jpg'
+        const FALSELY_MARKED_SQWARE_IMG = 'img/falsely-marked-square.jpg'
+        const EMPTY_SQWARE_IMG = 'img/empty-square.jpg'
+        const EMPTY_SQWARE_WITH_NUMBER_IMG_FIRST_PART = 'img/empty-square-'
+        const EMPTY_SQWARE_WITH_NUMBER_IMG_LAST_PART = '.jpg'
+        const COMMA = ',';
+        let minesLeft = NUMBER_OF_MINES;
+        let isGameOver = false;
+        const POSSIBLE_TO_CAPTURE = true;
+        let savedInitialColorsArr = [];
+        const FIRST_LEFT_UPPER_FIELD_COLOR = '#FFCE9E'
+        const OPPOSING_LEFT_UPPER_FIELD_COLOR = '#D08B47'
+        let boardArr = null
+
+
+
+        function init() {
+
+            boardArr = new Array(FIELD_HEIGHT);
+            for (var i = 0; i < boardArr.length; i++) {
+                boardArr[i] = new Array(FIELD_WIDTH);
+            }
+            // console.log(boardArr);
+
+            // alert('in init()' + getUrlParam('width'))
+
+
+            // log($('chessBoardId').innerHTML)
+
+            $('chessBoardId').innerHTML = getHTMLStringOfTheBoar(true)
+            $('promotionSelectId').innerHTML = getHTMLStringOfPromotionSelect()
+            // $('promotionSelectId').style.top='0'
+            // saveInitialColors() ;
+
+            fillStartPosition()
+
+            setTimeout(() => {
+                saveInitialColors();
+            }, 1);
+
+
+
+            document.body.addEventListener('dblclick', (e) => {
+                return
+                let xxcxc55 = findAllMovesOnEmptyBoardForRook('e5')
+                for (let index = 0; index < xxcxc55.length; index++) {
+                    const element = xxcxc55[index];
+                    // $(key).style.backgroundColor = savedInitialColorsArr[key];
+                    log(element)
+
+                    $(element).style.backgroundColor = COLOR_OF_POSSIBLE_MOVES_HINT
+
+                }
+            });
+
+
+
+            document.addEventListener("click", (e) => {
+                // const offset = 30;
+                // lastClickX = (e.clientX - offset) + 'px';
+                // lastClickY =  (e.clientY - offset) + 'px';
+
+                // log(lastClickX + ';' + lastClickY)
+                // $('promotionSelectId').style.display = 'inline'
+                // $('promotionSelectId').style.top =  parseInt(lastClickY);
+                // $('promotionSelectId').style.left = parseInt(lastClickX);
+
+                // card.classList.toggle("large");
+                if (clickProcessed) {
+                    clickProcessed = false;
+                    return
+                }
+                restoreInitialColorsOfFields();
+
+
+
+
+                // if (lastClickedTD != null) {
+                //     lastClickedTD.style.backgroundColor = lastClickedTDSavedColor
+                //     lastClickedTD = null;
+                //     lastClickedTDSavedColor = null;
+                //     clickProcessed = true;
+                // }
+                // log('event=' + e)
+
+                stopEvent(e)
+            });
+
+
+            // let xxcxc55 = findAllMovesOnEmptyBoardForRook('e5')
+            // for (let index = 0; index < xxcxc55.length; index++) {
+            //     const element = xxcxc55[index];
+            //    $( element ).style. backgroundColor   = COLOR_OF_POSSIBLE_MOVES_HINT
+
+            // }
+
+            // alert(xxcxc55.length)
+
+
+            return;
+
+
+        }
+
+
+
+    </script>
+
+</head>
+
+<!-- onresize="location.reload()" -->
+
+<body onload="init()">
+    <!-- <canvas id="canvas" style="padding: 0; margin:0"></canvas> -->
+    <!-- <div id="minesLeftDivId" style="font-size: 50PX;float: right;margin: 10px;  padding: 10px;">
+        <img src="img/mine-square.jpg" alt="" style="width:1px;height: 1px;">
+        <img src="img/marked-square.jpg" alt="" style="width:1px;height: 1px;">
+        <img src="img/falsely-marked-square.jpg" alt="" style="width:1px;height: 1px;">
+        left: <span id="spanWithNumberOfminesLeftId">
+            <script> w(minesLeft)   </script>
+        </span> <br>
+    </div>
+
+    <div id="minesLeftDivId" style="font-size: 20PX; margin: 10px;  padding: 10px; position: absolute; bottom: 0;">
+        Left mouse-click to open a field, right mouse-click to put a mark. Refresh the page or
+        <a href="#" onclick="location.reload(); return false;">click HERE</a> to start again.
+    </div>
+
+    <div id="fieldDivId"></div> -->
+
+    <!-- table & css from: https://codepen.io/gtes/pen/XwWeQM -->
+
+    <!-- <table class="chessboard-table">
+        <tr>
+            <th>8</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>7</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>6</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>5</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>4</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>3</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>2</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>1</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th></th>
+            <th>a</th>
+            <th>b</th>
+            <th>c</th>
+            <th>d</th>
+            <th>e</th>
+            <th>f</th>
+            <th>g</th>
+            <th>h</th>
+        </tr>
+    </table>  -->
+
+    <div id="chessBoardId"></div>
+
+
+    <div id="whoMovesDivId" style="font-size: 30PX; margin: 10px;  padding: 10px;">
+
+        <span id="whoMovesDivIdTextWithBlackOrWhite" onclick="return false; undoLastMove(); return false;" disabled="true"
+            style="color:grey; font-weight: bold;">White </span>'s turn
+    </div>
+
+    <div id="minesLeftDivId" style="font-size: 20PX; margin: 10px;  padding: 10px;">
+
+        <a href="#" id="undoLastMoveLinkId" onclick="undoLastMove(); return false;" disabled="true"
+            style="color:grey">Undo last move</a>
+    </div>
+
+    <div id="minesLeftDivId" style="font-size: 20PX; margin: 10px;  padding: 10px; position: absolute; bottom: 0;">
+        Left mouse-click a piece to move, then on the field to make a move. <span style="color: red;"> THIS PAGE DOES
+            NOT CHECK IF YOUR MOVES ARE POSSIBLE!! </span> Refresh the page
+        or
+        <a href="#" onclick="location.reload(); return false;">click HERE</a> to start again.
+    </div>
+
+
+    <div id="promotionSelectId"
+        style="font-size: 20PX; margin: 10px;  padding: 10px; position: absolute; left: 700px; top: 700px; background-color: aquamarine; display:none;">
+        Choose
+        <table>
+
+            <tr>
+                <td onclick="pawnPromotionTdClickHandler(this)" onmouseover="pawnPromotionTdMouseOverHandler(this)"
+                    onmouseout="pawnPromotionTdMouseOutHandler(this)"> <img src="img/wQ.png"> </td>
+                <td> <img src="img/wR.png"> </td>
+                <td> <img src="img/wB.png"> </td>
+                <td> <img src="img/wK.png"> </td>
+            </tr>
+
+        </table>
+
+    </div>
+
+</body>
+
+</html>
