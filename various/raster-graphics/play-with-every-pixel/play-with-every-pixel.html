@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <!-- <link rel="stylesheet" href="default.css"> -->
+  <title>Raster graphics - play with every pixel</title>
+
+  <style>
+    html,
+    body,
+    #wrapper {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<script>
+
+  function randomInteger(min, max) {
+    let rand = min - 0.5 + Math.random() * (max - min + 1);
+    return Math.round(rand);
+  }
+
+  /////////////////////////////////////////////////////   
+  $ = function (x) {
+    return document.getElementById(x);
+  }
+
+  /////////////////////////////////////////////////////   
+  log = function (x) {
+    console.log(x)
+  }
+
+
+  //solution from https://stackoverflow.com/questions/4899799/whats-the-best-way-to-set-a-single-pixel-in-an-html5-canvas
+  dot = function (x, y, r, g, b, alfa) {
+    context.fillStyle = "rgba(" + r + "," + g + "," + b + "," + (alfa / 255) + ")";
+    context.fillRect(x, y, 1, 1);
+  }
+
+  //////////////////////////////////////////   
+  function putBoldPixel(x, y, /* color: */ r, g, b, alfa) {
+    const BOLD_PIXEL_WIDTH_AND_HEIGHT = 3; //(4/5) * Math.min(  halfWidthDenys, halfHeightDenys );  //NB: actually number of ADDED pixels from all sides. So "1" means 3x3
+    for (let index = x - (BOLD_PIXEL_WIDTH_AND_HEIGHT); index <= x + BOLD_PIXEL_WIDTH_AND_HEIGHT; index++) {
+      for (let index2 = y - (BOLD_PIXEL_WIDTH_AND_HEIGHT); index2 <= y + BOLD_PIXEL_WIDTH_AND_HEIGHT; index2++) {
+
+        dot(index, index2, r, g, b, alfa);
+
+      }
+    }
+    //FOR TESTING: put RED pixel at (x,y)
+    // putPixel ( x,y, 255, 0 ,0 );
+  }
+
+  function drawFromScratch() {
+    var img = new Image();
+    img.src = "1.jpg"
+    ctx = context
+    ctx.drawImage(img, 0, 0);
+    var imgData = ctx.getImageData(0, 0, img.width, img.height).data;
+    alert(imgData.length)
+  }
+
+  /////////////////////////////////////////////////////      
+  //   const getBase64 = async(url)=>{
+  //       try {
+  //         let image = await axios.get(url, { responseType: 'arraybuffer' });
+  //         let raw = Buffer.from(image.data).toString('base64');
+  //         return "data:" + image.headers["content-type"] + ";base64,"+raw;
+  //       } catch (error) {
+  //           console.log(error)
+  //       } 
+  // }
+
+  // var image = new Image()
+  // image.src=getBase64("2.jpg")
+
+  /////////////////////////////////////////////////////  
+  function init() {
+    // return
+
+    // alert(6)
+    canvas = document.getElementById('canvas');
+
+    END_X = parseInt(canvas.width = document.body.clientWidth);
+    END_Y = parseInt(canvas.height = document.body.clientHeight / 5);
+
+
+    const image = document.getElementById('image');
+    // image.setAttribute('crossOrigin', '');
+    // image.crossOrigin = "Anonymous"
+    // const canvas = document.createElement('canvas');
+    context = canvas.getContext('2d', { willReadFrequently: true });
+    const width = image.width;
+    const height = image.height;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    context.drawImage(image, 0, 0, width, height);
+
+
+
+    document.body.addEventListener("dblclick", (event) => {
+
+      toggle();
+
+    });
+
+    // document.addEventListener('mousemove', (e) => {  //
+    //   // alert(6)
+    //   var x = e.pageX //- pos.x;
+    //   var y = e.pageY //- pos.y;
+
+
+    //   const data = context.getImageData(x, y, 1, 1).data;
+    //   const RED = data[0]
+    //   const GREEN = data[1]
+    //   const BLUE = data[2]
+    //   const ALPHA = data[3]
+
+    //   $('textId').innerHTML = 'COORDS: (' + x + ';' + y + '). RGBA:' + '(' + RED + ';' + GREEN + ';' + BLUE + ';' + ALPHA + ')';
+
+    // });
+
+    document.addEventListener('xxxxxxxxxxxxxxxxxxkeydown', (e) => {  //
+      let width = canvas.width //= ;
+      let height = canvas.height //= ;
+      // startDissolve()
+      // alert(width + '--' + height)
+
+      const part = 1
+      for (let x = 0; x < width / part; x++) {
+        for (let y = 0; y < height / part; y++) {
+          // const element = array[index];
+          const data = context.getImageData(x, y, 1, 1).data;
+          const RED = data[0]
+          const GREEN = data[1]
+          const BLUE = data[2]
+          const ALPHA = 255//data[3]
+
+          let r = RED
+          let g = GREEN
+          let b = BLUE
+
+
+          eval('r*=2')
+
+          //intact:
+          // dot(x, y, RED, GREEN , BLUE, ALPHA)
+          dot(x, y, r, g, b, ALPHA)
+
+          // log(3)
+
+        }
+        // alert('done')
+      }
+
+    });
+
+    // document.addEventListener('keydown', (e) => {  //
+    //   startDissolve()
+    // });
+
+    // draw();
+
+    // if (IS_PERFORM_UPDATE){
+    //     setInterval(() => {
+    //       update();
+    //     }, TIMELOUT_OF_UPDATE_IN_MS);
+    // }
+
+  }
+
+
+  startDissolve = function () {
+    setInterval(() => {
+      dissolve()
+    }, 0);
+  }
+
+  dissolve = function () {
+    let width = canvas.width //= ;
+    let height = canvas.height //= ;
+    for (let index = 0; index < 1000; index++) {
+      // const element = array[index];
+      let x = randomInteger(0, width)
+      let y = randomInteger(0, height)
+      const data = context.getImageData(x, y, 1, 1).data;
+      const RED = data[0]
+      const GREEN = data[1]
+      const BLUE = data[2]
+      const ALPHA = data[3]
+      // dot(x, y, 255, 255, 255, 255)
+      // putBoldPixel(x, y, 255, 255, 255, 255)
+      // putBoldPixel(x, y, randomInteger(0, 255) , randomInteger(0, 255)   , randomInteger(0, 255)     , 255)
+      dot(x, y, randomInteger(0, 255), randomInteger(0, 255), randomInteger(0, 255), 255)
+    }
+
+  }
+
+  // randomInteger
+  // randomInteger(0, width)
+  /////////////////////////////////////////////////////      
+  clearCanvas = function () {
+
+
+    canvas = document.getElementById('canvas');
+
+    context = canvas.getContext('2d');
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+
+
+
+
+  toggle = function () {
+    // $('canvas').style.display 
+
+    var x = document.getElementById("canvasSpan");
+    if (x.style.display === "none") {
+      x.style.display = "block";
+      // clearCanvas()
+      // draw();
+    } else {
+      x.style.display = "none";
+      // focusForm();
+    }
+  }
+
+
+  redraw = function () {  //
+
+    let textareaValue = $('textareaId').value;
+
+    let width = canvas.width //= ;
+    let height = canvas.height //= ;
+    // startDissolve()
+    // alert(width + '--' + height)
+
+    const part = 1
+    for (let x = 0; x < width / part; x++) {
+      for (let y = 0; y < height / part; y++) {
+        // const element = array[index];
+        const data = context.getImageData(x, y, 1, 1).data;
+        const RED = data[0]
+        const GREEN = data[1]
+        const BLUE = data[2]
+        const ALPHA = 255//data[3]
+
+        let r = RED
+        let g = GREEN
+        let b = BLUE
+
+
+        eval(textareaValue)
+
+        //intact:
+        // dot(x, y, RED, GREEN , BLUE, ALPHA)
+        dot(x, y, r, g, b, ALPHA)
+
+        // log(3)
+
+      }
+      // alert('done')
+    }
+
+  }
+
+
+</script>
+
+
+<body onload="init();" onresize="clearCanvas(); init();">
+
+  <!-- <div id="textId" style="display:none;">DATA</div> -->
+
+  <span id="canvasSpan">
+    <!-- style="display: none;" -->
+
+    <img src="1.jpg" id="image">
+
+    <canvas id="canvas" width="1301" height="500">
+  </span>
+
+  <!-- <span style="float: right;">DISSOLVE</span> -->
+
+
+  <span id="spanWithFunc">
+    <h2>
+      Use the text box below to apply maths to every pixel of the pic. <br>Use javascript syntax.<br>
+      Click the redraw button to apply (you'll possibly need to wait for a while)<br><br>
+
+      <textarea id='textareaId' rows="15" cols="150" style="font-size:26px; width: 500px;height: 300px;">r=r;
+g=g;
+b=b*2;</textarea>
+      <br>
+
+      <!-- Cartesian coordinates:<br>
+        f(x)=
+        <input id="f" style="display: inline" value="(x**2) / 100">
+        <input type="button" onclick="toggle();" value="Draw!">
+
+        <br><br>
+
+        Polar coordinates:<br>
+        r(f)=
+        <input id="fPolar" style="display: inline" value="100 - 200 * Math.sin(f);"> -->
+
+
+
+      <!-- <input type="button" onclick="toggle();" value="Draw!"> -->
+      <input type="button" onclick="redraw();" value="reDraw!">
+
+      
+    </h2>
+  </span>
+
+</body>
+
+</body>
+
+</html>
