@@ -1,0 +1,14 @@
+////////////////////////////////////////////////////////// controller ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+'use strict';
+
+// alert(554)
+
+function stopEvent(event) {
+    if (event.preventDefault != undefined)
+        event.preventDefault();
+    if (event.stopPropagation != undefined)
+        event.stopPropagation();
+}
+
+
+
