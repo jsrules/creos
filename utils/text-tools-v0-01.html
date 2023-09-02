@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text tools v.0.01</title>
+</head>
+
+<script>
+    'use strict';
+    /////////////////////////////////////////////////////   
+    function $(x) {
+        return document.getElementById(x);
+
+    }
+
+    /////////////////////////////////////////////////////   
+    function log(s) {
+        console.log(s)
+    }
+
+    /////////////////////////////////////////////////////   
+    function l(s) {
+        // log(s)
+    }
+
+    /////////////////////////////////////////////////////
+    function ctg(x) { return 1 / Math.tan(x); }
+
+    /////////////////////////////////////////////////////
+    function arcctg(x) { return Math.PI / 2 - Math.atan(x); }
+
+    /////////////////////////////////////////////////////   
+    function randomInteger(min, max) {
+        let rand = min - 0.5 + Math.random() * (max - min + 1);
+        return Math.round(rand);
+    }
+
+
+    function onloadFunc() {
+        // alert(5)
+    }
+
+    function viceVersa(textareaId) {
+        let textarea = $(textareaId)
+        let value = textarea.value;
+        let result = value.split('').reverse().join('');
+        //    l(result)
+        textarea.value = result;
+    }
+
+    function reverseWords(textareaId) {
+        let textarea = $(textareaId)
+        let value = textarea.value;
+        let result = value.split(' ').reverse().join(' ');
+        //    l(result)
+        textarea.value = result;
+    }
+
+    function shuffleWords(textareaId) {
+        let textarea = $(textareaId)
+        let value = textarea.value;
+        let result = value.split(' ').map(value => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value)
+            .join(' ');
+        //    l(result)
+        textarea.value = result;
+    }
+
+    function shuffleLines(textareaId) {
+        let textarea = $(textareaId)
+        let value = textarea.value;
+        let result = value.split('\n').map(value => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value)
+            .join('\n');
+        // l(result.length)
+        //    l(result)
+        textarea.value = result;
+    }
+
+    function shuffleLettersInEveryWord(textareaId) {
+        let textarea = $(textareaId)
+        let value = textarea.value;
+        let result = ''
+        let arr = value.split(' ');
+        for (let index = 0; index < arr.length; index++) {
+            const element = arr[index];
+
+            let wordWithShuffledLetters = element.split('').map(value => ({ value, sort: Math.random() }))
+                .sort((a, b) => a.sort - b.sort)
+                .map(({ value }) => value).join('');
+
+
+            result += wordWithShuffledLetters + ' '
+        }
+
+
+        //    l(result.length)
+        textarea.value = result;
+    }
+
+    function shuffleLettersInEveryWord_firstAndLastLettersIntact(textareaId) {
+        let textarea = $(textareaId)
+        let value = textarea.value;
+        let result = ''
+        let arr = value.split(' ');
+        for (let index = 0; index < arr.length; index++) {
+            let element = arr[index];
+            let firstLetter = element.charAt(0)
+            let lasttLetter = element.charAt(element.length - 1)
+
+            let toRandomize = ''
+            if (element.length == 1 || element.length == 2) {
+                toRandomize = '';
+            } else {
+                toRandomize = element.substring(1, element.length - 1);
+            }
+
+            l(toRandomize)
+            let middleShuffled = ''
+            if (toRandomize.length >= 1) {
+                middleShuffled = toRandomize.split('').map(value => ({ value, sort: Math.random() }))
+                    .sort((a, b) => a.sort - b.sort)
+                    .map(({ value }) => value).join('');
+            }
+
+
+            if (element.length == 1) {
+                lasttLetter = '';
+            }
+
+            result += firstLetter + middleShuffled + lasttLetter + ' ';
+        }
+
+
+        //    l(result.length)
+        textarea.value = result;
+    }
+    function abbrFirst(textareaId) {
+        let textarea = $(textareaId)
+        let value = textarea.value;
+        let result = ''
+        let arr = value.split(' ');
+        for (let index = 0; index < arr.length; index++) {
+            let element = arr[index];
+            let firstLetter = element.charAt(0)
+            result += firstLetter.toUpperCase();
+        }
+
+
+        //    l(result.length)
+        // textarea.value = result;
+        $('abbrId').innerHTML = result
+    }
+
+    function abbrLast(textareaId) {
+        let textarea = $(textareaId)
+        let value = textarea.value;
+        let result = ''
+        let arr = value.split(' ');
+        for (let index = 0; index < arr.length; index++) {
+            let element = arr[index];
+            let firstLetter = element.charAt(0)
+            let lasttLetter = element.charAt(element.length - 1)
+            result += lasttLetter.toUpperCase();
+        }
+
+
+        //    l(result.length)
+        // textarea.value = result;
+        $('abbrId').innerHTML = result
+    }
+
+</script>
+
+<body onload="onloadFunc()">
+
+    <Hr>
+    </Hr>
+    <!-- onchange="viceVersa(this)"  -->
+    <textarea cols="100" rows="30"
+        id="textarea001">Я календарь переверну и снова третье сентября</textarea>
+    <br>
+    <Button onclick="viceVersa('textarea001')">Reverse text</Button>
+    <Button onclick="reverseWords('textarea001')">Reverse words (just letters and spaces! No punctuation)</Button>
+    <Button onclick="shuffleWords('textarea001')">Shuffle words (just letters and spaces! No punctuation)</Button>
+    <Button onclick="shuffleLines('textarea001')">Shuffle lines (newline is used to split lines)</Button>
+    <Button onclick="shuffleLettersInEveryWord('textarea001')">Shuffle letters in every word (just letters and spaces!
+        No punctuation)</Button>
+    <Button onclick="shuffleLettersInEveryWord_firstAndLastLettersIntact('textarea001')">Shuffle letters in every word,
+        1st and last letters intact(just letters and spaces!
+        No punctuation)</Button>
+    <Button onclick="abbrFirst('textarea001')">Abbreviation based on the 1st letter(just letters and spaces!
+        No punctuation) - RESULT BELOW</Button>
+    <Button onclick="abbrLast('textarea001')">Abbreviation based on the LAST letter(just letters and spaces!
+        No punctuation) - RESULT BELOW</Button>
+
+    <br>
+    <b>
+        <span id="abbrId">ЯКПИСТС</span>
+
+    </b>
+
+</body>
+
+</html>
