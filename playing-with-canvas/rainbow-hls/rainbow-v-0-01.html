@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- <link rel="stylesheet" href="default.css"> -->
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <!-- Solution from https://dev.to/thormeier/let-s-build-a-rainbow-on-a-canvas-from-scratch-40l5 -->
+    <title>Rainbow v.0.01</title>
+
+
+    <style>
+
+/* <!-- Solution from https://dev.to/thormeier/let-s-build-a-rainbow-on-a-canvas-from-scratch-40l5 --> */
+
+        .letter {
+            font-weight: bold;
+            display: inline-block;
+            width: 10px;
+            font-family: monospace;
+        }
+
+        #text {
+            width: 200px;
+        }
+    </style>
+
+
+    <script>
+
+   // <!-- Solution from https://dev.to/thormeier/let-s-build-a-rainbow-on-a-canvas-from-scratch-40l5 -->
+        function init() {
+            /**
+     * Determines the a of `y = mx + a`
+     * @param x
+     * @param y
+     * @param m
+     * @returns {number}
+     */
+            const getYOffset = (x, y, m) => y - m * x
+
+            /**
+             * Creates an array of arrays containing a gradient at a given angle.
+             * @param valueFrom
+             * @param valueTo
+             * @param width
+             * @param height
+             * @param angle
+             * @returns {any[][]}
+             */
+            const createGradientMatrix = (valueFrom, valueTo, width, height, angle) => {
+                let grid = Array(height)
+                    .fill()
+                    .map(
+                        () => Array(width).fill(null)
+                    )
+
+                // Some trigonometry to figure out the slope from an angle.
+                let m = 1 / Math.tan(angle * Math.PI / 180)
+                if (Math.abs(m) === Infinity) {
+                    m = Number.MAX_SAFE_INTEGER
+                }
+
+                const minYOffset = getYOffset(width - 1, 0, m)
+                const maxYOffset = getYOffset(0, height - 1, m)
+                const normalizedMaxYOffset = maxYOffset - minYOffset
+                const normalizedValueTo = valueTo - valueFrom
+
+                for (let x = 0; x < width; x++) {
+                    for (let y = 0; y < height; y++) {
+                        const yOffset = getYOffset(x, y, m)
+                        const normalizedYOffset = maxYOffset - yOffset
+                        const percentageOfMaxYOffset = normalizedYOffset / normalizedMaxYOffset
+
+                        grid[y][x] = percentageOfMaxYOffset * normalizedValueTo
+                    }
+                }
+
+                return grid
+            }
+
+            /**
+             * Paints a gradient on a canvas
+             * @param angle
+             */
+            const paintCanvas = angle => {
+                const canvas = document.querySelector('#canvas')
+                const context = canvas.getContext('2d')
+                const grid = createGradientMatrix(0, 360, 400, 400, angle)
+
+                grid.forEach((row, y) => row.forEach((cell, x) => {
+                    context.fillStyle = 'hsl(' + cell + ', 100%, 50%)'
+                    context.fillRect(x, y, 1, 1)
+                }))
+            }
+
+            //I love my sister.  
+
+            /**
+             * Paints colored lorem ipsum text
+             * @param angle
+             */
+            const paintText = angle => {
+                const loremIpsum = 'I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  I love my sister.  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque non felis semper, iaculis eros et, tristique ex. Curabitur facilisis porttitor dui, sit amet mattis ex sollicitudin eu. Nunc felis mauris, aliquam eu pretium ut, placerat vel turpis. Sed bibendum turpis lectus, eget porttitor metus euismod vitae. Ut finibus risus eget ex efficitur consequat. Integer pellentesque blandit elementum. Etiam eget venenatis ex. Morbi vel turpis eleifend, blandit turpis id, efficitur sapien.  Nulla nec interdum tellus. Vivamus sollicitudin vestibulum lorem sit amet elementum. Aenean quis ullamcorper libero, vel ultrices neque. Suspendisse semper, ipsum a condimentum blandit, ipsum eros pharetra quam, a tincidunt dolor turpis vitae lacus. Phasellus at turpis at lorem convallis gravida. Cras egestas ligula vitae molestie imperdiet. Nullam arcu dolor, iaculis vitae nisl at, hendrerit rhoncus mi. Phasellus pretium ligula a mi feugiat malesuada et ut risus. Integer malesuada tristique tincidunt. Mauris in suscipit massa, vulputate fringilla elit. Proin interdum euismod nisi aliquet porttitor. Pellentesque condimentum ullamcorper iaculis. Maecenas pellentesque varius ipsum, vitae luctus ex maximus vitae. Curabitur sed quam turpis. Nullam ultricies semper molestie.  Quisque vitae pulvinar odio. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vestibulum tincidunt nisi magna, eget eleifend dui accumsan id. Proin vulputate congue efficitur. Pellentesque aliquam porttitor consectetur. Nunc interdum augue nibh, quis fermentum metus consectetur ac. In porta posuere felis, at luctus lacus malesuada quis. Sed et ultrices massa. Suspendisse maximus dui sit amet rutrum scelerisque. Ut eu rutrum dui, ut lobortis est. Nulla vulputate tellus sapien, at pharetra libero fringilla ut.  Duis vitae enim magna. Donec facilisis vulputate sem ut imperdiet. Aenean ac neque est. Nulla facilisi. Cras nec turpis mattis nisl fermentum posuere in at nisl. Quisque eget euismod augue, vel mattis magna. Aenean tristique risus nec congue maximus. Duis in placerat erat, et tincidunt dolor. Maecenas ipsum lectus, mattis a eros quis, ultricies accumsan purus. Sed imperdiet lectus augue, sed blandit massa volutpat id. Nulla lorem purus, fermentum et massa a, pellentesque aliquam nulla. Curabitur justo mi, luctus fringilla dictum eget, imperdiet sit amet quam. Phasellus non facilisis sem, sed consequat mauris. Maecenas commodo convallis nibh non luctus.  Aenean tempor tellus felis, id blandit velit tincidunt et. Maecenas auctor tellus id tellus dapibus efficitur. Curabitur vel maximus magna. Quisque eget imperdiet metus, vitae ultricies metus. Praesent mollis quam et vulputate tempor. Mauris bibendum vel felis at ornare. Nulla convallis consequat vulputate. Aenean at placerat tortor. Proin eleifend neque neque, sit amet dictum mauris tincidunt sed. Vestibulum placerat suscipit sollicitudin. Suspendisse et dolor ac mauris laoreet iaculis sed quis lectus. Duis metus arcu, varius sed quam eu, luctus euismod tellus. Sed sed lacus vitae quam convallis sollicitudin id at sapien. Curabitur a ex elementum, aliquet ante in, congue leo. Nulla vehicula elit lectus, eu dapibus felis volutpat ac. Nullam bibendum sem vitae diam pharetra, et tempus dolor mollis.'
+                const lines = loremIpsum.substring(0, 400).match(/.{1,20}/g)
+                const loremMatrix = lines.map(l => l.split(''))
+
+                const textColorGrid = createGradientMatrix(0, 360, 20, 20, angle)
+
+                for (let x = 0; x < 20; x++) {
+                    for (let y = 0; y < 20; y++) {
+                        loremMatrix[y][x] = `<span class="letter" style="color: hsl(${textColorGrid[y][x]}, 100%, 50%);">${loremMatrix[y][x]}</span>`
+                    }
+                }
+
+                const coloredText = loremMatrix.map(l => l.join('')).join('')
+
+                document.querySelector('#text').innerHTML = coloredText
+            }
+
+            document.querySelector('#angle').addEventListener('change', function () {
+                paintCanvas(this.value)
+                paintText(this.value)
+            })
+
+            paintCanvas(45)
+            paintText(45)
+        }
+
+    </script>
+</head>
+
+
+
+<!-- TODO: smart onresize, mb add  style="padding: 0; margin:0" -->
+
+<body onload="init()" onresize="location.reload()">
+        <!-- Solution from https://dev.to/thormeier/let-s-build-a-rainbow-on-a-canvas-from-scratch-40l5 -->
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <div id="text"></div>
+    <label for="angle">Angle:</label>
+    <input type="range" min="0" max="90" step="1" id="angle" value="45">
+</body>
+
+</html>
