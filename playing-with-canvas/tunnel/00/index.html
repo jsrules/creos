@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="default.css">
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <title>Pixel noise v.0.01</title>
+
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden;
+        }
+
+        canvas {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <script src="commons.js"></script>
+    <script src="output.js"></script>
+    <script src="input.js"></script>
+    <script src="2d.js"></script>
+    <script src="model.js"></script>
+    <script src="view.js"></script>
+    <script src="controller.js"></script>
+
+
+    <script>
+        'use strict';
+
+        let L = 1;
+        let canvas = null;
+        let ctx = null;
+        let END_X = null;
+        let END_Y = null;
+        const TIMELOUT_OF_UPDATE_IN_MS = 100;
+        let currX = 0
+        let currHue = currX;
+        let currGreen = 255
+        const MAX_HTML_COLOR = 0xFFFFFF
+        let currRGBcolor = MAX_HTML_COLOR
+        let currGRAYcolor= 255
+        let isOver = false
+  
+
+
+
+
+        function init() {
+
+            // return
+            // alert(7)
+
+
+            // canvas = document.getElementById('canvas');
+            canvas = document.createElement('canvas')
+            canvas.id = 'canvas'
+            canvas.style.padding = "0px"
+            canvas.style.margin = "0px"
+            document.body.appendChild(canvas)
+
+
+            ctx = canvas.getContext('2d');
+            END_X = canvas.width = parseInt(document.body.clientWidth); //document.width is obsolete
+            END_Y = canvas.height = parseInt(document.body.clientHeight)  //document.height is obsolete
+            // ctx.translate(0, canvas.height);
+            // ctx.scale(1, -1);
+
+            // draw()
+
+            // render()
+
+
+            // myRender()
+
+            //UPDATES:
+            setInterval(() => {
+                //         clearCanvas();
+                if (!isOver ){
+                    draw()
+                }
+            }, TIMELOUT_OF_UPDATE_IN_MS);
+
+        }
+
+        /////////////////////////////////////////////////////      
+        function clearCanvas() {
+            ctx.clearRect(0, 0, END_X, END_Y);
+        }
+    </script>
+</head>
+
+
+
+<!-- TODO: smart onresize, mb add  style="padding: 0; margin:0" -->
+
+<body onload="init()" onresize="location.reload()">
+</body>
+
+</html>
