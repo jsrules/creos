@@ -90,7 +90,7 @@ function draw() {
     }   // for (let f = 0; f < 2*Math.PI; f+=STEP_POLAR_COORDINATES /* +coef_1 */) { 
         L++;
         hue++
-        grayShade++
+        grayShade--
 
     return
 

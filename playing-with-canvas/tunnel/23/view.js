@@ -52,7 +52,7 @@ function draw() {
     // const b = 60 * coef_1;
 
 
-    // grayShade = randomInteger(0,255);
+    grayShade = randomInteger(0,255);
 
     let r = grayShade;//randomInteger(0,255);
     let g = grayShade;//randomInteger(0,255);

@@ -46,7 +46,7 @@ function draw() {
     // let Radius = 1;
     const STEP_POLAR_COORDINATES =  .0005; //  VERY IMPORTAN CONST - FOR POLAR COORDS
     //  -- DEFINED AS GLOBAL VAR
-    let N = 6;  // -- DEFINED AS GLOBAL VAR
+    let N = 7;  // -- DEFINED AS GLOBAL VAR
     let coef_1 = 10;
     let tmp = 0;
     // const b = 60 * coef_1;
