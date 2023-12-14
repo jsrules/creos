@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn constants v.1.02</title>
+
+
+    <style>
+        /* @font-face {
+            font-family: 'Akathistos Ucs';
+            src: URL('font.ttf') format('truetype');
+        } */
+
+        html,
+        body,
+        #wrapper {
+            height: 100%;
+            /* margin: 0; */
+            /* margin: 0px 0px 0px 0px;
+            padding: 0px 0px 0px 0px; */
+            /* font-size: 80px; */
+        }
+    </style>
+
+    <script>
+        const ABSENT_SCREENSHOTS = ['π', 'e', '√2', '√3', '√5', 'φ (Golden ratio)', 'Plastic number', 'N<sub>A</sub> (Avogadro constant)', 'c (speed of light in vacuum)', '∛2', 'Ⱊ', 'Ⱋ', 'Ⱖ', 'Ⱒ', 'Ⱚ']
+
+        const STRINGS_TO_TEST = [
+
+            ['c (speed of light in vacuum)', '299792458'],
+            ['G (Newtonian constant of gravitation)', '6.6743015*10^-11'],
+            ['Planck constant', '6.62607015*10^−34'],
+            ['elementary charge (C)', '1.602176634*10^−19'],
+            ['Boltzmann constant', '1.380649*10^−23'],
+
+            ['N<sub>A</sub> (Avogadro constant)', '6.02214076*10^23'],
+
+            ['Average Earth radius (km)', '6371'],
+            ['Average Sun radius (km)', '695700'],
+
+            ['electron mass(kg)', '9.109383701528*10^−31'],
+
+            ['π', '3.14159265358979323846'],
+            ['e', '2.718281828459045235360'],
+
+            ['√2', '1.414214'],
+            ['√0.5', '0.7071'],
+            ['√3', '1.732051'],
+            ['√5', '2.236068'],
+            ['∛2', '1.259921'],
+            ['ln 2', '0.693147'],
+            ['log<sub>2</sub>e', '1.4426950'],
+            ['log<sub>10</sub>e', '0.434294'],
+            ['φ (Golden ratio)', '1.618034'],
+            ['Plastic number', '1.324718'],
+
+            
+
+
+
+
+
+
+            //for quick test:
+            // ['π', '3'],
+            // ['e', '2'],
+            // ['√2', '1']
+
+
+        ]
+        STRINGS_TO_TEST_LENGTH = STRINGS_TO_TEST.length
+        last = null
+        curr = -1
+        testModeStarted = false
+        correctionMode = false;
+        const ORDER_ONE_BY_ONE = 'ORDER_ONE_BY_ONE'
+        const ORDER_RANDOM = 'ORDER_RANDOM'
+        let ORDER = ORDER_ONE_BY_ONE
+        const BR = '<br>'
+        const DOT = '.'
+        const COMMA = ','
+        const SPACE = ' '
+        const EQUALS_SIGN = ' = '
+        const APPROXIATELY_EQUALS_SIGN = ' ≈ ';
+        const NOT_EQUALS_SIGN = ' ≠ '
+        const NBSP = '&nbsp;'
+        const USER_INPUT_IN_PROGRESS_COLOR = 'blue';
+        const USER_INPUT_COMPLETED_CORRECTLY_COLOR = 'green';
+        const USER_INPUT_IN_PROGRESS_COLOR_MISTAKE_FOUND = 'red';
+        // const USER_INPUT_IN_PROGRESS_COLOR = 'blue';
+
+
+        const testModeStart_STRING = '<span  style="font-size: 30px; margin: 0px;"><a href="#" style="font-size: 30px; margin: 0px;padding:0;" onclick="start(); return false;">Click here</a> to start testing (refresh the page anytime to see  this list again)...' + '</span>';
+
+        /////////////////////////////////////////////////////   
+        $ = function (x) {
+            return document.getElementById(x);
+        }
+
+        /////////////////////////////////////////////////////   
+        function randomInteger(min, max) {
+            let rand = min - 0.5 + Math.random() * (max - min + 1);
+            return Math.round(rand);
+        }
+
+        /////////////////////////////////////////////////////   
+        function isAbsentScreenShotForChar(ch) {
+            return true;// ABSENT_SCREENSHOTS.includes(ch)
+        }
+
+        function beep() {
+            var snd = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");
+            snd.play();
+        }
+        start = function () {
+            // alert('Press Arabic digit corresponding to the Slavonic digit you see.')
+            $('orderOfTestingRadiobuttonsId').style.display = 'block'
+            nextLettter()
+            $('howto').innerHTML = '<br>Use your keyboard to enter the constant you see. <br> A beep sound will be played if you press a wrong char.<br> (After that, just press the right char and the last char in the text field will be replaced.) <br>Use dot (.) for decimal period. <br>Use asterisk(*) for adding exp form ("10^" will be added automatically). <br><span style="color: red;" id="dffgr44767"> MAKE SURE ENGLISH LOCALE IS ON!!!!    </span> <BR> <br> <span style="color: red;" id="dffgg5r44767">     <a href="#" style="font-size: 20px; margin: 0px;" onclick="location.reload(); return false;">Return to the list</a>    </span>'
+            $('thx').innerHTML = ''
+
+            testModeStarted = true
+        }
+
+        nextLettter = function () {
+            // alert('Press Arabic digit corresponding to the Slavonic digit you see.')
+
+
+            if (ORDER == ORDER_ONE_BY_ONE) {
+                curr = (curr < STRINGS_TO_TEST.length - 1 ? curr + 1 : 0);
+                // alert(curr)
+            }
+            else {
+                do {
+                    curr = randomInteger(0, STRINGS_TO_TEST_LENGTH - 1)  // STRINGS_TO_TEST[randomInteger(0, STRINGS_TO_TEST_LENGTH - 1)]
+                } while (curr == last)
+            }
+            last = curr;
+
+            $('s').style.color = USER_INPUT_IN_PROGRESS_COLOR;
+            $('s').innerHTML = '' + ((!isAbsentScreenShotForChar(STRINGS_TO_TEST[curr][0])) ? ' <img src="img/' + (curr + 1) + '.jpg"> ' : ' <span style="font-size: 80px;" id="s">' + STRINGS_TO_TEST[curr][0] + '</span>') +
+                '  <span style="" id="equalSignId">=</span> <input type="text" style="font-size:80px; height:80px; width: 1000px; color: red;" id="userInputTextfield" disabled="true" maxlength ="20"> <br> ' +
+                ' <span id="hintHref" style="font-size: 30px; margin: 0px;"> <a href="#" style="font-size: 20px; margin: 0px;" onclick="showHint(\'' + STRINGS_TO_TEST[curr][1] + '\'); return false;">show hint</span><br>' +
+                // NBSP + NBSP + NBSP + 
+                ' <span id="nextHref" style="font-size: 30px; margin: 0px;"> <a href="#" style="font-size: 20px; margin: 0px;" onclick="nextLettter(); return false;">next</span>'
+            //  + '<span style="font-size: 80px; >'
+            // +    '</span>'
+        }
+
+        showHint = function (h) {
+
+            $('hintHref').innerHTML = h
+        }
+
+        /////////////////////////////////////////////////////   
+        function w(s) {
+            document.writeln(s)
+        }
+
+        /////////////////////////////////////////////////////   
+        function init() {
+            // alert(STRINGS_TO_TEST_LENGTH)
+
+            // $('s').innerHTML = ''
+
+            // $('s').innerHTML += 'Math.E=' + Math.E + BR;
+            // $('s').innerHTML += 'Math.LN2=' + Math.LN2 + BR;
+            // $('s').innerHTML += 'Math.LOG2E=' + Math.LOG2E + BR;
+            // $('s').innerHTML += 'Math.LOG10E=' + Math.LOG10E + BR;
+            // $('s').innerHTML += 'Math.PI=' + Math.PI + BR;
+            // $('s').innerHTML += 'Math.SQRT1_2=' + Math.SQRT1_2 + BR;
+            // $('s').innerHTML += 'Math.SQRT2=' + Math.SQRT2 + BR + BR + BR;
+            // + trigonometric stuff (?)
+
+
+            $('s').innerHTML += testModeStart_STRING + '<br><ol>'
+
+            for (let index = 0; index < STRINGS_TO_TEST_LENGTH; index++) {
+                const element = STRINGS_TO_TEST[index];
+
+
+                // if (element[0].length!=1){
+                //     alert('Wrong length: '+element[0])  //  ⰟⰊ - ы
+                // }
+
+                let comment = '';
+                let equalsChar = APPROXIATELY_EQUALS_SIGN;
+                switch (element[0]) {
+
+                    case 'N<sub>A</sub> (Avogadro constant)': comment = ' ( <img src="003.jpg"> )';
+                        equalsChar = EQUALS_SIGN
+                        break;
+
+                    case 'G (Newtonian constant of gravitation)': comment = ' ( <img src="007.jpg"> )';
+                        break;
+
+                    case 'φ (Golden ratio)': comment = ' (solution of quadratic equation <img src="004.jpg">, exact value =  <img src="005.jpg">)';
+                        break;
+
+                    case 'Plastic number': comment = ' (solution of cubic equation <img src="001.jpg">, exact value =  <img src="002.jpg">)';
+                        break;
+
+                    case 'Planck constant': comment = ' ( <img src="008.jpg"> )';
+                        equalsChar = EQUALS_SIGN
+                        break;
+
+
+                    case 'Boltzmann constant': comment = ' ( <img src="009.jpg"> )';
+                        equalsChar = EQUALS_SIGN
+                        break;
+
+                    case 'elementary charge (C)':
+                        equalsChar = EQUALS_SIGN
+                        break;
+
+                    case 'c (speed of light in vacuum)': comment = ' ( <img src="006.jpg">)';
+                        equalsChar = EQUALS_SIGN
+                        break;
+
+                }
+
+                const number = index + 1;
+                const beforeText = " <li>  <!-- " + "#" + String(number) + "-->"
+                    + (isAbsentScreenShotForChar(element[0]) ? '  ' : ' <img src="img/' + number + '.jpg"> - ');
+                $('s').innerHTML += '<span style="font-size: 80px; " id="s">' + beforeText + element[0] + SPACE + equalsChar + SPACE + String(element[1]) + comment + '</span> <br></li>';
+
+
+
+            }
+
+            $('s').innerHTML += '</ol>' + testModeStart_STRING
+
+
+            document.body.addEventListener("keydown", (event) => {
+                if ((!testModeStarted) || event.isComposing || event.keyCode === 229) {
+                    return;
+                }
+
+
+                let enteredVal = event.key.toLowerCase()  //.charAt(0);
+
+                //FIXME: q & d solution: use either '.' or ',' for decimal period
+                enteredVal = enteredVal == COMMA ? DOT : enteredVal
+
+                if (enteredVal.length > 1) {
+                    return;
+                }
+
+                $('userInputTextfield').value = correctionMode ? $('userInputTextfield').value.substring(0, $('userInputTextfield').value.length - 1) + enteredVal : $('userInputTextfield').value + enteredVal
+
+                currInputVal = $('userInputTextfield').value
+                currPosInTheInput = $('userInputTextfield').value.length;
+                // console.log(currPosInTheInput)
+
+                if (currInputVal.substring(0, currPosInTheInput) == STRINGS_TO_TEST[curr][1].substring(0, currPosInTheInput)) {
+                    correctionMode = false;
+                    $('s').style.color = USER_INPUT_IN_PROGRESS_COLOR
+                    $('userInputTextfield').style.color = USER_INPUT_IN_PROGRESS_COLOR
+                    if (enteredVal == '*') {
+                        $('userInputTextfield').value += '10^'
+                    }
+                    $('equalSignId').innerHTML = EQUALS_SIGN
+                    if (currInputVal.length >= STRINGS_TO_TEST[curr][1].length) {
+                        $('s').style.color = USER_INPUT_COMPLETED_CORRECTLY_COLOR
+                        $('userInputTextfield').style.color = USER_INPUT_COMPLETED_CORRECTLY_COLOR
+                        correctionMode = false;
+                        setTimeout(() => {
+                            nextLettter()
+                        }, 500);
+                    }
+                }
+                else {
+                    $('s').style.color = USER_INPUT_IN_PROGRESS_COLOR_MISTAKE_FOUND
+                    $('userInputTextfield').style.color = USER_INPUT_IN_PROGRESS_COLOR_MISTAKE_FOUND
+                    $('equalSignId').innerHTML = NOT_EQUALS_SIGN
+                    beep();
+                    correctionMode = true;
+                }
+
+                // do something
+                // nextLettter()
+                // $('s').innerHTML = event.key;
+
+            });
+
+            // start()  //FIXME: del this
+
+        }
+
+    </script>
+</head>
+
+<body onload="init();" onresize="location.reload()">
+
+
+    <div id="orderOfTestingRadiobuttonsId" style="display: none; cursor: pointer;">
+        <input type="radio" id="contactChoice1" name="contact" value="Ones" checked
+            onclick="/*alert(this.value); */  curr = -1;  ORDER = ORDER_ONE_BY_ONE; nextLettter()"
+            style="cursor: pointer;">
+        <label for="contactChoice1" style="cursor: pointer;">One by one</label>
+        <input type="radio" id="contactChoice2" name="contact" value="Tens"
+            onclick="  ORDER = ORDER_RANDOM ; nextLettter()" style="cursor: pointer;">
+        <label for="contactChoice2" style="cursor: pointer;">Random order</label>
+    </div>
+
+    <!-- test Ⰰ Ⰱ Ⰲ Ⰳ Ⰴ Ⰵ Ⰶ Ⰷ Ⰸ Ⰹ Ⰺ Ⰻ Ⰼ Ⰽ Ⰾ Ⰿ<br> -->
+
+
+
+    <!-- style="font-family: 000Akathistos Ucs;" -->
+    <span id="s" style="font-size: 30px; margin: 0; padding: 0;">
+        <span id="s434345" style="font-size: 30px; margin: 0px;">
+
+            <!-- <a href="our-father-glagolitic.html" style="font-size: 30px; margin: 0px;white-space: nowrap">Our Father
+                prayer in glagolitic script</a>
+            <br>
+            <a href="https://titus.uni-frankfurt.de/texte/etcs/slav/aksl/zograph/zogra.htm?zogra068.htm"
+                style="font-size: 30px; margin: 0px;white-space: nowrap">Read glagolitic St.John's Gospel</a>
+            <br>
+            <a href="http://web.archive.org/web/20170913030150/http://expositions.nlr.ru/ex_manus/Zograph_Gospel/_Project/page_Manuscripts.php?izo=D2D92E28-51F6-4085-B3D7-B2AAB8DA9BDD&nCodeList=448"
+                style="font-size: 30px; margin: 0px; white-space: nowrap;">Read glagolitic St.John's Gospel (scanned
+                manuscript; very SLOW site)</a>
+            <br><br> -->
+            <h5 style="font-size: 40px; margin: 0; padding: 0;">Some Maths and Physics constants:
+            </h5>
+            <!-- <a href="#" style="font-size: 30px; margin: 0px;" onclick="start(); return false;">Click here</a> to start testing(refresh the page anytime to see  this list again)... -->
+
+
+        </span>
+
+        <br>
+    </span>
+
+    <span id="howto" style="font-size: 20px;"></span> <br>
+
+    <span id="thx" style="font-size: 20px;">Thank you for visiting this page</span>
+
+    <!-- N<sub>A</sub> -->
+    <!-- &nbsp; -->
+
+</body>
+
+</html>
