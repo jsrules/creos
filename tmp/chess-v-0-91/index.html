@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess v.0.91</title>
+    <link rel="shortcut icon" href="/favicon.ico">
+    <style>
+        .chessboard-table {
+            border-collapse: collapse;
+        }
+
+        .chessboard-table td {
+            border: 1px solid #803e00;
+            width: 85px;
+            height: 85px;
+        }
+
+        .chessboard-table th {
+            padding: 10px;
+        }
+    </style>
+    <script src="lodash.js"></script>
+    <script src="commons.js"></script>
+    <!-- <script src="output.js"></script> -->
+    <!-- <script src="input.js"></script> -->
+    <!-- <script src="2d.js"></script> -->
+    <script src="model.js"></script>
+    <script src="view.js"></script>
+    <script src="controller.js"></script>
+    <script src="chess.js"></script>
+
+    <script>
+        ////////////////////////////////////////////////////////// index.html ///////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+        'use strict';
+
+        const FIELD_WIDTH = 8;
+        const FIELD_HEIGHT = 8;
+        const BOARD_SIZE = 8;
+        const EMPTY = 0;
+        const WHITE_COLOR = true;
+        const BLACK_COLOR = false;
+        const KING = 'K';
+        const QUEEN = 'Q';
+        const ROOK = 'R'
+        const BISHOP = 'B'
+        const KNIGHT = 'N'
+        const PAWN = 'P'
+        const HORIZONTAL_FIELD_LETTERS = 'abcdefgh'
+        const LETTERS_ON_THE_REAL_BOARD = 'abcdefgh'
+        const FIRST_LEFT_UPPER_FIELD_COLOR = '#FFCE9E'
+        const OPPOSING_LEFT_UPPER_FIELD_COLOR = '#D08B47'
+        const EMPTY_STR = ''
+        const COLOR_OF_FIELD_WITH_PIECE_TO_MOVE = 'yellow';
+        const COLOR_OF_LAST_MOVE_FROM = 'gray';
+        const COLOR_OF_LAST_MOVE_TO = 'green';
+        const COLOR_OF_PAWN_PROMOTION_SELECT = 'aquamarine';
+        const COLOR_OF_POSSIBLE_MOVES_HINT = 'BLUE';
+
+
+        let currentModel = null;
+        let lastClickTd = null;
+
+        function init() {
+
+            currentModel = new Model();
+
+            currentModel.putPiece('a1', new R(WHITE_COLOR))
+            currentModel.putPiece('h1', new R(WHITE_COLOR))
+            currentModel.putPiece('b1', new N(WHITE_COLOR))
+            currentModel.putPiece('g1', new N(WHITE_COLOR))
+            currentModel.putPiece('c1', new B(WHITE_COLOR))
+            currentModel.putPiece('f1', new B(WHITE_COLOR))
+            currentModel.putPiece('d1', new Q(WHITE_COLOR))
+            currentModel.putPiece('e1', new K(WHITE_COLOR))
+            for (let index = 0; index < BOARD_SIZE; index++) {
+                currentModel.putPiece(HORIZONTAL_FIELD_LETTERS.charAt(index) + '2', new P(WHITE_COLOR))
+            }
+
+
+            currentModel.putPiece('a8', new R(BLACK_COLOR))
+            currentModel.putPiece('h8', new R(BLACK_COLOR))
+            currentModel.putPiece('b8', new N(BLACK_COLOR))
+            currentModel.putPiece('g8', new N(BLACK_COLOR))
+            currentModel.putPiece('c8', new B(BLACK_COLOR))
+            currentModel.putPiece('f8', new B(BLACK_COLOR))
+            currentModel.putPiece('d8', new Q(BLACK_COLOR))
+            currentModel.putPiece('e8', new K(BLACK_COLOR))
+            for (let index = 0; index < BOARD_SIZE; index++) {
+                currentModel.putPiece(HORIZONTAL_FIELD_LETTERS.charAt(index) + '7', new P(BLACK_COLOR))
+            }
+
+
+
+            // currentModel.boardArr[3][3] = new K(WHITE_COLOR)
+            // currentModel.boardArr[4][3] = new Q(WHITE_COLOR)
+            t(currentModel.boardArr)
+
+            // let  clonedModel = _.cloneDeep(currentModel);
+            // t(clonedModel.boardArr)
+
+            // clonedModel.boardArr[3][3] = new Q(WHITE_COLOR)
+            // t(currentModel.boardArr)
+            // t(clonedModel.boardArr)
+
+            l('done');
+
+            $('chessBoardId').innerHTML = getHTMLStringOfTheBoard()
+
+        }
+
+    </script>
+
+</head>
+
+<!-- onresize="location.reload()" -->
+
+<body onload="init()">
+    </head>
+
+    <body>
+
+        <div id="chessBoardId"></div>
+        chess !!
+    </body>
+
+</html>
